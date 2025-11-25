@@ -2,7 +2,6 @@
 
 // define the global joystick instance to properly clear after sigint
 SDL_Joystick*		g_joystick = nullptr;
-std::atomic<bool>	g_running{true};
 
 int main() {
 
@@ -25,14 +24,6 @@ int main() {
 	} catch (const std::exception &e) {
 		std::cerr << e.what() << std::endl;
 	}
-
-	try {
-		initGpio();
-	} catch (const std::exception &e) {
-		exitCar();
-	}
-
-	std::thread	speedSensor(wheelRotationCalculation);
 
 	SDL_Event e;
 	while (g_running) {
@@ -69,9 +60,6 @@ int main() {
 		}
 		SDL_Delay(25);
 	}
-
-	speedSensor.join();
-	std::cout << "The main and speed sensor thread ended bitches!" << std::endl;
 
 	cleanExit();
 	return (0);

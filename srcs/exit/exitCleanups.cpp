@@ -8,12 +8,7 @@ void	cleanExit() {
 	}
 
 	I2c::All_close();
-
     SDL_Quit();
-
-	gpioSetAlertFunc(PIN_GPIO, NULL);
-    gpioTerminate();
-
 	exit(EXIT_SUCCESS);
 }
 
