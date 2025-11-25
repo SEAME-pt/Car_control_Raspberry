@@ -38,7 +38,7 @@ To find the interface index, use ioctl(SIOCGIFINDEX) on an ifreq structure.
 
 Once bound, you can read and write CAN frames using standard system calls (read, write, sendto, recvfrom, etc.).
 
-### Fonte
+### Source
 
 For the full and extended documentation and more complete instrunctions on how to use it, please refer to the this link:
 
