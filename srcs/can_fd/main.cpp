@@ -8,5 +8,6 @@
 
 int main(void) {
 	
+	//test
 	int	s = socket(PF_CAN, SOCK_RAW, CAN_RAW);
 }
