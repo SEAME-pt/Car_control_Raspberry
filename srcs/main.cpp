@@ -8,6 +8,7 @@ int main() {
 	int steering = MID_ANGLE;		//rotation
 	int throttle = 0;				//direction & speed
 	SDL_Joystick *joystick = NULL;
+	bool running = true;
 
 	signal(SIGINT, signalHandler);
 
@@ -26,11 +27,11 @@ int main() {
 	}
 
 	SDL_Event e;
-	while (g_running) {
+	while (running) {
 
 		if (!joystick || !SDL_JoystickGetAttached(joystick)) {
 			std::cerr << "Joystick disconnected!" << std::endl;
-			g_running = false;
+			running = false;
 			break ;
 		}
 
@@ -53,7 +54,7 @@ int main() {
 			if (e.type == SDL_JOYBUTTONDOWN) {
 				if (e.jbutton.button == START_BUTTON) {
 					std::cout << "START button pressed. Exiting..." << std::endl;
-					g_running = false;
+					running = false;
 					break ;
 				}
 			}

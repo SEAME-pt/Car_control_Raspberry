@@ -24,12 +24,12 @@ SocketCAN uses the Linux socket API to communicate over CAN networks.
 You open a CAN socket just like TCP/UDP, but using the PF_CAN protocol family:
 
 Raw CAN frames:
-```shell
+```cpp
 socket(PF_CAN, SOCK_RAW, CAN_RAW)
 ```
 
 Broadcast Manager (BCM):
-```shell
+```cpp
 socket(PF_CAN, SOCK_DGRAM, CAN_BCM)
 ```
 
@@ -40,6 +40,6 @@ Once bound, you can read and write CAN frames using standard system calls (read,
 
 ### Source
 
-For the full and extended documentation and more complete instrunctions on how to use it, please refer to the this link:
+For the full and extended documentation and more complete instructions on how to use it, please refer to the link:
 
 https://docs.kernel.org/networking/can.html
