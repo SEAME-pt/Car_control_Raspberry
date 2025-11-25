@@ -2,13 +2,13 @@
 
 // define the global joystick instance to properly clear after sigint
 SDL_Joystick*		g_joystick = nullptr;
+bool				g_running = true;
 
 int main() {
 
 	int steering = MID_ANGLE;		//rotation
 	int throttle = 0;				//direction & speed
 	SDL_Joystick *joystick = NULL;
-	bool running = true;
 
 	signal(SIGINT, signalHandler);
 
@@ -27,11 +27,11 @@ int main() {
 	}
 
 	SDL_Event e;
-	while (running) {
+	while (g_running) {
 
 		if (!joystick || !SDL_JoystickGetAttached(joystick)) {
 			std::cerr << "Joystick disconnected!" << std::endl;
-			running = false;
+			g_running = false;
 			break ;
 		}
 
@@ -54,7 +54,7 @@ int main() {
 			if (e.type == SDL_JOYBUTTONDOWN) {
 				if (e.jbutton.button == START_BUTTON) {
 					std::cout << "START button pressed. Exiting..." << std::endl;
-					running = false;
+					g_running = false;
 					break ;
 				}
 			}

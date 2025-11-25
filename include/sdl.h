@@ -31,6 +31,7 @@ void	        signalHandler(int signum);
 void			cleanExit();
 
 extern SDL_Joystick*    g_joystick;
+extern bool				g_running;
 
 //index of the controller, if 0, the first, 
 //and only the first, has permission to connect
