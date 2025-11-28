@@ -37,10 +37,19 @@ typedef struct s_mytxmsg {
 } t_mytxmsg;
 
 int		socketCan_init(const char *interface);
-int		can_bcm_send(int s, uint32_t can_id, const uint64_t *data, 
-			uint64_t len, uint32_t interval_us);
+
+int		can_send_frame(int socket, uint32_t can_id, 
+					const uint8_t *data, uint8_t len);
+
+int		can_send_frame_fd(int socket, uint32_t can_id, 
+					const uint8_t *data, uint8_t len);
+
+int		can_bcm_send(int s, uint32_t can_id, const uint8_t *data, 
+					uint8_t len, uint32_t interval_us);
+
 int		can_stop(int s, uint32_t can_id);
-void	can_close(int socket)
+
+void	can_close(int socket);
 
 #ifdef __cplusplus
 }
