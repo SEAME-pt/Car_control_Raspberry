@@ -7,7 +7,7 @@ build-*/
 
 # Binaries
 a.out
-car
+can_test
 *.o
 *.obj
 *.so

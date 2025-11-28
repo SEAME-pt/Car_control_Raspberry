@@ -39,9 +39,6 @@ struct sockaddr_can {
 	__u8    data[64] __attribute__((aligned(8)));
 };
 
-(..)
-mytxmsg.msg_head.nframes = 4; */
-
 /*
 In this case the driver flag IFF_ECHO has to be set to prevent the PF_CAN core from locally echoing sent frames 
 dev->flags = (IFF_NOARP | IFF_ECHO);
@@ -49,34 +46,21 @@ dev->flags = (IFF_NOARP | IFF_ECHO);
 SIOCGIFINDEX -> refers to network interface index
 */
 
-//create a struct to set up a sequence of four CAN frames
-
 int main(void) {
 
-	struct canfd_frame	cfd;
     struct sockaddr_can	addr;
     struct ifreq		ifr;
-	bcm_msg_head		msg;
-	t_mytxmsg			mytxmsg;
+	t_mytxmsg			mytxmsg = {0};
     int 				s;
 
-	mytxmsg.msg_head = msg;
-	mytxmsg.frame[0] = cfd;
-
-	msg.opcode  = RX_SETUP;
-	msg.flags   = CAN_FD_FRAME;
-	msg.can_id  = 0x100;
-	msg.nframes = 1;
-
-	U64_DATA(mytxmsg.frame) = 0xFF00000000000000ULL;
-
-	s = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+	//Socket creation
+	s = socket(PF_CAN, SOCK_DGRAM, CAN_BCM);
 	if (s < 0) {
 		perror("socket");
 		return (1);
 	}
 
-	strcpy(ifr.ifr_name, "can0");
+	strcpy(ifr.ifr_name, "vcan0");
 
 	// Get MTU
 	if (ioctl(s, SIOCGIFMTU, &ifr) < 0) {
@@ -85,6 +69,14 @@ int main(void) {
         return (1);
     }
 
+	// Check CAN FD support
+	if (ifr.ifr_mtu == CANFD_MTU)
+		printf("Device supports CAN FD\n");
+	else if (ifr.ifr_mtu == CAN_MTU)
+		printf("Device only supports Classical CAN\n");
+	else
+		printf("Unkown MTU: %d\n", ifr.ifr_mtu);
+
 	// Get interface index
     if (ioctl(s, SIOCGIFINDEX, &ifr) < 0) {
         perror("ioctl SIOCGIFINDEX");
@@ -92,24 +84,59 @@ int main(void) {
         return (1);
     }
 
-	if (ifr.ifr_mtu == CANFD_MTU)
-		printf("Device supports CAN FD\n");
-	else if (ifr.ifr_mtu == CAN_MTU)
-		printf("Device only supports Classical CAN\n");
-
+	//setup adrees
+	memset(&addr, 0, sizeof(addr));
 	addr.can_family = AF_CAN;
 	addr.can_ifindex = ifr.ifr_ifindex;
 
+	//connect to can interface
 	if (connect(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
 		perror("connect");
 		close(s);
 		return (1);
 	}
 
-	printf("Socket connected to can0\n");
+	printf("Socket connected to vcan0\n");
 
-    // Close socket when done
-    close(s);
-    return 0;
+	//setup BCM message
+	mytxmsg.msg_head.opcode  = TX_SETUP;
+	mytxmsg.msg_head.flags   = SETTIMER | STARTTIMER | TX_CP_CAN_ID; //| CAN_FD_FRAME;
+	mytxmsg.msg_head.ival1.tv_sec  = 0;
+    mytxmsg.msg_head.ival1.tv_usec = 100000;
+	mytxmsg.msg_head.can_id  = 0x100;
+	mytxmsg.msg_head.nframes = 1;
+
+	// Set frame data
+    mytxmsg.frame[0].can_id = 0x100;
+    mytxmsg.frame[0].len = 8;
+    mytxmsg.frame[0].flags = 0; //CANFD_BRS;
+
+	uint64_t data = 0xFF00000000000000ULL;
+	data = htobe64(data);
+	memcpy(mytxmsg.frame[0].data, &data, 8);
+
+	size_t msg_size = sizeof(bcm_msg_head) + (mytxmsg.msg_head.nframes * sizeof(struct can_frame));
+
+	// Send BCM configuration
+	if (write(s, &mytxmsg, msg_size) < 0) {
+		perror("write BCM message");
+		close(s);
+		return (1);
+	}
+
+	printf("BCM message configured - sending every 100ms\n");
+    printf("Press Ctrl+C to stop\n");
+
+	sleep(10);
+
+	mytxmsg.msg_head.opcode = TX_DELETE;
+	mytxmsg.msg_head.flags = 0;
+
+    write(s, &mytxmsg, sizeof(bcm_msg_head));
+
+	printf("Transmission stopped\n");
+
+	close(s);
+	return 0;
 
 }
