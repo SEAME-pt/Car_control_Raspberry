@@ -1,4 +1,4 @@
-#include "../include/sdl.h"
+#include "../include/carControl.h"
 
 // define the global joystick instance to properly clear after sigint
 SDL_Joystick*		g_joystick = nullptr;

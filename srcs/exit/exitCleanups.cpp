@@ -1,4 +1,4 @@
-#include "../../include/sdl.h"
+#include "../../include/carControl.h"
 
 void	cleanExit() {
 
@@ -30,4 +30,12 @@ void	exitCar() {
 	I2c::All_close();
     SDL_Quit();
 	exit(EXIT_FAILURE);
+}
+
+void	cleanup_can() {
+
+    if (g_can) {
+        std::cout << "🧹 Cleaning up CAN..." << std::endl;
+        g_can.reset();
+    }
 }

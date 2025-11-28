@@ -5,6 +5,7 @@
 #include <iostream>
 #include <csignal>
 #include <unistd.h>
+#include <memory>
 
 //joystick
 #include <SDL2/SDL.h>
@@ -16,6 +17,7 @@
 
 #include "../libs/include/I2c.hpp"
 #include "exceptions.hpp"
+#include "CANController.hpp"
 
 //init
 SDL_Joystick*	initCar();
@@ -32,6 +34,7 @@ void			cleanExit();
 
 extern SDL_Joystick*    g_joystick;
 extern bool				g_running;
+extern std::unique_ptr<CANController>	g_can;
 
 //index of the controller, if 0, the first, 
 //and only the first, has permission to connect
