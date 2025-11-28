@@ -1,10 +1,13 @@
 #ifndef SOCKETCAN_H
 #define SOCKETCAN_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <unistd.h>
 #include <sys/socket.h>
 #include <linux/can.h>
-#include <linux/can/raw.h>
 #include <linux/can/bcm.h>
 #include <linux/can/error.h>
 #include <net/if.h>
@@ -12,8 +15,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <sys/time.h>
-
-#define U64_DATA(p) (*(unsigned long long*)(p)->data)
+#include <stdint.h>
+#include <time.h>
 
 // Broadcast Manager
 typedef struct s_bcm_msg_head {
@@ -32,5 +35,15 @@ typedef struct s_mytxmsg {
 	struct canfd_frame	frame[1];
 
 } t_mytxmsg;
+
+int		socketCan_init(const char *interface);
+int		can_bcm_send(int s, uint32_t can_id, const uint64_t *data, 
+			uint64_t len, uint32_t interval_us);
+int		can_stop(int s, uint32_t can_id);
+void	can_close(int socket)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
