@@ -100,4 +100,13 @@ void	CANController::sendBCMFD(uint32_t can_id, const std::vector<uint8_t>& data,
 	}
 }
 
-void	CANController::
+void	CANController::stopPeriodic(uint32_t can_id) {
+
+    if (!_initialized) 
+		return;
+    
+    if (can_stop(_socket, can_id) < 0) {
+        std::cerr << "Failed to stop periodic transmission (ID: 0x" 
+                  << std::hex << can_id << ")" << std::endl;
+    }
+}
