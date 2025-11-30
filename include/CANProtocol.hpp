@@ -30,8 +30,8 @@ namespace CANProtocol {
 		int8_t data[2];
 
 		// Big-endian encoding (network byte order)
-		data[0] = steering;
-        data[1] = throttle;
+		data[0] = steering;	// 0-120 degrees
+        data[1] = throttle; // -100 to +100
 
 		can.sendFrameFD(CANID::DRIVE_COMMAND, data, 2);
 	}

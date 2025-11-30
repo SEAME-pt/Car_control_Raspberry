@@ -25,14 +25,21 @@ public:
 	void	initialize();
 	void	cleanup();
 
+	//Classical CAN
 	void	sendFrame(uint32_t can_id, const int8_t* data, uint8_t len);
+
+	//CAN_FD
 	void	sendFrameFD(uint32_t can_id, const int8_t* data, size_t len);
+
+	// BCM periodic
 	void	sendBCMFD(uint32_t can_id, const std::vector<int8_t>& data, 
                         std::chrono::microseconds interval);
 	void	stopPeriodic(uint32_t can_id);
 
-	bool	getInitialized() const;
-	bool	getInterface() const;
+	// Getters
+    bool 				isInitialized() const { return _initialized; }
+    const std::string&	getInterface() const { return _interface; }
+    int 				getSocket() const { return _socket; }
 
 	class CANException : public std::runtime_error {
 	public:

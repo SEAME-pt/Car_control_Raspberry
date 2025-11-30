@@ -9,7 +9,7 @@ bool	init_can(const std::string &interface) {
 		g_can = std::make_unique<CANController>(interface);
 		std::cout << "CAN FD initialized successfully!" << std::endl;
 		return (true);
-	} catch (CANController::CANException& e) {
+	} catch (const CANController::CANException& e) {
 		std::cerr << "❌ CAN initialization failed: " << e.what() << std::endl;
         std::cerr << "💡 Hint: Check if interface exists:" << std::endl;
         std::cerr << "    ip link show " << interface << std::endl;
