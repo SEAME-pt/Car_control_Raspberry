@@ -13,6 +13,7 @@ int main(int argc, char *argv[]) {
 
 	SDL_Joystick*	joystick		= nullptr;
 	std::string		canInterface	= "can0";
+	bool			useJoystick		= true;
 	bool			debug 			= false;
 
 	signal(SIGINT, signalHandler);
@@ -20,12 +21,17 @@ int main(int argc, char *argv[]) {
 	//Parse command line arguments
     for (int i = 1; i < argc; i++) {
         std::string arg(argv[i]);
-        if (arg.find("--can=") == 0) {
+		if (arg.find("--joy=") == 0) {
+			std::string value = arg.substr(6);
+            useJoystick = (value == "1" || value == "true" || value == "yes");
+		}
+        if (arg.find("--can=") == 0)
             canInterface = arg.substr(6);
-        } else if (arg == "--debug") {
+        else if (arg == "--debug") {
             debug = true;
         } else if (arg == "--help" || arg == "-h") {
-            std::cout << "Usage: " << argv[0] << " [options]\n"
+           std::cout << "Usage: " << argv[0] << " [options]\n"
+                      << "  --joy=0|1         Enable joystick (default: 1)\n"
                       << "  --can=INTERFACE   CAN interface (default: can0)\n"
                       << "  --debug           Enable debug output\n"
                       << "  --help            Show this help\n" << std::endl;
