@@ -33,10 +33,12 @@ endif()
 # Source files
 set(SOURCES
     srcs/main.cpp
+	srcs/init/init_can.cpp
+	srcs/init/init_car_i2c.cpp
+	srcs/init/init.cpp
+    srcs/controller/joystick.cpp
     srcs/can_fd/socketCAN.c
     srcs/can_fd/CANController.cpp
-    srcs/controller/joystick.cpp
-    srcs/init/init_can.cpp
 )
 
 # Add I2C init if available

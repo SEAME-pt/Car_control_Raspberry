@@ -1,11 +1,10 @@
 #include "../../include/CANController.hpp"
 
-CANController::CANController(int s, const std::string &interface,
-		bool inicialized) 
-		: _socket(-1) 
-		, _interface(interface) 
-		, _initialized(false) {
+CANController::CANController(const std::string &interface) 
+		: _interface(interface) {
 
+	_socket = -1;
+	_initialized = false;
 	initialize();
 }
 

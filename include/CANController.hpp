@@ -13,7 +13,7 @@
 class CANController {
 
 public:
-	CANController(int, const std::string &, bool);
+	CANController(const std::string &);
 	~CANController();
 
 	CANController(const CANController&) = delete;
