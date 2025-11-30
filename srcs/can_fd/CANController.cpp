@@ -85,28 +85,3 @@ void	CANController::sendFrameFD(uint32_t can_id,
 		std::to_string(can_id) + ")");
 	}
 }
-
-void	CANController::sendBCMFD(uint32_t can_id, const std::vector<int8_t>& data, 
-			std::chrono::microseconds interval) {
-
-	if (!_initialized)
-		throw CANException("CAN not initialized");
-
-	if (can_bcm_send(_socket, can_id, data.data(), static_cast<int8_t>(data.size()), 
-					interval.count()) < 0) {
-
-		throw CANException("Failed to setup periodic transmission (ID: 0x" + 
-						  std::to_string(can_id) + ")");
-	}
-}
-
-void	CANController::stopPeriodic(uint32_t can_id) {
-
-	if (!_initialized) 
-		throw CANException("CAN not initialized");
-	
-	if (can_stop(_socket, can_id) < 0) {
-		throw CANException("Failed to stop periodic for ID: 0x" + 
-							 std::to_string(can_id));
-	}
-}

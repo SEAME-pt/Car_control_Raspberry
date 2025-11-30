@@ -31,11 +31,6 @@ public:
 	//CAN_FD
 	void	sendFrameFD(uint32_t can_id, const int8_t* data, size_t len);
 
-	// BCM periodic
-	void	sendBCMFD(uint32_t can_id, const std::vector<int8_t>& data, 
-                        std::chrono::microseconds interval);
-	void	stopPeriodic(uint32_t can_id);
-
 	// Getters
     bool 				isInitialized() const { return _initialized; }
     const std::string&	getInterface() const { return _interface; }

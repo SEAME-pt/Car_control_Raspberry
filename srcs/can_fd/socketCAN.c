@@ -9,14 +9,14 @@ static int	check_mtu_support(int s, struct ifreq *ifr) {
 	}
 
 	// Check CAN FD support
-	if (ifr.ifr_mtu == CANFD_MTU) {
+	if (ifr->ifr_mtu == CANFD_MTU) {
 		printf("Device supports CAN FD\n");
 		return (0);
 	}
-	else if (ifr.ifr_mtu == CAN_MTU)
+	else if (ifr->ifr_mtu == CAN_MTU)
 		printf("Device only supports Classical CAN\n");
 	else
-		printf("Unkown MTU: %d\n", ifr.ifr_mtu);
+		printf("Unkown MTU: %d\n", ifr->ifr_mtu);
 	return (1);
 }
 
@@ -105,56 +105,6 @@ int	can_send_frame_fd(int socket, uint32_t can_id,
 		perror("write CAN FD frame");
 		return (-1);
 	}
-	return (0);
-}
-
-int	can_bcm_send(int s, uint32_t can_id, const int8_t *data, 
-	uint8_t len, uint32_t interval_us) {
-	
-	t_mytxmsg	msg = {0};
-	size_t		msg_size;
-
-	if (len > 64) len = 64;
-
-	//setup BCM message
-	msg.msg_head.opcode  = TX_SETUP;
-	msg.msg_head.flags   = SETTIMER | STARTTIMER | TX_CP_CAN_ID | CAN_FD_FRAME;
-	msg.msg_head.ival1.tv_sec  = interval_us / 1000000;
-	msg.msg_head.ival1.tv_usec = interval_us % 1000000;
-	msg.msg_head.can_id  = can_id;
-	msg.msg_head.nframes = 1;
-
-	msg.frame[0].can_id = can_id;
-	msg.frame[0].len = len;
-	msg.frame[0].flags = CANFD_BRS;
-
-	if (data && len > 0)
-		memcpy(msg.frame[0].data, data, len);
-
-	msg_size = sizeof(bcm_msg_head) + sizeof(struct canfd_frame);
-
-	// Send BCM configuration
-	if (write(s, &msg, msg_size) < 0) {
-		perror("write BCM message");
-		return (-1);
-	}
-	printf("BCM transmission started: ID=0x%03X, interval=%uµs, len=%u bytes (CAN FD)\n",
-           can_id, interval_us, len);
-	return (0);
-}
-
-int	can_stop(int s, uint32_t can_id) {
-
-	t_mytxmsg msg = {0};
-
-	msg.msg_head.opcode = TX_DELETE;
-	msg.msg_head.can_id = can_id;
-
-	if (write(s, &msg, sizeof(bcm_msg_head)) < 0) {
-		perror("write TX_DELETE");
-		return (-1);
-	}
-	printf("BCM transmission stopped: ID=0x%03X\n", can_id);
 	return (0);
 }
 

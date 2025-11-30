@@ -2,7 +2,7 @@
 
 void	initI2c() {
 
-    try {
+	try {
         I2c::All_init();
         I2c::set_servo_angle(MID_ANGLE);
     } catch (const std::exception &e) {
@@ -10,7 +10,7 @@ void	initI2c() {
     }
 }
 
-SDL_Joystick* initCar() {
+SDL_Joystick*	initCar() {
 	if (SDL_Init(SDL_INIT_JOYSTICK) < 0)
 		throw (GenException::InitException("Failed to initialize SDL joystick"));
 
@@ -29,22 +29,22 @@ SDL_Joystick* initCar() {
 	return (joystick);
 }
 
-void	exitCar() {
+void	exitCar(SDL_Joystick* joystick) {
 
-	if (g_joystick) {
-		SDL_JoystickClose(g_joystick);
-		g_joystick = nullptr;
+	if (joystick) {
+		SDL_JoystickClose(joystick);
+		joystick = nullptr;
 	}
 	I2c::All_close();
     SDL_Quit();
 	exit(EXIT_FAILURE);
 }
 
-void	exitSDL() {
+void	exitSDL(SDL_Joystick* joystick) {
 
-	if (g_joystick) {
-		SDL_JoystickClose(g_joystick);
-		g_joystick = nullptr;
+	if (joystick) {
+		SDL_JoystickClose(joystick);
+		joystick = nullptr;
 	}
 	exit(EXIT_FAILURE);
 }

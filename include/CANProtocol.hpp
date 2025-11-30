@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CANController.hpp"
-#include <cstdint>
 #include <algorithm>
 
 namespace CANID {

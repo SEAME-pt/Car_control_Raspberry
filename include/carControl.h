@@ -1,39 +1,34 @@
 #pragma once
 
-//libs:
-//standart/general use
-#include <iostream>
-#include <csignal>
-#include <unistd.h>
-#include <memory>
-
-//joystick
-#include <SDL2/SDL.h>
-
-//speedSensor
-#include <thread>
-#include <pigpio.h>
-#include <atomic>
-
 #include "../libs/include/I2c.hpp"
 #include "exceptions.hpp"
 #include "CANController.hpp"
 #include "CANProtocol.hpp"
 
+//standart/general use
+#include <iostream>
+#include <csignal>
+
+//joystick
+#include <SDL2/SDL.h>
+
 //init
+std::unique_ptr<CANController>	
+				init_can(const std::string &interface);
+SDL_Joystick*	initCarControl(const std::string &canInterface);
 SDL_Joystick*	initCar();
 void	        initI2c();
-bool			init_can(const std::string &interface);
-CANController*	get_can();
-void			cleanup_can();
 
 //exit
-void	        exitCar();
-void	        exitSDL();
+void	        exitCar(SDL_Joystick* joystick);
+void	        exitSDL(SDL_Joystick* joystick);
+void			cleanExit(SDL_Joystick* joystick);
 
-extern SDL_Joystick*    g_joystick;
+//controller
+int8_t			joystickSteering(SDL_Joystick* joystick);
+int8_t			joystickThrottle(SDL_Joystick* joystick);
+
 extern bool				g_running;
-extern std::unique_ptr<CANController>	g_can;
 
 //index of the controller, if 0, the first, 
 //and only the first, has permission to connect
@@ -41,9 +36,6 @@ extern std::unique_ptr<CANController>	g_can;
 
 //value of the axis in the controller
 #define MAX_AXIS_VALUE	32767.0f
-
-//Numbers of pulses from each rotation (how many holes the wheel has)
-#define	PULSES_WHEEL	20
 
 //angle to centralize the servo of the car and use it as the default angle
 #define MID_ANGLE       60
