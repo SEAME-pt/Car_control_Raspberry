@@ -65,7 +65,7 @@ int	socketCan_init(const char *interface) {
 
 // Classical CAN Bus (8 bytes)
 int	can_send_frame(int socket, uint32_t can_id, 
-		const uint8_t *data, uint8_t len) {
+		const int8_t *data, uint8_t len) {
 
 	struct can_frame frame;
 	memset(&frame, 0, sizeof(frame));
@@ -86,7 +86,7 @@ int	can_send_frame(int socket, uint32_t can_id,
 
 // CAN FD (64 bytes)
 int	can_send_frame_fd(int socket, uint32_t can_id, 
-					  const uint8_t *data, uint8_t len) {
+					  const int8_t *data, uint8_t len) {
 
 	struct canfd_frame frame;
 
@@ -106,7 +106,7 @@ int	can_send_frame_fd(int socket, uint32_t can_id,
 	return (0);
 }
 
-int	can_bcm_send(int s, uint32_t can_id, const uint8_t *data, 
+int	can_bcm_send(int s, uint32_t can_id, const int8_t *data, 
 	uint8_t len, uint32_t interval_us) {
 	
 	t_mytxmsg	msg = {0};

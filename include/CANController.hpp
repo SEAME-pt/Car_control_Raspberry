@@ -25,9 +25,9 @@ public:
 	void	initialize();
 	void	cleanup();
 
-	void	sendFrame(uint32_t can_id, const uint8_t* data, uint8_t len);
-	void	sendFrameFD(uint32_t can_id, const uint8_t* data, size_t len);
-	void	sendBCMFD(uint32_t can_id, const std::vector<uint8_t>& data, 
+	void	sendFrame(uint32_t can_id, const int8_t* data, uint8_t len);
+	void	sendFrameFD(uint32_t can_id, const int8_t* data, size_t len);
+	void	sendBCMFD(uint32_t can_id, const std::vector<int8_t>& data, 
                         std::chrono::microseconds interval);
 	void	stopPeriodic(uint32_t can_id);
 

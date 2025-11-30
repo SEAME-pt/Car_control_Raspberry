@@ -63,7 +63,7 @@ void	CANController::cleanup() {
 }
 
 void	CANController::sendFrame(uint32_t can_id, 
-			const uint8_t* data, uint8_t len) {
+			const int8_t* data, uint8_t len) {
 
 	if (!_initialized)
 		throw CANException("CAN not initialized");
@@ -75,7 +75,7 @@ void	CANController::sendFrame(uint32_t can_id,
 }
 
 void	CANController::sendFrameFD(uint32_t can_id, 
-			const uint8_t* data, size_t len) {
+			const int8_t* data, size_t len) {
 
 	if (!_initialized)
 		throw CANException("CAN not initialized");
@@ -86,13 +86,13 @@ void	CANController::sendFrameFD(uint32_t can_id,
 	}
 }
 
-void	CANController::sendBCMFD(uint32_t can_id, const std::vector<uint8_t>& data, 
+void	CANController::sendBCMFD(uint32_t can_id, const std::vector<int8_t>& data, 
 			std::chrono::microseconds interval) {
 
 	if (!_initialized)
 		throw CANException("CAN not initialized");
 
-	if (can_bcm_send(_socket, can_id, data.data(), static_cast<uint8_t>(data.size()), 
+	if (can_bcm_send(_socket, can_id, data.data(), static_cast<int8_t>(data.size()), 
 					interval.count()) < 0) {
 
 		throw CANException("Failed to setup periodic transmission (ID: 0x" + 
@@ -103,7 +103,7 @@ void	CANController::sendBCMFD(uint32_t can_id, const std::vector<uint8_t>& data,
 void	CANController::stopPeriodic(uint32_t can_id) {
 
     if (!_initialized) 
-		return;
+		throw CANException("CAN not initialized");
     
     if (can_stop(_socket, can_id) < 0) {
         std::cerr << "Failed to stop periodic transmission (ID: 0x" 
