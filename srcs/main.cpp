@@ -13,6 +13,7 @@ static void	cleanExit() {
 
 	I2c::All_close();
     SDL_Quit();
+	cleanup_can();
 	exit(EXIT_SUCCESS);
 }
 
@@ -25,9 +26,9 @@ static void	signalHandler(int signum) {
 
 int main() {
 
-	int steering = MID_ANGLE;		//rotation
-	int throttle = 0;				//direction & speed
 	SDL_Joystick *joystick = NULL;
+	std::string can_interface = "can0";
+	bool debug = false;
 
 	signal(SIGINT, signalHandler);
 
@@ -37,6 +38,7 @@ int main() {
 	} catch (const std::exception &e) {
 		std::cerr << e.what() << std::endl;
 		exitSDL();
+		return (1);
 	}
 
 	try {
@@ -45,44 +47,68 @@ int main() {
 		std::cerr << e.what() << std::endl;
 	}
 
-	SDL_Event e;
-	while (g_running) {
+	if (!init_can(can_interface)) {
+        std::cerr << "❌ Cannot run without CAN" << std::endl;
+        cleanExit();
+        return 1;
+    }
 
-		if (!joystick || !SDL_JoystickGetAttached(joystick)) {
-			std::cerr << "Joystick disconnected!" << std::endl;
-			g_running = false;
-			break ;
-		}
+	auto* can = get_can();
 
-		float axisSteering = SDL_JoystickGetAxis(joystick, 2) / MAX_AXIS_VALUE;
-		float axisThrottle = SDL_JoystickGetAxis(joystick, 1) / MAX_AXIS_VALUE;
+	try {
+		// Set initial state
+        CANProtocol::sendDriveMode(*can, DriveMode::MANUAL);
+        CANProtocol::sendEmergencyBrake(*can, false);
+        CANProtocol::sendDriveCommand(*can, MID_ANGLE, 0);  // Center, stopped
 
-		steering = static_cast<int>(mapAxisToAngle(axisSteering, 0, 120, 60));
-		throttle = static_cast<int>(mapAxisToAngle(axisThrottle, -100, 100, 0));
+		SDL_Event e;
+		int frame_count = 0;
 
-		I2c::set_servo_angle(steering);
+		while (g_running) {
 
-		if (throttle > 0)
-			I2c::motor(0, throttle, 1); // Backward
-		else if (throttle < 0)
-			I2c::motor(0, -throttle, 0); // Forward
-		else
-			I2c::stop_motors(); // Stop
+			if (!joystick || !SDL_JoystickGetAttached(joystick)) {
+				std::cerr << "Joystick disconnected!" << std::endl;
+				g_running = false;
+				break ;
+			}
 
-		while (SDL_PollEvent(&e)) {
-			if (e.type == SDL_JOYBUTTONDOWN) {
-				if (e.jbutton.button == START_BUTTON) {
-					std::cout << "START button pressed. Exiting..." << std::endl;
-					g_running = false;
-					break ;
+			float axisSteering = SDL_JoystickGetAxis(joystick, 2) / MAX_AXIS_VALUE;
+			float axisThrottle = SDL_JoystickGetAxis(joystick, 1) / MAX_AXIS_VALUE;
+
+			uint8_t steering = static_cast<uint8_t>(
+                std::clamp(axisSteering * 60.0f + 60.0f, 0.0f, 120.0f)
+            );
+            int8_t throttle = static_cast<int8_t>(
+                std::clamp(-axisThrottle * 100.0f, -100.0f, 100.0f)
+            );
+
+			CANProtocol::sendDriveCommand(*can, steering, throttle);
+
+			// Debug output
+            if (debug && (frame_count % 25 == 0)) {
+                std::cout << "🎮 S:" << (int)steering 
+                          << " T:" << (int)throttle 
+                          << " [" << frame_count << "]" << std::endl;
+            }
+
+			while (SDL_PollEvent(&e)) {
+				if (e.type == SDL_JOYBUTTONDOWN) {
+					if (e.jbutton.button == START_BUTTON) {
+						std::cout << "START button pressed. Exiting..." << std::endl;
+						CANProtocol::sendEmergencyBrake(*can, true);
+						CANProtocol::sendDriveCommand(*can, 60, 0);
+						g_running = false;
+						break ;
+					}
 				}
 			}
+			frame_count++;
+			usleep(20000);  // 50Hz
 		}
-		SDL_Delay(25);
+	} catch (CANController::CANException& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
 	}
-
 	cleanExit();
 	return (0);
 }
-
 // git submodule update --init --recursive

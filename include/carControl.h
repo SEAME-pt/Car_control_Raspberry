@@ -18,13 +18,14 @@
 #include "../libs/include/I2c.hpp"
 #include "exceptions.hpp"
 #include "CANController.hpp"
+#include "CANProtocol.hpp"
 
 //init
 SDL_Joystick*	initCar();
 void	        initI2c();
-
-//utils
-double			mapAxisToAngle(double axisValue, double angleMin, double angleMax, double angleCenter);
+bool			init_can(const std::string &interface);
+CANController*	get_can();
+void			cleanup_can();
 
 //exit
 void	        exitCar();
