@@ -29,8 +29,6 @@ double			mapAxisToAngle(double axisValue, double angleMin, double angleMax, doub
 //exit
 void	        exitCar();
 void	        exitSDL();
-void	        signalHandler(int signum);
-void			cleanExit();
 
 extern SDL_Joystick*    g_joystick;
 extern bool				g_running;

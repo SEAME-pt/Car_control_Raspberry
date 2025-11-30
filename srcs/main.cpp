@@ -4,6 +4,25 @@
 SDL_Joystick*		g_joystick = nullptr;
 bool				g_running = true;
 
+static void	cleanExit() {
+
+	if (g_joystick) {
+		SDL_JoystickClose(g_joystick);
+		g_joystick = nullptr;
+	}
+
+	I2c::All_close();
+    SDL_Quit();
+	exit(EXIT_SUCCESS);
+}
+
+static void	signalHandler(int signum) {
+
+    std::cout << "\nInterrupt operation (" << signum << ") received." << std::endl;
+	g_running = false;
+	cleanExit();
+}
+
 int main() {
 
 	int steering = MID_ANGLE;		//rotation

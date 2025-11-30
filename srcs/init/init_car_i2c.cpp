@@ -28,3 +28,23 @@ SDL_Joystick* initCar() {
 	std::cout << "Joystick detected: " << SDL_JoystickName(joystick) << std::endl;
 	return (joystick);
 }
+
+void	exitCar() {
+
+	if (g_joystick) {
+		SDL_JoystickClose(g_joystick);
+		g_joystick = nullptr;
+	}
+	I2c::All_close();
+    SDL_Quit();
+	exit(EXIT_FAILURE);
+}
+
+void	exitSDL() {
+
+	if (g_joystick) {
+		SDL_JoystickClose(g_joystick);
+		g_joystick = nullptr;
+	}
+	exit(EXIT_FAILURE);
+}
