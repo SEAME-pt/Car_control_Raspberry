@@ -12,21 +12,36 @@
 //joystick
 #include <SDL2/SDL.h>
 
+typedef struct s_carControl {
+
+	std::unique_ptr<CANController>	
+					can;
+	SDL_Joystick	*joystick;
+	std::string		canInterface;
+	bool			useJoystick;
+	bool			debug;
+	bool			helperMessage;
+	bool			useI2c;
+} t_carControl;
+
 //init
 std::unique_ptr<CANController>	
 				init_can(const std::string &interface);
-SDL_Joystick*	initCarControl(const std::string &canInterface);
+t_carControl	initCarControl(int argc, char *argv[]);
 SDL_Joystick*	initCar();
 void	        initI2c();
 
 //exit
-void	        exitCar(SDL_Joystick* joystick);
-void	        exitSDL(SDL_Joystick* joystick);
+void			cleanSDL(SDL_Joystick* joystick);
 void			cleanExit(SDL_Joystick* joystick);
 
 //controller
 int8_t			joystickSteering(SDL_Joystick* joystick);
 int8_t			joystickThrottle(SDL_Joystick* joystick);
+
+//utils
+int				parsingArgv(int argc, char *argv[], 
+	t_carControl *carControl);
 
 extern bool				g_running;
 

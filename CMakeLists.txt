@@ -33,10 +33,15 @@ endif()
 # Source files
 set(SOURCES
     srcs/main.cpp
+	#utils
+	srcs/utils/parsing.cpp
+	#init
 	srcs/init/init_can.cpp
 	srcs/init/init_car_i2c.cpp
 	srcs/init/init.cpp
+	#controller
     srcs/controller/joystick.cpp
+	#can_fd
     srcs/can_fd/socketCAN.c
     srcs/can_fd/CANController.cpp
 )

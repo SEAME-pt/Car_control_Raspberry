@@ -29,22 +29,8 @@ SDL_Joystick*	initCar() {
 	return (joystick);
 }
 
-void	exitCar(SDL_Joystick* joystick) {
+void	cleanSDL(SDL_Joystick* joystick) {
 
-	if (joystick) {
+	if (joystick)
 		SDL_JoystickClose(joystick);
-		joystick = nullptr;
-	}
-	I2c::All_close();
-    SDL_Quit();
-	exit(EXIT_FAILURE);
-}
-
-void	exitSDL(SDL_Joystick* joystick) {
-
-	if (joystick) {
-		SDL_JoystickClose(joystick);
-		joystick = nullptr;
-	}
-	exit(EXIT_FAILURE);
 }
