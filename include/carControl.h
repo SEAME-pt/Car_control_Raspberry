@@ -5,11 +5,10 @@
 #include "CANController.hpp"
 #include "CANProtocol.hpp"
 
-//standart/general use
-#include <iostream>
+// Signal
 #include <csignal>
 
-//joystick
+// Joystick
 #include <SDL2/SDL.h>
 
 typedef struct s_carControl {

@@ -1,5 +1,6 @@
 #include "../../include/carControl.h"
 
+// Convert input "TRUE"/"FALSE" strings into actual booleans
 static bool parseBool(const std::string& value, bool defaultValue = false) {
     if (value == "true" || value == "TRUE" || value == "True")
         return true;
@@ -12,8 +13,8 @@ static bool parseBool(const std::string& value, bool defaultValue = false) {
     return defaultValue;
 }
 
-// Parser command line values, can override default ones
-// mostly used for debugging
+// Parse command line arguments; can override default values
+// Mainly used for debugging
 int	parsingArgv(int argc, char *argv[], t_carControl *carControl) {
 
 	for (int i = 1; i < argc; i++) {

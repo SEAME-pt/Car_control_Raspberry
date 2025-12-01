@@ -1,6 +1,6 @@
 #include "../include/carControl.h"
 
-// define the global bool to properly clear after sigint
+// Condition for the main loop to keep running
 bool	g_running = true;
 
 static void	signalHandler(int signum) {
@@ -34,6 +34,7 @@ int main(int argc, char *argv[]) {
 
 		while (g_running) {
 
+			// Continuous verification of joystick connection
 			if (carControl.useJoystick) {
 				if (!carControl.joystick || !SDL_JoystickGetAttached(carControl.joystick)) {
 					std::cerr << "Joystick disconnected!" << std::endl;
@@ -65,6 +66,7 @@ int main(int argc, char *argv[]) {
 				}
 			} else {
 				// No joystick mode - keep stopped
+				// Future integration of autonomous mode
 				CANProtocol::sendDriveCommand(*carControl.can, MID_ANGLE, 0);
 			}
 			frame_count++;
@@ -81,7 +83,7 @@ int main(int argc, char *argv[]) {
 	} catch (const CANController::CANException& e) {
 		std::cerr << "Error: " << e.what() << std::endl;
 
-		//try emergency stop even on error
+		//try emergency stop again even on error
 		try {
 			if (carControl.can) {
 				CANProtocol::sendEmergencyBrake(*carControl.can, true);
@@ -94,6 +96,7 @@ int main(int argc, char *argv[]) {
 	cleanExit(carControl.joystick);
 	return (0);
 }
+
 // git submodule update --init --recursive
 
 /*
@@ -113,7 +116,7 @@ make
 
 # Testing purposes inside coding machine
 
-sudo modprobe vcan0
+sudo modprobe vcan
 sudo ip link add dev vcan0 type vcan
 sudo ip link set vcan0 mtu 72
 sudo ip link set up vcan0

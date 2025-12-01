@@ -1,6 +1,6 @@
 #include "../../include/carControl.h"
 
-// Last step of verification, mostly used for debug
+// Final verification step, mainly used for debugging
 static int	finalVerification(t_carControl *carControl) {
 
 	if (carControl->useJoystick && !carControl->joystick) {
@@ -15,7 +15,7 @@ static int	finalVerification(t_carControl *carControl) {
 	return (1);
 }
 
-// Initializes all essential components for proper program execution
+// Initialize all core components required for correct program operation
 t_carControl	initCarControl(int argc, char *argv[]) {
 
 	t_carControl	carControl;
@@ -29,9 +29,11 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 	carControl.useI2c			= true;
 	carControl.can				= nullptr;
 
+	// Overriding default values using user input
 	if (parsingArgv(argc, argv, &carControl) <= 0)
 		return (carControl);
 
+	// Joystick init
 	try {
 		if (carControl.useJoystick)
 			carControl.joystick = initCar();
@@ -40,6 +42,7 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
+	// I2c init
 	try {
 		if (carControl.useI2c)
 			initI2c();
@@ -49,6 +52,7 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
+	// CAN_fd init
 	try {
 		carControl.can = init_can(carControl.canInterface);
 	} catch (...) {

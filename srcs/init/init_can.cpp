@@ -10,12 +10,12 @@ std::unique_ptr<CANController>	init_can(const std::string &interface) {
 		return (can);
 	} catch (const CANController::CANException& e) {
 
-		std::cerr << "❌ CAN initialization failed: " << e.what() << std::endl;
-		std::cerr << "💡 Hint: Check if interface exists:" << std::endl;
-		std::cerr << "    ip link show " << interface << std::endl;
-		std::cerr << "💡 For vcan (testing):" << std::endl;
-		std::cerr << "    sudo ip link add dev vcan0 type vcan" << std::endl;
-		std::cerr << "    sudo ip link set up vcan0" << std::endl;
+		std::cerr << " CAN initialization failed: " << e.what() << std::endl;
+		std::cerr << " Hint: Check if interface exists:" << std::endl;
+		std::cerr << "   ip link show " << interface << std::endl;
+		std::cerr << " For vcan (testing):" << std::endl;
+		std::cerr << "   sudo ip link add dev vcan0 type vcan" << std::endl;
+		std::cerr << "   sudo ip link set up vcan0" << std::endl;
 		return (nullptr);
 	} catch (const std::exception& e) {
 

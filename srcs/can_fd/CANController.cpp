@@ -1,5 +1,6 @@
 #include "../../include/CANController.hpp"
 
+// Constructor
 CANController::CANController(const std::string &interface) 
 		: _interface(interface) {
 
@@ -8,10 +9,12 @@ CANController::CANController(const std::string &interface)
 	initialize();
 }
 
+// Destructor
 CANController::~CANController() {
 	cleanup();
 }
 
+// Move Constructor
 CANController::CANController(CANController&& other) noexcept
 	: _socket(other._socket)
 	, _interface(std::move(other._interface))
@@ -21,6 +24,7 @@ CANController::CANController(CANController&& other) noexcept
 	other._initialized = false;
 }
 
+// Move Assignment Operator
 CANController& CANController::operator=(CANController&& other) noexcept {
 
 	if (this != &other) {
@@ -35,6 +39,7 @@ CANController& CANController::operator=(CANController&& other) noexcept {
 	return (*this);
 }
 
+// Abstraction layer for CAN socket initialization
 void	CANController::initialize() {
 
 	if (_initialized) {
@@ -44,7 +49,7 @@ void	CANController::initialize() {
 
 	_socket = socketCan_init(_interface.c_str());
 	if (_socket < 0) {
-		throw CANController::CANException("Failed to inicialize interface: "
+		throw CANException("Failed to inicialize interface: "
 		+ _interface);
 	}
 	_initialized = true;
@@ -60,6 +65,7 @@ void	CANController::cleanup() {
 	}
 }
 
+// TX handler sending frames in classic CAN format
 void	CANController::sendFrame(uint32_t can_id, 
 			const int8_t* data, uint8_t len) {
 
@@ -72,6 +78,7 @@ void	CANController::sendFrame(uint32_t can_id,
 	}
 }
 
+// TX handler sending frames in CAN_FD format
 void	CANController::sendFrameFD(uint32_t can_id, 
 			const int8_t* data, size_t len) {
 

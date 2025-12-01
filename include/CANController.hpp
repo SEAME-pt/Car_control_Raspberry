@@ -1,7 +1,6 @@
 #pragma once
 
 #include "socketCAN.h"
-#include "exceptions.hpp"
 #include <string>
 #include <iostream>
 #include <vector>

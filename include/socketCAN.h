@@ -11,18 +11,10 @@ extern "C" {
 #include <sys/ioctl.h>
 #include <string.h>
 #include <stdio.h>
-#include <sys/time.h>
 #include <stdint.h>
-#include <time.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <sys/time.h>
-#include <endian.h>
 
 #include <linux/can.h>
 #include <linux/can/raw.h>
-#include <linux/can/bcm.h>
-#include <linux/can/error.h>
 
 int		socketCan_init(const char *interface);
 

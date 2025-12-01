@@ -3,18 +3,16 @@
 #include <exception>
 #include <string>
 
-class GenException {
 
+
+class InitException : public std::exception {
+			
 public:
-    class InitException : public std::exception {
-        private:
-            std::string message;
-            
-        public:
-            InitException(const std::string& msg) : message(msg) {}
-            
-            const char* what() const throw() {
-                return message.c_str();
-            }
-    };
+	InitException(const std::string& msg) : _message(msg) {}
+			
+	const char* what() const throw() {
+		return _message.c_str();
+	}
+private:
+	std::string	_message;
 };
