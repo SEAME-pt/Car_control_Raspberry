@@ -95,3 +95,36 @@ int main(int argc, char *argv[]) {
 	return (0);
 }
 // git submodule update --init --recursive
+
+/*
+
+# Intructions to run the program
+
+# Default values
+# Notice that default values are prepared only for the final result of comunication
+# with STM32, properlly i2c connection and usage of joystick
+
+cd build
+make
+./car
+
+# For adicional input information:
+./car --help
+
+# Testing purposes inside coding machine
+
+sudo modprobe vcan0
+sudo ip link add dev vcan0 type vcan
+sudo ip link set vcan0 mtu 72
+sudo ip link set up vcan0
+
+cd build
+make
+
+# Terminal 1: Monitor
+candump vcan0
+
+# Terminal 2: Run
+sudo ./car --can=vcan0 --joy=false --i2c=false --debug
+
+*/
