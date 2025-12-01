@@ -4,7 +4,7 @@
 static int	finalVerification(t_carControl *carControl) {
 
 	if (carControl->useJoystick && !carControl->joystick) {
-		std::cerr << "Error! Joystick was not properly initialized.";
+		std::cerr << "Error! Joystick was not properly initialized." << std::endl;
 		cleanExit(carControl->joystick);
 		return (0);
 	}

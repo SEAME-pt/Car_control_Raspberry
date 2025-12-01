@@ -60,7 +60,8 @@ struct sockaddr_can {
                 // reserved for future CAN protocols address information
         } can_addr;
 };
-*//*
+*/
+/*
 struct canfd_frame {
 	canid_t can_id;  // 32 bit CAN_ID + EFF/RTR/ERR flags
 	 __u8    len;     // frame payload length in byte (0 .. 64)
