@@ -57,7 +57,6 @@ void	CANController::cleanup() {
 		can_close(_socket);
 		_socket = -1;
 		_initialized = false;
-		std::cout << "CANController cleaned up" << std::endl;
 	}
 }
 

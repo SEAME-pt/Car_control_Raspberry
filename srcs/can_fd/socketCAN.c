@@ -3,7 +3,7 @@
 static int	check_mtu_support(int s, struct ifreq *ifr) {
 
 	// Get MTU
-	if (ioctl(s, SIOCGIFMTU, &ifr) < 0) {
+	if (ioctl(s, SIOCGIFMTU, ifr) < 0) {
 		perror("ioctl SIOCGIFMTU");
 		return (-1);
 	}
@@ -25,11 +25,9 @@ int	socketCan_init(const char *interface) {
 	struct sockaddr_can	addr;
 	struct ifreq		ifr;
 	int 				s;
+	int enable_canfd = 1;
 
-	if (!interface)
-		interface = "can0";
-
-	s = socket(PF_CAN, SOCK_DGRAM, CAN_BCM);
+	s = socket(PF_CAN, SOCK_RAW, CAN_RAW);
 	if (s < 0) {
 		perror("socket");
 		return (-1);
@@ -38,11 +36,18 @@ int	socketCan_init(const char *interface) {
 	strncpy(ifr.ifr_name, interface, IFNAMSIZ - 1);
 	ifr.ifr_name[IFNAMSIZ - 1] = '\0';
 
-	// Verificar suporte CAN FD
+	// // Check MTU
 	if (check_mtu_support(s, &ifr) < 0) {
 		close(s);
 		return (-1);
 	}
+
+	if (setsockopt(s, SOL_CAN_RAW, CAN_RAW_FD_FRAMES, 
+					&enable_canfd, sizeof(enable_canfd)) < 0) {
+        perror("setsockopt CAN_RAW_FD_FRAMES");
+        close(s);
+        return -1;
+    }
 
 	// Get interface index
 	if (ioctl(s, SIOCGIFINDEX, &ifr) < 0) {
@@ -56,9 +61,9 @@ int	socketCan_init(const char *interface) {
 	addr.can_family = AF_CAN;
 	addr.can_ifindex = ifr.ifr_ifindex;
 
-	//connect to can interface
-	if (connect(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-		perror("connect");
+	//bind to interface
+	if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+		perror("bind");
 		close(s);
 		return (-1);
 	}
@@ -91,6 +96,7 @@ int	can_send_frame_fd(int socket, uint32_t can_id,
 					  const int8_t *data, uint8_t len) {
 
 	struct canfd_frame frame;
+	memset(&frame, 0, sizeof(frame));
 
 	if (len > 64) len = 64;
 
