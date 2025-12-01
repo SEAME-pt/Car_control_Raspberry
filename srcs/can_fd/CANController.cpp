@@ -49,7 +49,7 @@ void	CANController::initialize() {
 
 	_socket = socketCan_init(_interface.c_str());
 	if (_socket < 0) {
-		throw CANException("Failed to inicialize interface: "
+		throw CANException("Failed to initialize interface: "
 		+ _interface);
 	}
 	_initialized = true;

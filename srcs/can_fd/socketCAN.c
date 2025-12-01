@@ -16,7 +16,7 @@ static int	check_mtu_support(int s, struct ifreq *ifr) {
 	else if (ifr->ifr_mtu == CAN_MTU)
 		printf("Device only supports Classical CAN\n");
 	else
-		printf("Unkown MTU: %d\n", ifr->ifr_mtu);
+		printf("Unknown MTU: %d\n", ifr->ifr_mtu);
 	return (1);
 }
 
@@ -27,7 +27,7 @@ int	socketCan_init(const char *interface) {
 	int 				s;
 	int 				enable_canfd = 1;
 
-	// SocketCAN inicialization
+	// SocketCAN initialization
 	s = socket(PF_CAN, SOCK_RAW, CAN_RAW);
 	if (s < 0) {
 		perror("socket");

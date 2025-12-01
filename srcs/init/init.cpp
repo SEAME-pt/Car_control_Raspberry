@@ -4,12 +4,12 @@
 static int	finalVerification(t_carControl *carControl) {
 
 	if (carControl->useJoystick && !carControl->joystick) {
-		std::cerr << "Error! Joystick was not properlly inicialized.";
+		std::cerr << "Error! Joystick was not properly initialized.";
 		cleanExit(carControl->joystick);
 		return (0);
 	}
 	if (!carControl->can) {
-		std::cerr << "Error! CAN was not properlly inicialized..." << std::endl;
+		std::cerr << "Error! CAN was not properly initialized..." << std::endl;
 		return (0);
 	}
 	return (1);
@@ -20,7 +20,7 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 
 	t_carControl	carControl;
 
-	//Inicializing carControll with default values
+	//Initializing carControl with default values
 	carControl.joystick			= nullptr;
 	carControl.canInterface		= "can0";
 	carControl.useJoystick		= true;

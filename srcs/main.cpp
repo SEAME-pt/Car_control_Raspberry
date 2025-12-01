@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
 
 	signal(SIGINT, signalHandler);
 
-	//inicialization of every crucial variables
+	//initialization of all crucial variables
 	t_carControl carControl = initCarControl(argc, argv);
 
 	//check if help input was requested
@@ -104,14 +104,14 @@ int main(int argc, char *argv[]) {
 # Intructions to run the program
 
 # Default values
-# Notice that default values are prepared only for the final result of comunication
-# with STM32, properlly i2c connection and usage of joystick
+# Notice that default values are prepared only for the final result of communication
+# with STM32, properly i2c connection and usage of joystick
 
 cd build
 make
 ./car
 
-# For adicional input information:
+# For additional input information:
 ./car --help
 
 # Testing purposes inside coding machine
