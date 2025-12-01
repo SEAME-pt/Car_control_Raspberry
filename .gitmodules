@@ -1,3 +1,3 @@
-[submodule "libs"]
-	path = libs
-	url = git@github.com:SEAME-pt/TEAM1_I2C.git
+[submodule "i2c_lib"]
+	path = i2c_lib
+	url = git@github.com:SEAME-pt/I2c_lib.git
