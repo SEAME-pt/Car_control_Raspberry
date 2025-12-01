@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
-project(TEAM1_Car_Control_I2C LANGUAGES CXX)
+project(TEAM1_Car_Control_CAN LANGUAGES C CXX)
 
+# Standards
+set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Build type
 if(NOT CMAKE_BUILD_TYPE)
@@ -11,83 +11,70 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Compiler flags
-set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall -Wextra -pedantic")
+set(CMAKE_C_FLAGS_DEBUG "-g -Wall -Wextra")
+set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall -Wextra")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
-message(STATUS "=== TEAM1 Car Control I2C ===")
-message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
-message(STATUS "C++ Compiler: ${CMAKE_CXX_COMPILER}")
-
-# =============================================================================
-# Find required packages
-# =============================================================================
-
-# Threads (required for std::thread)
-find_package(Threads REQUIRED)
-
-# SDL2
+# Find SDL2
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SDL2 REQUIRED sdl2)
-message(STATUS "SDL2 found: ${SDL2_LIBRARIES}")
 
-# pigpio library
-find_library(PIGPIO_LIB pigpio REQUIRED)
-if(NOT PIGPIO_LIB)
-    message(FATAL_ERROR "pigpio library not found. Install: sudo apt-get install pigpio")
+# Find pigpio (optional for I2C)
+find_library(PIGPIO_LIB pigpio)
+if(PIGPIO_LIB)
+    set(HAVE_I2C ON)
+    add_subdirectory(i2c_lib)
+    include_directories(${CMAKE_SOURCE_DIR}/i2c_lib/include)
+else()
+    message(WARNING "pigpio not found. I2C disabled.")
+    set(HAVE_I2C OFF)
 endif()
-message(STATUS "pigpio found: ${PIGPIO_LIB}")
 
-# =============================================================================
-# Add I2C library subproject (has its own CMakeLists.txt)
-# =============================================================================
-add_subdirectory(libs)
-
-# =============================================================================
-# Main executable
-# =============================================================================
-
-set(CAR_SOURCES
+# Source files
+set(SOURCES
     srcs/main.cpp
-    srcs/exit/exitCleanups.cpp
-    srcs/exit/signals.cpp
-    srcs/init/init_car_i2c.cpp
-    srcs/init/init_gpio.cpp
-    srcs/sensors/speedSensor.cpp
-    srcs/utils/math_utils.cpp
+	#utils
+	srcs/utils/parsing.cpp
+	#init
+	srcs/init/init_can.cpp
+	srcs/init/init_car_i2c.cpp
+	srcs/init/init.cpp
+	#controller
+    srcs/controller/joystick.cpp
+	#can_fd
+    srcs/can_fd/socketCAN.c
+    srcs/can_fd/CANController.cpp
 )
 
-add_executable(car ${CAR_SOURCES})
+# Add I2C init if available
+if(HAVE_I2C)
+    list(APPEND SOURCES srcs/init/init_car_i2c.cpp)
+endif()
 
-# Include directories
+# Executable
+add_executable(car ${SOURCES})
+
 target_include_directories(car PRIVATE
     ${CMAKE_SOURCE_DIR}/include
     ${SDL2_INCLUDE_DIRS}
 )
 
-# Link libraries
 target_link_libraries(car PRIVATE
-    i2c_lib                 # From libs/CMakeLists.txt
     ${SDL2_LIBRARIES}
-    ${PIGPIO_LIB}
-    Threads::Threads
-    rt                      # Real-time extensions (needed by pigpio)
 )
 
-# Add SDL2 compile flags
-target_compile_options(car PRIVATE ${SDL2_CFLAGS_OTHER})
+if(HAVE_I2C)
+    target_link_libraries(car PRIVATE
+        i2c_lib
+        ${PIGPIO_LIB}
+    )
+    target_compile_definitions(car PRIVATE HAVE_I2C)
+endif()
 
-# =============================================================================
-# Installation
-# =============================================================================
-install(TARGETS car
-    RUNTIME DESTINATION bin
-)
-
-# =============================================================================
 # Summary
-# =============================================================================
-message(STATUS "=================================")
-message(STATUS "Configuration complete!")
-message(STATUS "  Build with: make -j$(nproc)")
-message(STATUS "  Run with:   sudo ./car")
-message(STATUS "=================================")
+message(STATUS "================================")
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "SDL2:       ${SDL2_LIBRARIES}")
+message(STATUS "I2C:        ${HAVE_I2C}")
+message(STATUS "================================")
