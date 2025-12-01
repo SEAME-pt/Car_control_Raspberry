@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../libs/include/I2c.hpp"
+#include "../i2c_lib/include/I2c.hpp"
 #include "exceptions.hpp"
 #include "CANController.hpp"
 #include "CANProtocol.hpp"
