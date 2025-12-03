@@ -60,7 +60,7 @@ TEAM1-Car_control_Raspberry/
 
 ## CAN
 
-Inicialization of SocketCAN:
+Initialization of SocketCAN:
 ```cpp
 // SocketCAN initialization
 s = socket(PF_CAN, SOCK_RAW, CAN_RAW);
