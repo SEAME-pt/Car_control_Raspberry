@@ -127,7 +127,7 @@ SDL_Joystick *joystick = SDL_JoystickOpen(CONTROLLER_0);
 
 # Build System
 
-## Intructions to run the program
+## Instructions to run the program
 
 ```bash
 # Default values
