@@ -84,7 +84,7 @@ frame.can_id = can_id;
 frame.len = len;
 frame.flags = CANFD_BRS; // Faster Bit Rate Switch (only for CAN_FD)
 
-//write bits on the desire socket 
+//write bits to the desired socket 
 write(socket, &frame, sizeof(struct canfd_frame))
 ```
 
