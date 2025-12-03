@@ -52,9 +52,9 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 		return (carControl);
 	} catch (...) {
 		std::cerr << "Unexpected error during CAN init" << std::endl;
-    	cleanExit(carControl.joystick);
-    	carControl.exit = true;
-    	return carControl;
+		cleanExit(carControl.joystick);
+		carControl.exit = true;
+		return (carControl);
 	}
 
 	if (finalVerification(&carControl) <= 0) {
