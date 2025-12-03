@@ -65,8 +65,8 @@ Initialization of SocketCAN:
 // SocketCAN initialization
 s = socket(PF_CAN, SOCK_RAW, CAN_RAW);
 
-// Informs Kernel to accept CAN_FD and that allows on the same
-// socket send & receive CAN frames
+// Informs Kernel to accept CAN_FD and allows sending and receiving
+// CAN frames on the same socket
 setsockopt(s, SOL_CAN_RAW, CAN_RAW_FD_FRAMES, 
 			&enable_canfd, sizeof(enable_canfd));
 
