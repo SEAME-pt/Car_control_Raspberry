@@ -31,7 +31,7 @@ set(SOURCES
 	srcs/init/init.cpp
 	#controller
     srcs/controller/joystick.cpp
-	#can_fd
+	#can
     srcs/can/socketCAN.c
     srcs/can/CANController.cpp
 )
