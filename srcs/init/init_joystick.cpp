@@ -18,9 +18,3 @@ SDL_Joystick*	initJoystick() {
 	std::cout << "Joystick detected: " << SDL_JoystickName(joystick) << std::endl;
 	return (joystick);
 }
-
-void	cleanSDL(SDL_Joystick* joystick) {
-
-	if (joystick)
-		SDL_JoystickClose(joystick);
-}

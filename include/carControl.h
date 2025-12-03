@@ -21,19 +21,16 @@ typedef struct s_carControl {
 	bool			exit;
 } t_carControl;
 
+//controller
+int8_t			joystickSteering(SDL_Joystick* joystick);
+int8_t			joystickThrottle(SDL_Joystick* joystick);
+
 //init
 std::unique_ptr<CANController>	
 				init_can(const std::string &interface);
 t_carControl	initCarControl(int argc, char *argv[]);
 SDL_Joystick*	initJoystick();
-
-//exit
-void			cleanSDL(SDL_Joystick* joystick);
 void			cleanExit(SDL_Joystick* joystick);
-
-//controller
-int8_t			joystickSteering(SDL_Joystick* joystick);
-int8_t			joystickThrottle(SDL_Joystick* joystick);
 
 //utils
 int				parsingArgv(int argc, char *argv[], 
