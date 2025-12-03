@@ -55,3 +55,55 @@ message(STATUS "SDL2 version: ${SDL2_VERSION}")
 message(STATUS "SDL2 libraries: ${SDL2_LIBRARIES}")
 message(STATUS "SDL2 include: ${SDL2_INCLUDE_DIRS}")
 message(STATUS "================================")
+
+# ================================
+# Testing with Google Test
+# ================================
+option(BUILD_TESTS "Build the tests" ON)
+
+if(BUILD_TESTS)
+    enable_testing()
+    
+    # Find Google Test
+    find_package(GTest REQUIRED)
+    include_directories(${GTEST_INCLUDE_DIRS})
+    
+    # Test source files (excluding main.cpp from main project)
+    set(TEST_SOURCES
+        srcs/utils/parsing.cpp
+        srcs/init/init_can.cpp
+        srcs/init/init_joystick.cpp
+        srcs/init/init.cpp
+        srcs/controller/joystick.cpp
+        srcs/can/socketCAN.c
+        srcs/can/CANController.cpp
+    )
+    
+    # Test files
+    set(TEST_FILES
+        tests/main.cpp
+        tests/CANControllerTest.cpp
+        tests/CANProtocolTest.cpp
+        tests/carControlTest.cpp
+        tests/socketCANTest.cpp
+    )
+    
+    # Create test executable
+    add_executable(tests ${TEST_SOURCES} ${TEST_FILES})
+    
+    # Link libraries for tests
+    target_link_libraries(tests 
+        PRIVATE 
+        ${SDL2_LIBRARIES}
+        GTest::GTest
+        GTest::Main
+        pthread
+    )
+    
+    # Add tests to CTest
+    include(GoogleTest)
+    gtest_discover_tests(tests)
+    
+    message(STATUS "Tests enabled")
+    message(STATUS "GTest found: ${GTest_FOUND}")
+endif()
