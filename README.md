@@ -112,7 +112,7 @@ namespace CANID {
 
 ## Joystick
 
-Inicialization of SDL to read joystick input:
+Initialization of SDL to read joystick input:
 
 ```cpp
 // Initialize SDL joystick subsystem
