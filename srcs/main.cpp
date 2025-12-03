@@ -49,8 +49,8 @@ int main(int argc, char *argv[]) {
 
 				// Debug output
 				if (carControl.debug && (frame_count % 25 == 0)) {
-					std::cout << "🎮 S:" << (int)joystickSteering(carControl.joystick) 
-						  << " T:" << (int)joystickThrottle(carControl.joystick) 
+					std::cout << "🎮 S:" << (int)joystickSteering(carControl.joystick)
+						  << " T:" << (int)joystickThrottle(carControl.joystick)
 						  << " [" << frame_count << "]" << std::endl;
 				}
 
@@ -98,36 +98,3 @@ int main(int argc, char *argv[]) {
 }
 
 // git submodule update --init --recursive
-
-/*
-
-# Intructions to run the program
-
-# Default values
-# Notice that default values are prepared only for the final result of communication
-# with STM32, properly i2c connection and usage of joystick
-
-cd build
-make
-./car
-
-# For additional input information:
-./car --help
-
-# Testing purposes inside coding machine
-
-sudo modprobe vcan
-sudo ip link add dev vcan0 type vcan
-sudo ip link set vcan0 mtu 72
-sudo ip link set up vcan0
-
-cd build
-make
-
-# Terminal 1: Monitor
-candump vcan0
-
-# Terminal 2: Run
-sudo ./car --can=vcan0 --joy=false --i2c=false --debug
-
-*/

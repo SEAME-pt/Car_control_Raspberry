@@ -26,7 +26,6 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 	carControl.useJoystick		= true;
 	carControl.debug 			= false;
 	carControl.helperMessage	= false;
-	carControl.useI2c			= true;
 	carControl.can				= nullptr;
 
 	// Overriding default values using user input
@@ -39,16 +38,6 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 			carControl.joystick = initCar();
 	} catch (const std::exception &e) {
 		std::cerr << e.what() << std::endl;
-		exit(EXIT_FAILURE);
-	}
-
-	// I2c init
-	try {
-		if (carControl.useI2c)
-			initI2c();
-	} catch (const std::exception &e) {
-		std::cerr << e.what() << std::endl;
-		cleanSDL(carControl.joystick);
 		exit(EXIT_FAILURE);
 	}
 
@@ -72,6 +61,5 @@ void	cleanExit(SDL_Joystick* joystick) {
 
 	if (joystick)
 		SDL_JoystickClose(joystick);
-	I2c::All_close();
 	SDL_Quit();
 }
