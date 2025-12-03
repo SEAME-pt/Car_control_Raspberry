@@ -79,6 +79,13 @@ int	can_send_frame(int socket, uint32_t can_id,
 		const int8_t *data, uint8_t len) {
 
 	struct can_frame frame;
+
+	// Validate standard CAN ID (11-bit: 0x000 - 0x7FF)
+    if (can_id > 0x7FF) {
+        fprintf(stderr, "Invalid CAN ID: 0x%X (must be <= 0x7FF)\n", can_id);
+        return (-1);
+    }
+
 	memset(&frame, 0, sizeof(frame));
 	if (len > 8) len = 8;
 
