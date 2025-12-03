@@ -18,8 +18,8 @@ int main(int argc, char *argv[]) {
 	t_carControl carControl = initCarControl(argc, argv);
 
 	//check if help input was requested
-	if (carControl.helperMessage)
-		return (0);
+	if (carControl.exit)
+		return (1);
 
 	std::cout << "🚗 Starting car control system...\n" << std::endl;
 
@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
 		CANProtocol::sendEmergencyBrake(*carControl.can, true);
 		CANProtocol::sendDriveCommand(*carControl.can, 60, 0);
 		usleep(100000); // Wait 100ms for transmission
-		std::cout << "Car stopped safely" << std::endl;
+		std::cout << "Car stopped safely!" << std::endl;
 
 	} catch (const CANController::CANException& e) {
 		std::cerr << "Error: " << e.what() << std::endl;

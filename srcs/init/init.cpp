@@ -25,7 +25,7 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 	carControl.canInterface		= "can0";
 	carControl.useJoystick		= true;
 	carControl.debug 			= false;
-	carControl.helperMessage	= false;
+	carControl.exit				= false;
 	carControl.can				= nullptr;
 
 	// Overriding default values using user input
@@ -35,24 +35,32 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 	// Joystick init
 	try {
 		if (carControl.useJoystick)
-			carControl.joystick = initCar();
+			carControl.joystick = initJoystick();
 	} catch (const std::exception &e) {
 		std::cerr << e.what() << std::endl;
-		exit(EXIT_FAILURE);
+		carControl.exit = true;
+		return (carControl);
 	}
 
 	// CAN_fd init
 	try {
 		carControl.can = init_can(carControl.canInterface);
-	} catch (...) {
+	} catch (const CANController::CANException& e) {
+		std::cerr << e.what() << std::endl;
 		cleanExit(carControl.joystick);
-		exit(EXIT_FAILURE);
+		carControl.exit = true;
+		return (carControl);
+	} catch (...) {
+		std::cerr << "Unexpected error during CAN init" << std::endl;
+    	cleanExit(carControl.joystick);
+    	carControl.exit = true;
+    	return carControl;
 	}
 
 	if (finalVerification(&carControl) <= 0) {
 		std::cerr << "Something went really wrong...\n" 
 				<< "Shutting down in an unsafe way.";
-		exit(EXIT_FAILURE);
+		carControl.exit = true;
 	}
 	return (carControl);
 }

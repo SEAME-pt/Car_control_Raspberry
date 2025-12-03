@@ -41,7 +41,7 @@ int	parsingArgv(int argc, char *argv[], t_carControl *carControl) {
 					  << "  --can=INTERFACE   CAN interface (default: can0)\n"
 					  << "  --debug           Enable debug output\n"
 					  << "  --help            Show this help\n" << std::endl;
-			carControl->helperMessage = true;
+			carControl->exit = true;
 			return (0);
 			
 		} else {

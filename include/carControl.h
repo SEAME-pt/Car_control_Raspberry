@@ -18,14 +18,14 @@ typedef struct s_carControl {
 	std::string		canInterface;
 	bool			useJoystick;
 	bool			debug;
-	bool			helperMessage;
+	bool			exit;
 } t_carControl;
 
 //init
 std::unique_ptr<CANController>	
 				init_can(const std::string &interface);
 t_carControl	initCarControl(int argc, char *argv[]);
-SDL_Joystick*	initCar();
+SDL_Joystick*	initJoystick();
 
 //exit
 void			cleanSDL(SDL_Joystick* joystick);

@@ -1,6 +1,6 @@
 #include "../../include/carControl.h"
 
-SDL_Joystick*	initCar() {
+SDL_Joystick*	initJoystick() {
 	if (SDL_Init(SDL_INIT_JOYSTICK) < 0)
 		throw (InitException("Failed to initialize SDL joystick"));
 
