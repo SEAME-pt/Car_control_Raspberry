@@ -1,3 +1,0 @@
-[submodule "i2c_lib"]
-	path = i2c_lib
-	url = git@github.com:SEAME-pt/I2c_lib.git
