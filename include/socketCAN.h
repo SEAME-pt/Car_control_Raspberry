@@ -16,6 +16,8 @@ extern "C" {
 #include <linux/can.h>
 #include <linux/can/raw.h>
 
+int		check_mtu_support(int s, struct ifreq *ifr);
+
 int		socketCan_init(const char *interface);
 
 int		can_send_frame(int socket, uint32_t can_id, 

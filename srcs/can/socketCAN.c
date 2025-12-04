@@ -1,6 +1,6 @@
 #include "../../include/socketCAN.h"
 
-static int	check_mtu_support(int s, struct ifreq *ifr) {
+int	check_mtu_support(int s, struct ifreq *ifr) {
 
 	// Get MTU
 	if (ioctl(s, SIOCGIFMTU, ifr) < 0) {
@@ -26,6 +26,9 @@ int	socketCan_init(const char *interface) {
 	struct ifreq		ifr;
 	int 				s;
 	int 				enable_canfd = 1;
+
+	if (!interface)
+		return (-1);
 
 	// SocketCAN initialization
 	s = socket(PF_CAN, SOCK_RAW, CAN_RAW);
