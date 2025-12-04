@@ -51,10 +51,10 @@ int	socketCan_init(const char *interface) {
 	// socket send & receive CAN frames
 	if (setsockopt(s, SOL_CAN_RAW, CAN_RAW_FD_FRAMES, 
 					&enable_canfd, sizeof(enable_canfd)) < 0) {
-        perror("setsockopt CAN_RAW_FD_FRAMES");
-        close(s);
-        return -1;
-    }
+		perror("setsockopt CAN_RAW_FD_FRAMES");
+		close(s);
+		return -1;
+	}
 
 	// Get interface index
 	if (ioctl(s, SIOCGIFINDEX, &ifr) < 0) {
@@ -84,10 +84,10 @@ int	can_send_frame(int socket, uint32_t can_id,
 	struct can_frame frame;
 
 	// Validate standard CAN ID (11-bit: 0x000 - 0x7FF)
-    if (can_id > 0x7FF) {
-        fprintf(stderr, "Invalid CAN ID: 0x%X (must be <= 0x7FF)\n", can_id);
-        return (-1);
-    }
+	if (can_id > 0x7FF) {
+		fprintf(stderr, "Invalid CAN ID: 0x%X (to large)\n", can_id);
+		return (-1);
+	}
 
 	memset(&frame, 0, sizeof(frame));
 	if (len > 8) len = 8;
@@ -110,6 +110,13 @@ int	can_send_frame_fd(int socket, uint32_t can_id,
 					  const int8_t *data, uint8_t len) {
 
 	struct canfd_frame frame;
+
+	// Validate standard CAN ID (11-bit: 0x000 - 0x7FF)
+	if (can_id > 0x7FF) {
+		fprintf(stderr, "Invalid CAN ID: 0x%X (to large)\n", can_id);
+		return (-1);
+	}
+
 	memset(&frame, 0, sizeof(frame));
 
 	if (len > 64) len = 64;
