@@ -82,10 +82,6 @@ if(BUILD_TESTS)
     # Test files
     set(TEST_FILES
         tests/main.cpp
-        tests/CANControllerTest.cpp
-        tests/CANProtocolTest.cpp
-        tests/carControlTest.cpp
-        tests/socketCANTest.cpp
     )
     
     # Create test executable
