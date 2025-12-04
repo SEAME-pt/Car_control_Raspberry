@@ -1,4 +1,4 @@
-#include "../include/carControl.h"
+#include "carControl.h"
 
 // Condition for the main loop to keep running
 bool	g_running = true;

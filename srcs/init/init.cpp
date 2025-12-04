@@ -1,4 +1,4 @@
-#include "../../include/carControl.h"
+#include "carControl.h"
 
 // Final verification step, mainly used for debugging
 static int	finalVerification(t_carControl *carControl) {

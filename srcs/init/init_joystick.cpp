@@ -1,4 +1,4 @@
-#include "../../include/carControl.h"
+#include "carControl.h"
 
 SDL_Joystick*	initJoystick() {
 

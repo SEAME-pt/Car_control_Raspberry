@@ -1,4 +1,4 @@
-#include "../../include/socketCAN.h"
+#include "socketCAN.h"
 
 int	check_mtu_support(int s, struct ifreq *ifr) {
 

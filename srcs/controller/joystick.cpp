@@ -1,4 +1,4 @@
-#include "../../include/carControl.h"
+#include "carControl.h"
 
 // Steering position from joystick
 int8_t	joystickSteering(SDL_Joystick* joystick) {

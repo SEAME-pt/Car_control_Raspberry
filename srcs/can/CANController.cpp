@@ -1,4 +1,4 @@
-#include "../../include/CANController.hpp"
+#include "CANController.hpp"
 
 // Constructor
 CANController::CANController(const std::string &interface) {
