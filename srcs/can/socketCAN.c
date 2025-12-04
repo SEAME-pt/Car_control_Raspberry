@@ -9,10 +9,8 @@ int	check_mtu_support(int s, struct ifreq *ifr) {
 	}
 
 	// Check CAN_FD support
-	if (ifr->ifr_mtu == CANFD_MTU) {
-		printf("Device supports CAN FD\n");
+	if (ifr->ifr_mtu == CANFD_MTU)
 		return (0);
-	}
 	else if (ifr->ifr_mtu == CAN_MTU)
 		printf("Device only supports Classical CAN\n");
 	else
@@ -53,7 +51,7 @@ int	socketCan_init(const char *interface) {
 					&enable_canfd, sizeof(enable_canfd)) < 0) {
 		perror("setsockopt CAN_RAW_FD_FRAMES");
 		close(s);
-		return -1;
+		return (-1);
 	}
 
 	// Get interface index

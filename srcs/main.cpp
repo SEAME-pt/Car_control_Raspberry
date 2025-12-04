@@ -1,7 +1,7 @@
 #include "carControl.h"
 
 // Condition for the main loop to keep running
-bool	g_running = true;
+volatile bool	g_running = true;
 
 static void	signalHandler(int signum) {
 
@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
 	if (carControl.exit)
 		return (1);
 
-	std::cout << "🚗 Starting car control system...\n" << std::endl;
+	std::cout << "Starting car control main loop...\n" << std::endl;
 
 	try {
 		// Set initial state

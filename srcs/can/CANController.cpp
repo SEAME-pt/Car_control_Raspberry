@@ -1,11 +1,9 @@
 #include "CANController.hpp"
 
 // Constructor
-CANController::CANController(const std::string &interface) {
+CANController::CANController(const std::string &interface) 
+	: _interface(interface) {
 
-	if (!&interface)
-		throw CANException("ERROR! Can't accept empty Interface");
-	_interface = interface;
 	_socket = -1;
 	_initialized = false;
 	initialize();
@@ -56,7 +54,6 @@ void	CANController::initialize() {
 		+ _interface);
 	}
 	_initialized = true;
-	std::cout << "SocketCAN initialized" << std::endl;
 }
 
 void	CANController::cleanup() {
