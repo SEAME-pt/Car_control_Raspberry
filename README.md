@@ -133,16 +133,14 @@ SDL_Joystick *joystick = SDL_JoystickOpen(CONTROLLER_0);
 # Default values
 # Notice that default values are prepared only for the final result of communication
 # with STM32 and properly connection with joystick
-
 cd build
 make
-./car
+sudo ./car
 
 # For additional input information:
 ./car --help
 
 # Testing purposes inside coding machine
-
 sudo modprobe vcan
 sudo ip link add dev vcan0 type vcan
 sudo ip link set vcan0 mtu 72
@@ -156,6 +154,11 @@ candump vcan0
 
 # Terminal 2: Run
 sudo ./car --can=vcan0 --joy=false --debug
+
+# Note: This program includes EXTENSIVE tests. To run them, follow the steps below:
+cd build
+make
+sudo ./tests
 ```
 
 # 3D Car Design
