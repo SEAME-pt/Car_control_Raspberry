@@ -130,6 +130,6 @@ if(ENABLE_COVERAGE)
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         DEPENDS tests
         COMMENT "Generating coverage report..."
-		COMMAND xdg-open coverage_html/index.html
+        COMMAND /bin/sh -c "if [ -n \"\$DISPLAY\" ] || [ -n \"\$WAYLAND_DISPLAY\" ]; then xdg-open coverage_html/index.html; else echo 'No graphical environment detected, skipping auto-open of coverage report.'; fi"
     )
 endif()
