@@ -83,7 +83,7 @@ int	can_send_frame(int socket, uint32_t can_id,
 
 	// Validate standard CAN ID (11-bit: 0x000 - 0x7FF)
 	if (can_id > 0x7FF) {
-		fprintf(stderr, "Invalid CAN ID: 0x%X (to large)\n", can_id);
+		fprintf(stderr, "Invalid CAN ID: 0x%X (too large)\n", can_id);
 		return (-1);
 	}
 
