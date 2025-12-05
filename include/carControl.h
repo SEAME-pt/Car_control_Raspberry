@@ -51,6 +51,6 @@ void			cleanExit(SDL_Joystick* joystick);
 
 //utils
 int				parsingArgv(int argc, char *argv[],
-				t_carControl *carControl);
+				                    t_carControl *carControl);
 
 extern volatile bool	g_running;
