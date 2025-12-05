@@ -12,7 +12,7 @@
 class CANController {
 
 public:
-	CANController(const std::string &);
+	CANController(const std::string &interface);
 	~CANController();
 
 	CANController(const CANController&) = delete;

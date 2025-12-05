@@ -1,4 +1,4 @@
-#include "../../include/carControl.h"
+#include "carControl.h"
 
 // Convert input "TRUE"/"FALSE" strings into actual booleans
 static bool parseBool(const std::string& value, bool defaultValue = false) {
@@ -46,7 +46,9 @@ int	parsingArgv(int argc, char *argv[], t_carControl *carControl) {
 			
 		} else {
 			std::cerr << "  Unknown option: " << arg << std::endl;
-			std::cerr << "  Use --help for usage information" << std::endl;
+			std::cerr << "  Use --help for more information" << std::endl;
+			carControl->exit = true;
+			return (0);
 		}
 	}
 	return (1);

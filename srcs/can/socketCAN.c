@@ -1,6 +1,6 @@
-#include "../../include/socketCAN.h"
+#include "socketCAN.h"
 
-static int	check_mtu_support(int s, struct ifreq *ifr) {
+int	check_mtu_support(int s, struct ifreq *ifr) {
 
 	// Get MTU
 	if (ioctl(s, SIOCGIFMTU, ifr) < 0) {
@@ -9,10 +9,8 @@ static int	check_mtu_support(int s, struct ifreq *ifr) {
 	}
 
 	// Check CAN_FD support
-	if (ifr->ifr_mtu == CANFD_MTU) {
-		printf("Device supports CAN FD\n");
+	if (ifr->ifr_mtu == CANFD_MTU)
 		return (0);
-	}
 	else if (ifr->ifr_mtu == CAN_MTU)
 		printf("Device only supports Classical CAN\n");
 	else
@@ -26,6 +24,9 @@ int	socketCan_init(const char *interface) {
 	struct ifreq		ifr;
 	int 				s;
 	int 				enable_canfd = 1;
+
+	if (!interface)
+		return (-1);
 
 	// SocketCAN initialization
 	s = socket(PF_CAN, SOCK_RAW, CAN_RAW);
@@ -48,10 +49,10 @@ int	socketCan_init(const char *interface) {
 	// socket send & receive CAN frames
 	if (setsockopt(s, SOL_CAN_RAW, CAN_RAW_FD_FRAMES, 
 					&enable_canfd, sizeof(enable_canfd)) < 0) {
-        perror("setsockopt CAN_RAW_FD_FRAMES");
-        close(s);
-        return -1;
-    }
+		perror("setsockopt CAN_RAW_FD_FRAMES");
+		close(s);
+		return (-1);
+	}
 
 	// Get interface index
 	if (ioctl(s, SIOCGIFINDEX, &ifr) < 0) {
@@ -79,6 +80,13 @@ int	can_send_frame(int socket, uint32_t can_id,
 		const int8_t *data, uint8_t len) {
 
 	struct can_frame frame;
+
+	// Validate standard CAN ID (11-bit: 0x000 - 0x7FF)
+	if (can_id > 0x7FF) {
+		fprintf(stderr, "Invalid CAN ID: 0x%X (too large)\n", can_id);
+		return (-1);
+	}
+
 	memset(&frame, 0, sizeof(frame));
 	if (len > 8) len = 8;
 
@@ -100,6 +108,13 @@ int	can_send_frame_fd(int socket, uint32_t can_id,
 					  const int8_t *data, uint8_t len) {
 
 	struct canfd_frame frame;
+
+	// Validate standard CAN ID (11-bit: 0x000 - 0x7FF)
+	if (can_id > 0x7FF) {
+		fprintf(stderr, "Invalid CAN ID: 0x%X (too large)\n", can_id);
+		return (-1);
+	}
+
 	memset(&frame, 0, sizeof(frame));
 
 	if (len > 64) len = 64;
