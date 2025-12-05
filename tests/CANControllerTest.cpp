@@ -6,7 +6,7 @@ class CANControllerTest : public ::testing::Test {
 protected:
 	const std::string validInterface = "vcan0";
 	const std::string invalidInterface = "invalid_can99";
-	const std::string EmptyInterface = "";
+	const std::string emptyInterface = "";
 
 	void SetUp() override {
 		// Setup vcan0
@@ -38,7 +38,7 @@ TEST_F(CANControllerTest, InvalidConstructor) {
 	}, CANController::CANException);
 
 	EXPECT_THROW({
-		CANController can(EmptyInterface);
+		CANController can(emptyInterface);
 	}, CANController::CANException);
 }
 
@@ -143,7 +143,7 @@ TEST_F(CANControllerTest, IrregularInitialized) {
 	}, CANController::CANException);
 
 	EXPECT_THROW({
-		CANController can(EmptyInterface);
+		CANController can(emptyInterface);
 		EXPECT_FALSE(can.isInitialized());
 	}, CANController::CANException);
 }

@@ -16,6 +16,7 @@ This platform integrates tools like:
 - SDL
 - SocketCAN
 - Google Tests
+- lcov
 
 ---
 
@@ -134,6 +135,7 @@ SDL_Joystick *joystick = SDL_JoystickOpen(CONTROLLER_0);
 # Notice that default values are prepared only for the final result of communication
 # with STM32 and properly connection with joystick
 cd build
+cmake ..
 make
 sudo ./car
 
@@ -147,6 +149,7 @@ sudo ip link set vcan0 mtu 72
 sudo ip link set up vcan0
 
 cd build
+cmake ..
 make
 
 # Terminal 1: Monitor
@@ -157,8 +160,9 @@ sudo ./car --can=vcan0 --joy=false --debug
 
 # Note: This program includes EXTENSIVE tests. To run them, follow the steps below:
 cd build
-make
-sudo ./tests
+rm -rf *
+cmake -DENABLE_COVERAGE=ON ..
+make coverage
 ```
 
 # 3D Car Design

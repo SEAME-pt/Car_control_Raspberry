@@ -112,10 +112,10 @@ TEST_F(CarControlInitTest, WithJoystickIfAvailable) {
 		GTEST_SKIP() << "No joystick connected";
 	}
 	SDL_Quit();
-	
-	const char* argv[] = {"car", "-can=vcan0"};
+
+	const char* argv[] = {"car", "--can=vcan0"};
 	int argc = 2;
-	
+
 	t_carControl ctrl = initCarControl(argc, const_cast<char**>(argv));
 
 	EXPECT_FALSE(ctrl.exit);
@@ -133,7 +133,7 @@ TEST_F(CarControlInitTest, CleanExit) {
 	ASSERT_NO_THROW({
 		cleanExit(nullptr);
 	});
-	
+
 	// Valid joystick (if available)
 	if (SDL_Init(SDL_INIT_JOYSTICK) >= 0 && SDL_NumJoysticks() > 0) {
 		SDL_Joystick* joy = SDL_JoystickOpen(0);

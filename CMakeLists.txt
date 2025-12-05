@@ -81,7 +81,12 @@ if(BUILD_TESTS)
     
     # Test files
     set(TEST_FILES
-        tests/main.cpp
+        tests/CANControllerTest.cpp
+		tests/CANInitTest.cpp
+		tests/CANProtocolTest.cpp
+		tests/CarControlTest.cpp
+		tests/JoystickTest.cpp
+		tests/SocketCANTest.cpp
     )
     
     # Create test executable
@@ -102,4 +107,29 @@ if(BUILD_TESTS)
     
     message(STATUS "Tests enabled")
     message(STATUS "GTest found: ${GTest_FOUND}")
+endif()
+
+# ================================
+# Code Coverage
+# ================================
+option(ENABLE_COVERAGE "Enable code coverage" OFF)
+
+if(ENABLE_COVERAGE)
+    message(STATUS "Code coverage enabled")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+    
+    # Optional: Add coverage target
+    add_custom_target(coverage
+        COMMAND ${CMAKE_BINARY_DIR}/tests
+        COMMAND lcov --capture --directory . --output-file coverage.info --ignore-errors mismatch
+        COMMAND lcov --remove coverage.info '/usr/*' '*/tests/*' --output-file coverage_filtered.info --ignore-errors mismatch,unused
+        COMMAND genhtml coverage_filtered.info --output-directory coverage_html
+        COMMAND echo "Coverage report: coverage_html/index.html"
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        DEPENDS tests
+        COMMENT "Generating coverage report..."
+		COMMAND xdg-open coverage_html/index.html
+    )
 endif()

@@ -65,7 +65,7 @@ TEST_F(socketCANTest, InvalidCheckMTU) {
 // socketCan_init
 TEST_F(socketCANTest, ValidSocketInit) {
 
-	// Test 1: Normal int with valid interface
+	// Test 1: Normal init with valid interface
 	{
 		int s = socketCan_init(validInterface);
 		ASSERT_GE(s, 0);
