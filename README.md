@@ -1,19 +1,18 @@
 # TEAM1 - Velocity Era
 
-Repository created to consolidate the most up to date software stack for our autonomous vehicle, affectionately called Vera that runs in a Raspberry Pi 5.
-
-## Overview
-
-This program requires a controller to capture joystick input, detect axis movement, and compute the commands that determine the car’s speed and steering direction. Its main purpose is to process these inputs and transmit the corresponding instructions to the microcontroller via CAN-FD, enabling the car to move accordingly.
+This repository consolidates the most up to date software stack for our autonomous vehicle, Vera, which runs on a Raspberry Pi 5. Currently, the program fully integrates joystick support, capturing axis values and converting them into I²C data. These values are then transmitted via CAN-FD to the microcontroller, enabling safe and reliable control of Vera’s movement in a safety critical environment.
 
 Additionally, the program is responsible for running the Qt interface, which displays on the car’s screen the data received from the microcontroller (such as speed sensor readings and motor/servo feedback) also communicated through CAN-FD.
 
+## Overview
+
 Components of this project:
 - Raspberry Pi 5
+- CAN-BUS(FD) HAT for Raspberry Pi
 - Joystick
 
-This platform integrates tools like:
-- SDL
+This platform integrates dependencies like:
+- SDL2
 - SocketCAN
 - Google Tests
 - lcov
@@ -48,13 +47,25 @@ TEAM1-Car_control_Raspberry/
 │   ├── init/                            # Initialization modules
 │   │   ├── init.cpp                     # Main initialization
 │   │   ├── init_can.cpp                 # CAN initialization (returns unique_ptr)
-│   │   └── init_joystick.cpp             # Joystick
+│   │   └── init_joystick.cpp            # Joystick
 │   │
 │   └── utils/                           # Utility functions
 │       └── parsing.cpp                  # Command-line argument parsing
 │
+├── tests/
+│ ├── CANControllerTest.cpp 			 # CAN controller unit tests
+│ ├── CANInitTest.cpp 					 # CAN initialization tests
+│ ├── CANProtocolTest.cpp 				 # CAN protocol tests
+│ ├── CarControlTest.cpp 				 # Main control system tests
+│ ├── JoystickTest.cpp 					 # Joystick handling tests
+│ └── SocketCANTest.cpp 				 # Low-level CAN socket tests
+│
+├── scripts/
+│ ├── install_lcov.sh 					 # Install lcov for coverage
+│ ├── install_GoogleTest.sh 			 # Install Google Test framework
+│ └── install_sdl2.sh 					 # Install SDL2 library
+│
 └── build/                               # Build output (gitignored)
-    ├── CMakeCache.txt
     ├── Makefile
     └── car                              # Executable
 ```
@@ -130,25 +141,48 @@ SDL_Joystick *joystick = SDL_JoystickOpen(CONTROLLER_0);
 
 ## Instructions to run the program
 
+Is this your first time running the program? If so, check out how to properly install all dependencies:
+
+```shell
+cd scripts
+chmod +x install_lcov.sh
+chmod +x install_GoogleTest.sh
+chmod +x install_sdl2.sh
+
+./install_lcov.sh
+./install_GoogleTest.sh
+./install_sdl2.sh
+
+cd .. && mkdir build && cd build
+cmake ..
+make
+```
+
+After that, all you need to do is use the Makefile and run the executable. But before proceeding, if you have any questions, first run:
+
+```shell
+# This will show all available input options, as well as the default values that will be used if none are selected.
+./car --help
+```
+
 ```bash
 # Default values
-# Notice that default values are prepared only for the final result of communication
+# Notice that default values are prepared ONLY for the final result of communication
 # with STM32 and properly connection with joystick
 cd build
 cmake ..
 make
 sudo ./car
+```
 
-# For additional input information:
-./car --help
-
-# Testing purposes inside coding machine
+```shell
+# Debug purposes inside coding machine
 sudo modprobe vcan
 sudo ip link add dev vcan0 type vcan
 sudo ip link set vcan0 mtu 72
 sudo ip link set up vcan0
 
-cd build
+cd build 	
 cmake ..
 make
 
@@ -157,19 +191,20 @@ candump vcan0
 
 # Terminal 2: Run
 sudo ./car --can=vcan0 --debug
+```
 
-# Note: This program includes EXTENSIVE tests. To run them, follow the steps below:
+This program also includes a full test suite with 100% function coverage. If you wish to run the tests, follow these steps:
+```shell
 cd build
 rm -rf *
 cmake -DENABLE_COVERAGE=ON ..
 make coverage
 ```
 
-# 3D Car Design
-
-![car](https://github.com/user-attachments/assets/4c4beb0f-d26a-477a-bbbb-80e5452a20ef)
-
 ---
+
+## Note
+Root permissions are required due to CAN socket initialization and, when testing, to properly create a virtual interface that simulates a CAN transceiver inside the development machine.
 
 ## Team members
 
