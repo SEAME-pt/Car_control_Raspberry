@@ -156,25 +156,25 @@ TEST_F(socketCANTest, InvalidSocketInit) {
 	// socket creation failed
 	{
 		// get the max amount of fd on my system
-    	struct rlimit limit;
-        getrlimit(RLIMIT_NOFILE, &limit);
+		struct rlimit limit;
+		getrlimit(RLIMIT_NOFILE, &limit);
 
 		std::vector<int> fds;
 
 		int max_attempts = limit.rlim_cur;
 
 		for (int i = 0; i < max_attempts; i++) {
-            int fd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
-            if (fd < 0)
+			int fd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+			if (fd < 0)
 				break;
-            fds.push_back(fd);
-        }
+			fds.push_back(fd);
+		}
 
 		int result = socketCan_init(validInterface);
-        EXPECT_LT(result, 0);
-        
-        // Cleanup
-        for (int fd : fds)
+		EXPECT_LT(result, 0);
+		
+		// Cleanup
+		for (int fd : fds)
 			close(fd);
 	}
 }
