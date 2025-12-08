@@ -156,7 +156,7 @@ make
 candump vcan0
 
 # Terminal 2: Run
-sudo ./car --can=vcan0 --joy=false --debug
+sudo ./car --can=vcan0 --debug
 
 # Note: This program includes EXTENSIVE tests. To run them, follow the steps below:
 cd build
