@@ -36,7 +36,7 @@ TEST_F(JoystickTest, NoJoystickConnected) {
 // Test SDL initialization
 TEST_F(JoystickTest, SDLInit) {
 
-	// Test normal SDL inicialization
+	// Test normal SDL initialization
 	EXPECT_GE(SDL_Init(SDL_INIT_JOYSTICK), 0);
 
 	int numJoysticks = SDL_NumJoysticks();
