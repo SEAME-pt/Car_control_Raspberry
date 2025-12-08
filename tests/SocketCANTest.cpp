@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <sys/resource.h>
 #include <socketCAN.h>
 
 class socketCANTest : public ::testing::Test {
@@ -24,18 +25,43 @@ protected:
 //check_mtu_support
 TEST_F(socketCANTest, ValidCheckMTU) {
 
-	int s = socket(PF_CAN, SOCK_RAW, CAN_RAW);
-	struct ifreq ifr;
-	ASSERT_NE(s, -1);
+	// test normal mtu being = to 72
+	{
+		int s = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+		struct ifreq ifr;
+		ASSERT_NE(s, -1);
+	
+		strncpy(ifr.ifr_name, validInterface, IFNAMSIZ);
+		ASSERT_EQ(ioctl(s, SIOCGIFINDEX, &ifr), 0);
+	
+		int result = check_mtu_support(s, &ifr);
+		EXPECT_EQ(result, 0);
+		EXPECT_EQ(ifr.ifr_mtu, CANFD_MTU); // PASS = 72
+	
+		close(s);
+	}
+	// test mtu for classical can = 16
+	{
+		system("sudo ip link delete vcan0 2>/dev/null");
+		system("sudo ip link add dev vcan0 type vcan");
+		system("sudo ip link set vcan0 down");
+		system("sudo ip link set vcan0 mtu 16");
+		system("sudo ip link set up vcan0");
 
-	strncpy(ifr.ifr_name, validInterface, IFNAMSIZ);
-	ASSERT_EQ(ioctl(s, SIOCGIFINDEX, &ifr), 0);
+		int s = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+		struct ifreq ifr;
+		ASSERT_NE(s, -1);
+	
+		strncpy(ifr.ifr_name, validInterface, IFNAMSIZ);
+		ASSERT_EQ(ioctl(s, SIOCGIFINDEX, &ifr), 0);
+	
+		int result = check_mtu_support(s, &ifr);
 
-	int result = check_mtu_support(s, &ifr);
-	EXPECT_EQ(result, 0);
-	EXPECT_EQ(ifr.ifr_mtu, CANFD_MTU); // PASS = 72
-
-	close(s);
+		EXPECT_EQ(result, 1);
+		EXPECT_EQ(ifr.ifr_mtu, CAN_MTU); // PASS = 16
+	
+		close(s);
+	}
 }
 
 //check_mtu_support
@@ -118,13 +144,39 @@ TEST_F(socketCANTest, ValidSocketInit) {
 // socketCan_init
 TEST_F(socketCANTest, InvalidSocketInit) {
 
-	// invalid interfaces
-	int s1 = socketCan_init(invalidInterface);
-	EXPECT_LT(s1, 0);
-	int s2 = socketCan_init(emptyInterface);
-	EXPECT_LT(s2, 0);
-	int s3 = socketCan_init(NULL);
-	EXPECT_LT(s3, 0);
+	{
+		// invalid interfaces
+		int s1 = socketCan_init(invalidInterface);
+		EXPECT_LT(s1, 0);
+		int s2 = socketCan_init(emptyInterface);
+		EXPECT_LT(s2, 0);
+		int s3 = socketCan_init(NULL);
+		EXPECT_LT(s3, 0);
+	}
+	// socket creation failed
+	{
+		// get the max amount of fd on my system
+    	struct rlimit limit;
+        getrlimit(RLIMIT_NOFILE, &limit);
+
+		std::vector<int> fds;
+
+		int max_attempts = limit.rlim_cur;
+
+		for (int i = 0; i < max_attempts; i++) {
+            int fd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+            if (fd < 0)
+				break;
+            fds.push_back(fd);
+        }
+
+		int result = socketCan_init(validInterface);
+        EXPECT_LT(result, 0);
+        
+        // Cleanup
+        for (int fd : fds)
+			close(fd);
+	}
 }
 
 // can_send_frame - Invalid tests
