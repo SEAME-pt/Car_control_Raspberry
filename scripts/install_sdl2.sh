@@ -3,7 +3,7 @@
 set -e
 
 echo "Updating system..."
-sudo apt update && sudo apt upgrade -y
+sudo apt update
 
 echo "Installing SDL2 core and extensions..."
 sudo apt install -y \
