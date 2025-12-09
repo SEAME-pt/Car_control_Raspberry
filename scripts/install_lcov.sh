@@ -4,7 +4,7 @@ set -e
 
 # Update system
 echo "Updating system..."
-sudo apt update && sudo apt upgrade -y
+sudo apt update
 
 # Install dependencies
 echo "Installing required packages..."
