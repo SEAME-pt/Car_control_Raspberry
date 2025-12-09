@@ -60,7 +60,8 @@ TEST_F(CarControlInitTest, JoystickEnabledButNotConnected) {
 	int argc = 2;
 	
 	t_carControl ctrl = initCarControl(argc, const_cast<char**>(argv));
-	
+	if (ctrl.joystick)
+		GTEST_SKIP();
 	// Should fail due to no joystick
 	EXPECT_TRUE(ctrl.exit);
 	EXPECT_TRUE(ctrl.useJoystick);
@@ -70,14 +71,44 @@ TEST_F(CarControlInitTest, JoystickEnabledButNotConnected) {
 // Test default values
 TEST_F(CarControlInitTest, DefaultValues) {
 
-	const char* argv[] = {"car", "--joy=false"};
-	int argc = 2;
+	//test some input being equal to false
+	{
+		const char* argv[] = {"car", "--joy=false"};
+		int argc = 2;
+		
+		t_carControl ctrl = initCarControl(argc, const_cast<char**>(argv));
 	
-	t_carControl ctrl = initCarControl(argc, const_cast<char**>(argv));
+		EXPECT_FALSE(ctrl.useJoystick);
+		EXPECT_FALSE(ctrl.debug);
+		EXPECT_EQ(ctrl.canInterface, "can0");
+	}
+	//test some input being equal to true
+	{
+		const char* argv[] = {"car", "--joy=weirdBool"};
+		int argc = 2;
+	
+		t_carControl ctrl = initCarControl(argc, const_cast<char**>(argv));
 
-	EXPECT_FALSE(ctrl.useJoystick);
-	EXPECT_FALSE(ctrl.debug);
-	EXPECT_EQ(ctrl.canInterface, "can0");
+		EXPECT_TRUE(ctrl.useJoystick);
+	}
+	// test a valid bool but in a diff format
+	{
+		const char* argv[] = {"car", "--joy=TRUE"};
+		int argc = 2;
+	
+		t_carControl ctrl = initCarControl(argc, const_cast<char**>(argv));
+
+		EXPECT_TRUE(ctrl.useJoystick);
+	}
+	// test "--help" input flag
+	{
+		const char* argv[] = {"car", "--help"};
+		int argc = 2;
+		
+		t_carControl ctrl = initCarControl(argc, const_cast<char**>(argv));
+	
+		EXPECT_TRUE(ctrl.exit);
+	}
 }
 
 // Test with debug flag

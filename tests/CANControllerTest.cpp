@@ -85,23 +85,29 @@ TEST_F(CANControllerTest, MoveConstructor) {
 //move assignment operator
 TEST_F(CANControllerTest, AssignmentOperator) {
 
-		//create original object
-		CANController original(validInterface);
-		EXPECT_TRUE(original.isInitialized());
-		int originalSocket = original.getSocket();
-		EXPECT_GE(originalSocket, 0);
+	CANController original(validInterface);
+	CANController target(validInterface);
+	
+	EXPECT_TRUE(original.isInitialized());
+	EXPECT_TRUE(target.isInitialized());
+	
+	int originalSocket = original.getSocket();
+	int targetSocket = target.getSocket();
+	
+	EXPECT_GE(originalSocket, 0);
+	EXPECT_GE(targetSocket, 0);
+	EXPECT_NE(originalSocket, targetSocket);
 
-		// Assign new object from original
-		CANController copy = std::move(original);
+	target = std::move(original);
 
-		// Verify moved-to object has the resources
-		EXPECT_TRUE(copy.isInitialized());
-		EXPECT_EQ(copy.getInterface(), validInterface);
-		EXPECT_EQ(copy.getSocket(), originalSocket);
+	// Verify moved to object has the resources
+	EXPECT_TRUE(target.isInitialized());
+	EXPECT_EQ(target.getInterface(), validInterface);
+	EXPECT_EQ(target.getSocket(), originalSocket);
 
-		// Verify moved from object is in safe empty state
-		EXPECT_FALSE(original.isInitialized());
-		EXPECT_LT(original.getSocket(), 0);
+	// Verify moved from object is in safe empty state
+	EXPECT_FALSE(original.isInitialized());
+	EXPECT_LT(original.getSocket(), 0);
 }
 
 //cleanup method
@@ -415,6 +421,51 @@ TEST_F(CANControllerTest, ValidSendFrameFD) {
 		
 		// Should truncate to 64 bytes, not throw
 		ASSERT_NO_THROW(can.sendFrameFD(can_id, oversized, 100));
+	}
+}
+
+//CAN_FD sendFrame - Should fail
+TEST_F(CANControllerTest, InvalidSendFrameFD) {
+	
+	// Test 1: Send on uninitialized controller
+	{
+		CANController can(validInterface);
+		can.cleanup();
+		EXPECT_FALSE(can.isInitialized());
+		
+		int8_t data[2] = {50, 0};
+		EXPECT_THROW(can.sendFrameFD(0x100, data, 2), CANController::CANException);
+	}
+	
+	// Test 2: Send with invalid socket (moved-from object)
+	{
+		CANController original(validInterface);
+		CANController moved(std::move(original));
+		
+		int8_t data[2] = {50, 0};
+		EXPECT_THROW(original.sendFrameFD(0x100, data, 2), CANController::CANException);
+	}
+	
+	// Test 3: Send on closed socket
+	{
+		CANController can(validInterface);
+		int socket = can.getSocket();
+		close(socket);
+		
+		int8_t data[2] = {50, 0};
+		EXPECT_THROW(can.sendFrameFD(0x100, data, 2), CANController::CANException);
+	}
+	
+	// Test 4: Invalid CAN ID
+	{
+		CANController can(validInterface);
+		int8_t data[2] = {50, 0};
+	
+		uint32_t invalid_id = 0xFFFFFFFF;
+		EXPECT_THROW(can.sendFrameFD(invalid_id, data, 2), CANController::CANException);
+	
+		uint32_t just_over_limit = 0x800;
+		EXPECT_THROW(can.sendFrameFD(just_over_limit, data, 2), CANController::CANException);
 	}
 }
 

@@ -21,19 +21,26 @@ protected:
 // Test when no joystick is connected
 TEST_F(JoystickTest, NoJoystickConnected) {
 
+	const char* argv[] = {"car", "--can=vcan0"};
+	int argc = 2;
+	
+	t_carControl ctrl = initCarControl(argc, const_cast<char**>(argv));
+	if (ctrl.joystick)
+		GTEST_SKIP();
+
 	EXPECT_THROW({
 		SDL_Joystick* joy = initJoystick();
 	}, InitException);
 }
 
-// Test SDL initialization works
+// Test SDL initialization
 TEST_F(JoystickTest, SDLInit) {
-	// Test that SDL can at least initialize
+
+	// Test normal SDL initialization
 	EXPECT_GE(SDL_Init(SDL_INIT_JOYSTICK), 0);
 
 	int numJoysticks = SDL_NumJoysticks();
 	EXPECT_GE(numJoysticks, 0);
-	
 	SDL_Quit();
 }
 
@@ -48,7 +55,7 @@ TEST_F(JoystickTest, InitWithJoystick) {
 	ASSERT_NO_THROW({
 		joy = initJoystick();
 	});
-	
+
 	ASSERT_NE(joy, nullptr);
 	EXPECT_TRUE(SDL_JoystickGetAttached(joy));
 
@@ -57,6 +64,13 @@ TEST_F(JoystickTest, InitWithJoystick) {
 }
 
 TEST_F(JoystickTest, JoyErrorHandling) {
+
+	const char* argv[] = {"car", "--can=vcan0"};
+	int argc = 2;
+	
+	t_carControl ctrl = initCarControl(argc, const_cast<char**>(argv));
+	if (ctrl.joystick)
+		GTEST_SKIP();
 
 	EXPECT_THROW({
 		initJoystick();

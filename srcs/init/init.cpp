@@ -1,20 +1,5 @@
 #include "carControl.h"
 
-// Final verification step, mainly used for debugging
-static int	finalVerification(t_carControl *carControl) {
-
-	if (carControl->useJoystick && !carControl->joystick) {
-		std::cerr << "Error! Joystick was not properly initialized." << std::endl;
-		cleanExit(carControl->joystick);
-		return (0);
-	}
-	if (!carControl->can) {
-		std::cerr << "Error! CAN was not properly initialized..." << std::endl;
-		return (0);
-	}
-	return (1);
-}
-
 // Initialize all core components required for correct program operation
 t_carControl	initCarControl(int argc, char *argv[]) {
 
@@ -55,12 +40,6 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 		cleanExit(carControl.joystick);
 		carControl.exit = true;
 		return (carControl);
-	}
-
-	if (finalVerification(&carControl) <= 0) {
-		std::cerr << "Something went really wrong...\n" 
-				<< "Shutting down in an unsafe way.";
-		carControl.exit = true;
 	}
 	return (carControl);
 }

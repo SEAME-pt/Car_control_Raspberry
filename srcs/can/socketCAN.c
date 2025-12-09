@@ -13,8 +13,6 @@ int	check_mtu_support(int s, struct ifreq *ifr) {
 		return (0);
 	else if (ifr->ifr_mtu == CAN_MTU)
 		printf("Device only supports Classical CAN\n");
-	else
-		printf("Unknown MTU: %d\n", ifr->ifr_mtu);
 	return (1);
 }
 
