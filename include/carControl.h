@@ -3,9 +3,12 @@
 #include "exceptions.hpp"
 #include "CANController.hpp"
 #include "CANProtocol.hpp"
+#include "joyStick.hpp"
 
 #include <csignal>
-#include <SDL2/SDL.h>
+#include <iostream>
+#include <unistd.h>
+#include <fcntl.h>
 
 //index of the controller, if 0, the first, 
 //and only the first, has permission to connect
@@ -31,7 +34,7 @@ typedef struct s_carControl {
 
 	std::unique_ptr<CANController>	
 					can;
-	SDL_Joystick	*joystick;
+	joyStick		*controller;
 	std::string		canInterface;
 	bool			useJoystick;
 	bool			debug;
@@ -39,15 +42,15 @@ typedef struct s_carControl {
 } t_carControl;
 
 //controller
-int8_t			joystickSteering(SDL_Joystick* joystick);
-int8_t			joystickThrottle(SDL_Joystick* joystick);
+// int8_t			joystickSteering(SDL_Joystick* joystick);
+// int8_t			joystickThrottle(SDL_Joystick* joystick);
 
 //init
 std::unique_ptr<CANController>	
 				init_can(const std::string &interface);
 t_carControl	initCarControl(int argc, char *argv[]);
-SDL_Joystick*	initJoystick();
-void			cleanExit(SDL_Joystick* joystick);
+// SDL_Joystick*	initJoystick();
+// void			cleanExit(SDL_Joystick* joystick);
 
 //utils
 int				parsingArgv(int argc, char *argv[],
