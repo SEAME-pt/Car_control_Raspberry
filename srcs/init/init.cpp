@@ -6,7 +6,8 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 	t_carControl	carControl;
 
 	//Initializing carControl with default values
-	carControl.controller = new joyStick(static_cast<const char *>("/dev/input/event25"));
+	carControl.controller = nullptr;
+	// carControl.controller = new joyStick(static_cast<const char *>("/dev/input/event25"));
 	carControl.canInterface		= "can0";
 	carControl.useJoystick		= true;
 	carControl.debug 			= false;

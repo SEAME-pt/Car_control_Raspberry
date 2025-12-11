@@ -13,10 +13,10 @@ joyStick::joyStick(const char *device)
         close(fd);
 		throw std::runtime_error(std::string("joyStick: failed init libevdev for device"));
     }
-    std::cout << "Opened: " << libevdev_get_name(dev) << " (bus="
-              << libevdev_get_id_bustype(dev) << " vendor="
-              << libevdev_get_id_vendor(dev) << " product="
-              << libevdev_get_id_product(dev) << ")\n";
+    //std::cout << "Opened: " << libevdev_get_name(dev) << " (bus="
+    //          << libevdev_get_id_bustype(dev) << " vendor="
+    //          << libevdev_get_id_vendor(dev) << " product="
+    //          << libevdev_get_id_product(dev) << ")\n";
     if (libevdev_grab(dev, LIBEVDEV_GRAB) != 0) {
 		throw std::runtime_error(std::string("joyStick: failed to grab device"));
 	}

@@ -15,6 +15,7 @@ int main(int argc, char *argv[]) {
 
 	try {
 		t_carControl carControl = initCarControl(argc, argv);
+		carControl.controller = new joyStick(static_cast<const char *>("/dev/input/event25"));
 		CANProtocol::sendDriveMode(*carControl.can, DriveMode::MANUAL);
 		CANProtocol::sendEmergencyBrake(*carControl.can, false);
 		CANProtocol::sendDriveCommand(*carControl.can, MID_ANGLE, 0);  // Center, stopped
@@ -31,5 +32,3 @@ int main(int argc, char *argv[]) {
 	}
 	return (0);
 }
-
-// git submodule update --init --recursive
