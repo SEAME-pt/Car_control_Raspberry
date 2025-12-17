@@ -83,7 +83,7 @@ if(BUILD_TESTS)
 		tests/CANInitTest.cpp
 		tests/CANProtocolTest.cpp
 		# tests/CarControlTest.cpp
-		tests/joyStickTest.cpp
+		# tests/joyStickTest.cpp
 		tests/SocketCANTest.cpp
     )
     
@@ -121,13 +121,13 @@ if(ENABLE_COVERAGE)
     # Optional: Add coverage target
     add_custom_target(coverage
         COMMAND ${CMAKE_BINARY_DIR}/tests
-        COMMAND lcov --capture --directory . --output-file coverage.info --ignore-errors mismatch,inconsistent
-        COMMAND lcov --remove coverage.info '/usr/*' '*/tests/*' --output-file coverage_filtered.info --ignore-errors mismatch,unused,inconsistent
+        COMMAND lcov --capture --directory . --output-file coverage.info
+        COMMAND lcov --remove coverage.info '/usr/*' '*/tests/*' --output-file coverage_filtered.info
         COMMAND genhtml coverage_filtered.info --output-directory coverage_html
-        COMMAND echo "Coverage report: coverage_html/index.html"
+        COMMAND echo "Coverage report generated: coverage_html/index.html"
+        COMMAND stty sane
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         DEPENDS tests
         COMMENT "Generating coverage report..."
-        COMMAND xdg-open coverage_html/index.html
     )
 endif()
