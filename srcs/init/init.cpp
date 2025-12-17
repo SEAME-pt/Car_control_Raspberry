@@ -17,15 +17,6 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 	// Overriding default values using user input
 	if (parsingArgv(argc, argv, &carControl) <= 0)
 		return (carControl);
-	// Joystick init
-	try {
-		// if (carControl.useJoystick)
-		// 	carControl.joystick = initJoystick();
-	} catch (const std::exception &e) {
-		std::cerr << e.what() << std::endl;
-		carControl.exit = true;
-		return (carControl);
-	}
 
 	// CAN_fd init
 	try {

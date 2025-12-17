@@ -17,9 +17,6 @@ joyStick::joyStick(const char *device)
     //          << libevdev_get_id_bustype(dev) << " vendor="
     //          << libevdev_get_id_vendor(dev) << " product="
     //          << libevdev_get_id_product(dev) << ")\n";
-    if (libevdev_grab(dev, LIBEVDEV_GRAB) != 0) {
-		throw std::runtime_error(std::string("joyStick: failed to grab device"));
-	}
 }
 
 joyStick::~joyStick(){
@@ -34,14 +31,15 @@ void	joyStick::getAbs(void) const{
             const struct input_absinfo *ai = libevdev_get_abs_info(dev, code);
             if (ai) {
                 std::cout << "ABS " << libevdev_event_code_get_name(EV_ABS, code)
-                          << " min=" << ai->minimum << " max=" << ai->maximum << "\n";
+                          << " min=" << ai->minimum << " max=" << ai->maximum
+                          << " value=" << ai->value << "\n";
             }
         }
     }
 
 }
 
-__u16	joyStick::readPress(void) {
+int16_t	joyStick::readPress(void) {
 	rc = libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &ev);
 	if (rc == 0) {
 		if (ev.type != EV_SYN) {
@@ -50,11 +48,11 @@ __u16	joyStick::readPress(void) {
 			const char *cname = libevdev_event_code_get_name(ev.type, ev.code);
 			if (!tname) tname = "TYPE?";
 			if (!cname) cname = "CODE?";
-			std::cout << "wtf " << ev.code << std::endl;
-			return ev.code;
+            std::cout << "Event: " << tname << " / " << cname << " = " << ev.value << std::endl;
+            return (ev.code - 304); //304 is the first button
 		}
 	} else if (rc != -EAGAIN) {
 		throw std::runtime_error(std::string("joyStick: device removed"));
 	}
-	return (0);
+	return (-1);
 }

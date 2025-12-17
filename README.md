@@ -47,7 +47,6 @@ TEAM1-Car_control_Raspberry/
 │   ├── init/                            # Initialization modules
 │   │   ├── init.cpp                     # Main initialization
 │   │   ├── init_can.cpp                 # CAN initialization (returns unique_ptr)
-│   │   └── init_joystick.cpp            # Joystick
 │   │
 │   └── utils/                           # Utility functions
 │       └── parsing.cpp                  # Command-line argument parsing

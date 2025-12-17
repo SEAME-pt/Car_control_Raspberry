@@ -30,7 +30,6 @@ set(SOURCES
 	srcs/utils/parsing.cpp
 	#init
 	srcs/init/init_can.cpp
-	srcs/init/init_joystick.cpp
 	srcs/init/init.cpp
 	#controller
     srcs/controller/joyStick.cpp
@@ -72,7 +71,6 @@ if(BUILD_TESTS)
     set(TEST_SOURCES
         srcs/utils/parsing.cpp
         srcs/init/init_can.cpp
-        srcs/init/init_joystick.cpp
         srcs/init/init.cpp
         srcs/controller/joyStick.cpp
         srcs/can/socketCAN.c

@@ -14,5 +14,5 @@ class joyStick {
 		~joyStick();
 	
 		void	getAbs(void) const;
-		__u16	readPress(void);
+		int16_t	readPress(void);
 };
