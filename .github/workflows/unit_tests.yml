@@ -1,0 +1,59 @@
+name: CI with Unit Tests
+on:
+  push:
+    branches:
+      - main
+      - feature/git-actions-for-unit-tests
+  pull_request:
+    branches:
+      - main
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies including CAN modules
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential pkg-config libsdl2-dev libgtest-dev can-utils linux-modules-extra-$(uname -r)
+
+      - name: Set up virtual CAN interface (if available)
+        run: |
+          # Check if vcan module is available
+          if sudo modprobe vcan 2>/dev/null; then
+              echo "Setting up virtual CAN interface..."
+              sudo ip link add dev vcan0 type vcan
+              sudo ip link set vcan0 mtu 72
+              sudo ip link set up vcan0
+              echo "Virtual CAN interface vcan0 ready"
+          else
+              echo "Warning: vcan module not available in CI environment"
+              echo "CAN-dependent tests may be skipped or mocked"
+          fi
+
+      - name: Build Google Test
+        run: |
+          cd /usr/src/gtest
+          sudo cmake CMakeLists.txt
+          sudo make
+          sudo cp lib/*.a /usr/lib
+
+      - name: Create build directory
+        run: mkdir build
+
+      - name: Configure with CMake
+        run: |
+          cd build
+          cmake -DBUILD_TESTS=ON ..
+
+      - name: Build project
+        run: |
+          cd build
+          make
+
+      - name: Run unit tests with ctest
+        run: |
+          cd build
+          ctest --output-on-failure --verbose
