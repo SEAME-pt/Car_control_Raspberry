@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - main
-      - feature/git-actions-for-unit-tests
+      - refactor/Joystick
   pull_request:
     branches:
       - main
