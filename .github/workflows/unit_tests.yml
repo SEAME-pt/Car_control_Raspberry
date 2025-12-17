@@ -17,7 +17,7 @@ jobs:
       - name: Install system dependencies including CAN modules
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake build-essential pkg-config libsdl2-dev libgtest-dev can-utils linux-modules-extra-$(uname -r)
+          sudo apt-get install -y cmake build-essential pkg-config libevdev-dev libgtest-dev can-utils linux-modules-extra-$(uname -r)
 
       - name: Set up virtual CAN interface (if available)
         run: |
