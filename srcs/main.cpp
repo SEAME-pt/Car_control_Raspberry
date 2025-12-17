@@ -16,17 +16,27 @@ int main(int argc, char *argv[]) {
 		t_carControl carControl = initCarControl(argc, argv);
 		if (carControl.exit)
 			return (1);
-		carControl.controller = new joyStick(static_cast<const char *>("/dev/input/event6"));
 		CANProtocol::sendDriveMode(*carControl.can, DriveMode::MANUAL);
 		CANProtocol::sendEmergencyBrake(*carControl.can, false);
 		CANProtocol::sendDriveCommand(*carControl.can, MID_ANGLE, 0);
 		signal(SIGINT, signalHandler);
+		std::cout << "Starting joystick reading loop..." << std::endl;
+		int no_data_count = 0;
 		while (g_running && !carControl.exit) {
-			int16_t idk = carControl.controller->readPress();
-			if (idk >= 0) {
+			int16_t value = carControl.controller->readPress();
+			if (value >= 0) {
+				std::cout << "Button pressed: " << value << std::endl;
 				CANProtocol::sendDriveCommand(*carControl.can, 
-					idk,1);
+					value,1);
+				no_data_count = 0; // Reset counter when we get data
+			} else {
+				no_data_count++;
+				if (no_data_count % 1000 == 0) {
+					std::cout << "No joystick data... (checked " << no_data_count << " times)" << std::endl;
+				}
 			}
+			// Small delay to prevent excessive CPU usage
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 		if (carControl.controller)
 			delete carControl.controller;

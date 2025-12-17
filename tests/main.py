@@ -89,17 +89,40 @@ print(f"Virtual gamepad created at: {device_path}")
 try:
     while True:
         if sys.argv[1] == "A":
-            # Simulate pressing the A button
-            ui.write(e.EV_KEY, e.BTN_SOUTH, 1); ui.syn()
-            time.sleep(0.1)
-            ui.write(e.EV_KEY, e.BTN_SOUTH, 0); ui.syn()
-            time.sleep(0.4)
+            if use_real_gamepad:
+                # Simulate pressing the A button
+                ui.write(e.EV_KEY, e.BTN_SOUTH, 1); ui.syn()
+                time.sleep(0.1)
+                ui.write(e.EV_KEY, e.BTN_SOUTH, 0); ui.syn()
+                time.sleep(0.4)
+            else:
+                # Mock mode - write some data to the pipe/file to simulate activity
+                if device_path.endswith("_fifo"):
+                    try:
+                        with open(device_path, 'wb') as f:
+                            # Write a simple byte pattern to simulate some activity
+                            f.write(b'\x01\x02\x03\x04')
+                            f.flush()
+                    except:
+                        pass
+                time.sleep(0.5)
         else:
-            # Simulate pressing the B button
-            ui.write(e.EV_KEY, e.BTN_EAST, 1); ui.syn()
-            time.sleep(0.1)
-            ui.write(e.EV_KEY, e.BTN_EAST, 0); ui.syn()
-            time.sleep(0.4)
+            if use_real_gamepad:
+                # Simulate pressing the B button
+                ui.write(e.EV_KEY, e.BTN_EAST, 1); ui.syn()
+                time.sleep(0.1)
+                ui.write(e.EV_KEY, e.BTN_EAST, 0); ui.syn()
+                time.sleep(0.4)
+            else:
+                # Mock mode - write different data pattern
+                if device_path.endswith("_fifo"):
+                    try:
+                        with open(device_path, 'wb') as f:
+                            f.write(b'\x05\x06\x07\x08')
+                            f.flush()
+                    except:
+                        pass
+                time.sleep(0.5)
         
 except KeyboardInterrupt:
     pass
