@@ -10,16 +10,18 @@ def signal_handler(sig, frame):
     print('\nCleaning up virtual gamepad...')
     try:
         os.remove(os.path.expanduser("~/virtual_gamepad_path.txt"))
-    except:
-        pass
+    except Exception as exc:
+        # Ignore cleanup failures, but log for diagnostics
+        print(f"Warning: failed to remove virtual gamepad path file: {exc}", file=sys.stderr)
     try:
         # Clean up mock pipe/file
         if os.path.exists("/tmp/mock_gamepad_fifo"):
             os.remove("/tmp/mock_gamepad_fifo")
         if os.path.exists("/tmp/mock_gamepad_file"):
             os.remove("/tmp/mock_gamepad_file")
-    except:
-        pass
+    except Exception as exc:
+        # Ignore cleanup failures, but log for diagnostics
+        print(f"Warning: failed to clean up mock gamepad resources: {exc}", file=sys.stderr)
     sys.exit(0)
 
 # Register signal handler for cleanup
