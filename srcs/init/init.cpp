@@ -30,10 +30,5 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 		return (carControl);
 	}
 	carControl.controller = new joyStick(static_cast<const char *>("/dev/input/by-id/usb-SHANWAN_Android_Gamepad-event-joystick"));
-	if (!carControl.controller) {
-		std::cerr << "Failed to initialize joystick controller" << std::endl;
-		carControl.exit = true;
-		return (carControl);
-	}
 	return (carControl);
 }
