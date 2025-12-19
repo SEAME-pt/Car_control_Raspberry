@@ -130,8 +130,11 @@ finally:
     ui.close()
     try:
         os.remove(os.path.expanduser("~/virtual_gamepad_path.txt"))
-    except:
+    except FileNotFoundError:
+        # File was already removed; nothing left to clean up for the path file.
         pass
+    except OSError as exc:
+        print(f"Warning: failed to remove virtual gamepad path file: {exc}", file=sys.stderr)
     try:
         # Clean up mock pipe/file
         if os.path.exists("/tmp/mock_gamepad_fifo"):
