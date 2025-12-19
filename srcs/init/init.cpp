@@ -6,7 +6,7 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 	t_carControl	carControl;
 
 	//Initializing carControl with default values
-	carControl.joystick			= nullptr;
+	carControl.controller = nullptr;
 	carControl.canInterface		= "can0";
 	carControl.useJoystick		= true;
 	carControl.debug 			= false;
@@ -17,36 +17,18 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 	if (parsingArgv(argc, argv, &carControl) <= 0)
 		return (carControl);
 
-	// Joystick init
-	try {
-		if (carControl.useJoystick)
-			carControl.joystick = initJoystick();
-	} catch (const std::exception &e) {
-		std::cerr << e.what() << std::endl;
-		carControl.exit = true;
-		return (carControl);
-	}
-
 	// CAN_fd init
 	try {
 		carControl.can = init_can(carControl.canInterface);
 	} catch (const CANController::CANException& e) {
 		std::cerr << e.what() << std::endl;
-		cleanExit(carControl.joystick);
 		carControl.exit = true;
 		return (carControl);
 	} catch (...) {
 		std::cerr << "Unexpected error during CAN init" << std::endl;
-		cleanExit(carControl.joystick);
 		carControl.exit = true;
 		return (carControl);
 	}
+	carControl.controller = new joyStick(static_cast<const char *>("/dev/input/by-id/usb-SHANWAN_Android_Gamepad-event-joystick"));
 	return (carControl);
-}
-
-void	cleanExit(SDL_Joystick* joystick) {
-
-	if (joystick)
-		SDL_JoystickClose(joystick);
-	SDL_Quit();
 }

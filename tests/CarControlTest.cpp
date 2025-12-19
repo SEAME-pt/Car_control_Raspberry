@@ -32,7 +32,7 @@ TEST_F(CarControlInitTest, MinimalValidInit) {
 
 	EXPECT_FALSE(ctrl.exit);
 	EXPECT_FALSE(ctrl.useJoystick);
-	EXPECT_EQ(ctrl.joystick, nullptr);
+	EXPECT_EQ(ctrl.controller, nullptr);
 	EXPECT_NE(ctrl.can, nullptr);
 	EXPECT_EQ(ctrl.canInterface, validInterface);
 
