@@ -21,7 +21,8 @@ int main(int argc, char *argv[]) {
 		CANProtocol::sendDriveCommand(*carControl.can, MID_ANGLE, 0);
 		signal(SIGINT, signalHandler);
 		std::cout << "Starting joystick reading loop..." << std::endl;
-		while (g_running && !carControl.exit) {
+		int no_data_count = 0;
+		while (g_running && !carControl.exit && carControl.controller != nullptr) {
 			int16_t value = carControl.controller->readPress();
 			int16_t steering = carControl.controller->getAbs(true);
 			int16_t throttle = carControl.controller->getAbs(false);

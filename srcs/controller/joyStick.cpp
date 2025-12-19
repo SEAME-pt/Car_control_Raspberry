@@ -42,10 +42,6 @@ int16_t	joyStick::readPress(void) {
 	rc = libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &ev);
 	if (rc == 0) {
 		if (ev.type != EV_SYN && ev.value != 0) { // Only consider key/button press events
-			const char *tname = libevdev_event_type_get_name(ev.type);
-			const char *cname = libevdev_event_code_get_name(ev.type, ev.code);
-			if (!tname) tname = "TYPE?";
-			if (!cname) cname = "CODE?";
             return (ev.code - 304);
 		}
 	} else if (rc != -EAGAIN) {
