@@ -24,15 +24,14 @@ joyStick::~joyStick(){
     close(fd);
 }
 
-void	joyStick::getAbs(void) const{
-    // Example: print ABS ranges if available
+int16_t	joyStick::getAbs(bool steering) const{
     for (int code = 0; code <= ABS_MAX; ++code) {
         if (libevdev_has_event_code(dev, EV_ABS, code)) {
             const struct input_absinfo *ai = libevdev_get_abs_info(dev, code);
-            if (ai) {
-                std::cout << "ABS " << libevdev_event_code_get_name(EV_ABS, code)
-                          << " min=" << ai->minimum << " max=" << ai->maximum
-                          << " value=" << ai->value << "\n";
+            if (ai && steering && code == ABS_X) {
+                return (ai->value - 127);
+            } else if (ai && !steering && code == ABS_Y) {
+                return ((ai->value - 127) * -1);
             }
         }
     }

@@ -21,21 +21,17 @@ int main(int argc, char *argv[]) {
 		CANProtocol::sendDriveCommand(*carControl.can, MID_ANGLE, 0);
 		signal(SIGINT, signalHandler);
 		std::cout << "Starting joystick reading loop..." << std::endl;
-		int no_data_count = 0;
 		while (g_running && !carControl.exit) {
 			int16_t value = carControl.controller->readPress();
+			int16_t steering = carControl.controller->getAbs(true);
+			int16_t throttle = carControl.controller->getAbs(false);
 			if (value >= 0) {
 				std::cout << "Button pressed: " << value << std::endl;
-				CANProtocol::sendDriveCommand(*carControl.can, 
-					value,1);
-				no_data_count = 0; // Reset counter when we get data
-			} else {
-				no_data_count++;
-				if (no_data_count % 1000 == 0) {
-					std::cout << "No joystick data... (checked " << no_data_count << " times)" << std::endl;
-				}
 			}
-			// Small delay to prevent excessive CPU usage
+			std::cout << "Steering: " << steering << " | Throttle: " << throttle << std::endl;
+			int8_t steering_cmd = static_cast<int8_t>(((steering + 127) * 120) / 254);
+			int8_t throttle_cmd = static_cast<int8_t>((throttle * 100) / 127);
+			CANProtocol::sendDriveCommand(*carControl.can, steering_cmd, throttle_cmd);
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 		if (carControl.controller)

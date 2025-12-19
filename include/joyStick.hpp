@@ -13,6 +13,6 @@ class joyStick {
 		joyStick(const char *device);
 		~joyStick();
 	
-		void	getAbs(void) const;
+		int16_t	getAbs(bool steering) const;
 		int16_t	readPress(void);
 };
