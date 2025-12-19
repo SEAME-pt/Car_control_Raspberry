@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 		signal(SIGINT, signalHandler);
 		std::cout << "Starting joystick reading loop..." << std::endl;
 		int no_data_count = 0;
-		while (g_running && !carControl.exit) {
+		while (g_running && !carControl.exit && carControl.controller != nullptr) {
 			int16_t value = carControl.controller->readPress();
 			if (value >= 0) {
 				std::cout << "Button pressed: " << value << std::endl;
