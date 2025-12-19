@@ -38,7 +38,7 @@ TEST(JoyStickTest, PassNullPtr)
 TEST(JoyStickTest, RunPythonSimulation)
 {
 	// Start Python script
-	pid_t python_pid = system("python3 ../tests/main.py A &");
+	system("python3 ../tests/main.py A &");
 	// Wait for device to be created
 	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	
