@@ -62,11 +62,11 @@ option(BUILD_TESTS "Build the tests" ON)
 
 if(BUILD_TESTS)
     enable_testing()
-    
+
     # Find Google Test
     find_package(GTest REQUIRED)
     include_directories(${GTEST_INCLUDE_DIRS})
-    
+
     # Test source files (excluding main.cpp from main project)
     set(TEST_SOURCES
         srcs/utils/parsing.cpp
@@ -76,19 +76,18 @@ if(BUILD_TESTS)
         srcs/can/socketCAN.c
         srcs/can/CANController.cpp
     )
-    
+
     # Test files
     set(TEST_FILES
 		tests/CANControllerTest.cpp
 		tests/CANInitTest.cpp
 		tests/CANProtocolTest.cpp
-		# tests/JoystickTest.cpp
 		tests/SocketCANTest.cpp
     )
-    
+
     # Create test executable
     add_executable(tests ${TEST_SOURCES} ${TEST_FILES})
-    
+
     # Link libraries for tests
     target_link_libraries(tests 
         PRIVATE 
@@ -97,11 +96,11 @@ if(BUILD_TESTS)
         GTest::Main
         pthread
     )
-    
+
     # Add tests to CTest
     include(GoogleTest)
     gtest_discover_tests(tests)
-    
+
     message(STATUS "Tests enabled")
     message(STATUS "GTest found: ${GTest_FOUND}")
 endif()
@@ -116,14 +115,15 @@ if(ENABLE_COVERAGE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
-    
+
     # Optional: Add coverage target
     add_custom_target(coverage
         COMMAND ${CMAKE_BINARY_DIR}/tests
-        COMMAND lcov --capture --directory . --output-file coverage.info
-        COMMAND lcov --remove coverage.info '/usr/*' '*/tests/*' --output-file coverage_filtered.info
-        COMMAND genhtml coverage_filtered.info --output-directory coverage_html
-        COMMAND echo "Coverage report generated: coverage_html/index.html"
+        COMMAND lcov --capture --directory . --output-file coverage.info --ignore-errors mismatch,inconsistent 2>/dev/null
+        COMMAND lcov --remove coverage.info '/usr/*' '*/tests/*' --output-file coverage_filtered.info --ignore-errors mismatch,unused,inconsistent 2>/dev/null
+        COMMAND genhtml coverage_filtered.info --output-directory coverage_html --quiet
+        COMMAND echo "✅ Coverage report generated: coverage_html/index.html"
+        COMMAND xdg-open coverage_html/index.html
         COMMAND stty sane
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         DEPENDS tests
