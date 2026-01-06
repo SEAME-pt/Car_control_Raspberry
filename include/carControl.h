@@ -5,6 +5,7 @@
 #include "CANProtocol.hpp"
 #include "Joystick.hpp"
 
+#include <atomic>
 #include <csignal>
 #include <iostream>
 #include <unistd.h>
@@ -51,4 +52,4 @@ t_carControl	initCarControl(int argc, char *argv[]);
 int				parsingArgv(int argc, char *argv[],
 				                    t_carControl *carControl);
 
-extern volatile bool	g_running;
+extern	std::atomic<bool> g_running;

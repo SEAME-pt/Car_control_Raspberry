@@ -1,16 +1,21 @@
 #include "carControl.h"
 
 // Condition for the main loop to keep running
-volatile bool	g_running = true;
+std::atomic<bool> g_running{true};
 
 static void	signalHandler(int signum) {
-
 	(void)signum;
-	std::cout << "\nInterrupt operation (" << signum << ") received." << std::endl;
-	g_running = false;
+	g_running.store(false);
 }
 
 int main(int argc, char *argv[]) {
+
+    struct sigaction sa{};
+    sa.sa_handler = signalHandler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sigaction(SIGINT, &sa, nullptr);
+    sigaction(SIGTERM, &sa, nullptr);
 
 	static int16_t last_steering = 0;
 	static int16_t last_throttle = 0;
@@ -25,10 +30,8 @@ int main(int argc, char *argv[]) {
 		CANProtocol::sendEmergencyBrake(*carControl.can, false);
 		CANProtocol::sendDriveCommand(*carControl.can, MID_ANGLE, 0);
 
-		signal(SIGINT, signalHandler);
-
 		std::cout << "Starting Joystick reading loop..." << std::endl;
-		while (g_running && !carControl.exit && carControl.controller != nullptr) {
+		while (g_running.load() && !carControl.exit && carControl.controller != nullptr) {
 
 			int		value = carControl.controller->readPress();
 			int16_t	steering = carControl.controller->getAbs(true);
