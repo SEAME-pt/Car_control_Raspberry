@@ -45,7 +45,6 @@ int main(int argc, char *argv[]) {
 			last_steering = steering;
             last_throttle = throttle;
 
-			std::cout << "Steering: " << steering << " | Throttle: " << throttle << std::endl;
 			int16_t steering_cmd = static_cast<int16_t>(((steering + 127) * 120) / 254);
             int16_t throttle_cmd = static_cast<int16_t>((throttle * 100) / 127);
 

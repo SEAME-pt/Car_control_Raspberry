@@ -26,12 +26,20 @@ namespace CANProtocol {
 		steering = std::clamp(steering, (int16_t)0, (int16_t)120);
 		throttle = std::clamp(throttle, (int16_t)-100, (int16_t)100);
 
+		if (steering > -2 && steering < 2)
+			steering = 0;
+		if (steering > 57 && steering < 63)
+			steering = 60;
+		if (throttle > -2 && throttle < 2)
+			throttle = 0;
+
 		int16_t data[2];
 
 		// Big-endian encoding (network byte order)
 		data[0] = steering;	// 0-120 degrees
 		data[1] = throttle; // -100 to +100
 
+		std::cout << "Steering: " << steering << " | Throttle: " << throttle << std::endl;
 		can.sendFrame(CANID::DRIVE_COMMAND, data, 2);
 	}
 
