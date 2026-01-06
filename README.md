@@ -1,6 +1,6 @@
 # TEAM1 - Velocity Era
 
-This repository consolidates the most up to date software stack for our autonomous vehicle, Vera, which runs on a Raspberry Pi 5. Currently, the program fully integrates joystick support, capturing axis values and converting them into I²C data. These values are then transmitted via CAN-FD to the microcontroller, enabling safe and reliable control of Vera’s movement in a safety critical environment.
+This repository consolidates the most up to date software stack for our autonomous vehicle, Vera, which runs on a Raspberry Pi 5. Currently, the program fully integrates Joystick support, capturing axis values and converting them into I²C data. These values are then transmitted via CAN-FD to the microcontroller, enabling safe and reliable control of Vera’s movement in a safety critical environment.
 
 Additionally, the program is responsible for running the Qt interface, which displays on the car’s screen the data received from the microcontroller (such as speed sensor readings and motor/servo feedback) also communicated through CAN-FD.
 
@@ -12,7 +12,7 @@ Components of this project:
 - Joystick
 
 This platform integrates dependencies like:
-- SDL2
+- LIBEVDEV
 - SocketCAN
 - Google Tests
 - lcov
@@ -42,11 +42,10 @@ TEAM1-Car_control_Raspberry/
 │   │   └── socketCAN.c                  # Low-level CAN socket operations
 │   │
 │   ├── controller/                      # Input controllers
-│   │   └── joystick.cpp                 # SDL2 joystick handling
+│   │   └── Joystick.cpp                 # Joystick handling
 │   │
 │   ├── init/                            # Initialization modules
 │   │   ├── init.cpp                     # Main initialization
-│   │   ├── init_can.cpp                 # CAN initialization (returns unique_ptr)
 │   │
 │   └── utils/                           # Utility functions
 │       └── parsing.cpp                  # Command-line argument parsing
@@ -62,7 +61,7 @@ TEAM1-Car_control_Raspberry/
 ├── scripts/
 │ ├── install_lcov.sh 					 # Install lcov for coverage
 │ ├── install_GoogleTest.sh 			 # Install Google Test framework
-│ └── install_sdl2.sh 					 # Install SDL2 library
+│ └── install_libevdev.sh 				 # Install libevdev library
 │
 └── build/                               # Build output (gitignored)
     ├── Makefile
@@ -123,17 +122,17 @@ namespace CANID {
 
 ## Joystick
 
-Initialization of SDL to read joystick input:
+Initialization of SDL to read Joystick input:
 
 ```cpp
-// Initialize SDL joystick subsystem
-SDL_Init(SDL_INIT_JOYSTICK);
+// Initialize SDL Joystick subsystem
+SDL_Init(SDL_INIT_Joystick);
 
-// Get number of connected joysticks
+// Get number of connected Joysticks
 SDL_NumJoysticks();
 
-// Open first joystick
-SDL_Joystick *joystick = SDL_JoystickOpen(CONTROLLER_0);
+// Open first Joystick
+SDL_Joystick *Joystick = SDL_JoystickOpen(CONTROLLER_0);
 ```
 
 # Build System
@@ -146,11 +145,11 @@ Is this your first time running the program? If so, check out how to properly in
 cd scripts
 chmod +x install_lcov.sh
 chmod +x install_GoogleTest.sh
-chmod +x install_sdl2.sh
+chmod +x install_libevdev.sh
 
 ./install_lcov.sh
 ./install_GoogleTest.sh
-./install_sdl2.sh
+./install_libevdev.sh
 
 cd .. && mkdir build && cd build
 cmake ..
@@ -167,7 +166,7 @@ After that, all you need to do is use the Makefile and run the executable. But b
 ```bash
 # Default values
 # Notice that default values are prepared ONLY for the final result of communication
-# with STM32 and properly connection with joystick
+# with STM32 and properly connection with Joystick
 cd build
 cmake ..
 make
@@ -209,5 +208,3 @@ Root permissions are required due to CAN socket initialization and, when testing
 
 - Jose Meneses
 - Afonso Mota
-- Rafael
-- Joao Figueiredo

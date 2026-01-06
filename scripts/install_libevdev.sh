@@ -13,4 +13,4 @@ echo "Cleaning..."
 sudo apt autoremove -y
 sudo apt autoclean
 
-echo "Done! SDL2 successfully installed."
+echo "Done! libevdev successfully installed."

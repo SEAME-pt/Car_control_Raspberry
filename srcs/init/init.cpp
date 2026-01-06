@@ -6,7 +6,7 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 	t_carControl	carControl;
 
 	//Initializing carControl with default values
-	carControl.controller = nullptr;
+	carControl.controller 		= nullptr;
 	carControl.canInterface		= "can0";
 	carControl.useJoystick		= true;
 	carControl.debug 			= false;
@@ -29,6 +29,13 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 		carControl.exit = true;
 		return (carControl);
 	}
-	carControl.controller = new joyStick(static_cast<const char *>("/dev/input/by-id/usb-SHANWAN_Android_Gamepad-event-joystick"));
+
+	// Joystick init
+	try {
+		carControl.controller = std::make_unique<Joystick>();	
+	} catch (...) {
+		carControl.exit = true;
+		return (carControl);
+	}
 	return (carControl);
 }

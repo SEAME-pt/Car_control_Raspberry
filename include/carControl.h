@@ -3,7 +3,7 @@
 #include "exceptions.hpp"
 #include "CANController.hpp"
 #include "CANProtocol.hpp"
-#include "joyStick.hpp"
+#include "Joystick.hpp"
 
 #include <csignal>
 #include <iostream>
@@ -34,16 +34,13 @@
 
 typedef struct s_carControl {
 
-	std::unique_ptr<CANController>	
-					can;
-	joyStick		*controller;
+	std::unique_ptr<CANController>	can;
+	std::unique_ptr<Joystick>		controller;
 	std::string		canInterface;
 	bool			useJoystick;
 	bool			debug;
 	bool			exit;
 } t_carControl;
-
-//controller
 
 //init
 std::unique_ptr<CANController>	

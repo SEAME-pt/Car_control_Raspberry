@@ -13,7 +13,7 @@ set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall -Wextra")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
-# Find SDL2
+# Find LIBEVDEV
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBEVDEV REQUIRED libevdev)
 
@@ -32,7 +32,7 @@ set(SOURCES
 	srcs/init/init_can.cpp
 	srcs/init/init.cpp
 	#controller
-    srcs/controller/joyStick.cpp
+    srcs/controller/Joystick.cpp
 	#can
     srcs/can/socketCAN.c
     srcs/can/CANController.cpp
@@ -72,7 +72,7 @@ if(BUILD_TESTS)
         srcs/utils/parsing.cpp
         srcs/init/init_can.cpp
         srcs/init/init.cpp
-        srcs/controller/joyStick.cpp
+        srcs/controller/Joystick.cpp
         srcs/can/socketCAN.c
         srcs/can/CANController.cpp
     )
@@ -82,8 +82,7 @@ if(BUILD_TESTS)
 		tests/CANControllerTest.cpp
 		tests/CANInitTest.cpp
 		tests/CANProtocolTest.cpp
-		# tests/CarControlTest.cpp
-		# tests/joyStickTest.cpp
+		# tests/JoystickTest.cpp
 		tests/SocketCANTest.cpp
     )
     
