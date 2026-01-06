@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "joyStick.hpp"
+#include <Joystick.hpp>
 #include <cstdlib>
 #include <thread>
 #include <chrono>
@@ -23,19 +23,19 @@ bool isMockMode(const std::string& device_path) {
     return device_path.find("mock_gamepad") != std::string::npos;
 }
 
-TEST(JoyStickTest, PassNullPtr)
+TEST(JoystickTest, PassNullPtr)
 {
 	EXPECT_THROW({
 			try {
-				joyStick controller(nullptr);
+				Joystick controller(nullptr);
 			} catch (const std::exception &err) {
-				EXPECT_STREQ("joyStick: Device cant be Null", err.what());
+				EXPECT_STREQ("Joystick: Device cant be Null", err.what());
 				throw ;
 			}
 	}, std::exception);
 }
 
-TEST(JoyStickTest, RunPythonSimulation)
+TEST(JoystickTest, RunPythonSimulation)
 {
 	// Start Python script
 	system("python3 ../tests/main.py A &");
@@ -49,13 +49,13 @@ TEST(JoyStickTest, RunPythonSimulation)
 	}
 	
 	try {
-		joyStick controller(device_path.c_str());
+		Joystick controller(device_path.c_str());
 		
 		if (isMockMode(device_path)) {
 			// For mock mode, just test that we can create the controller
 			// The actual device won't generate real events
 			std::cout << "Mock mode: testing controller creation and basic functionality" << std::endl;
-			SUCCEED() << "Mock joyStick controller created successfully";
+			SUCCEED() << "Mock joystick controller created successfully";
 		} else {
 			// Test reading while Python script runs (real device mode)
 			for (int i = 0; i < 3; i++) {
@@ -77,12 +77,12 @@ TEST(JoyStickTest, RunPythonSimulation)
 	// Wait for device to be created
 	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	try {
-		joyStick controller(device_path.c_str());
+		Joystick controller(device_path.c_str());
 		
 		if (isMockMode(device_path)) {
 			// For mock mode, just test that we can create the controller
 			std::cout << "Mock mode: testing second controller instance" << std::endl;
-			SUCCEED() << "Mock joyStick controller created successfully (second test)";
+			SUCCEED() << "Mock Joystick controller created successfully (second test)";
 		} else {
 			// Test reading while Python script runs (real device mode)
 			for (int i = 0; i < 3; i++) {

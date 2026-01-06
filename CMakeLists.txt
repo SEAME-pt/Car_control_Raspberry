@@ -83,6 +83,7 @@ if(BUILD_TESTS)
 		tests/CANInitTest.cpp
 		tests/CANProtocolTest.cpp
 		tests/SocketCANTest.cpp
+		#tests/JoystickTest.cpp
     )
 
     # Create test executable
