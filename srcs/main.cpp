@@ -12,8 +12,8 @@ static void	signalHandler(int signum) {
 
 int main(int argc, char *argv[]) {
 
-	static int8_t last_steering = 0;
-	static int8_t last_throttle = 0;
+	static int16_t last_steering = 0;
+	static int16_t last_throttle = 0;
 
 	t_carControl carControl = initCarControl(argc, argv);
 	if (carControl.exit)
@@ -31,8 +31,8 @@ int main(int argc, char *argv[]) {
 		while (g_running && !carControl.exit && carControl.controller != nullptr) {
 
 			int		value = carControl.controller->readPress();
-			int8_t	steering = carControl.controller->getAbs(true);
-			int8_t	throttle = carControl.controller->getAbs(false);
+			int16_t	steering = carControl.controller->getAbs(true);
+			int16_t	throttle = carControl.controller->getAbs(false);
 
 			if (value == START_BUTTON) {
 				std::cout << "Initiating graceful shutdown.." << std::endl;
@@ -46,8 +46,8 @@ int main(int argc, char *argv[]) {
             last_throttle = throttle;
 
 			std::cout << "Steering: " << steering << " | Throttle: " << throttle << std::endl;
-			int8_t steering_cmd = static_cast<int8_t>(((steering + 127) * 120) / 254);
-            int8_t throttle_cmd = static_cast<int8_t>((throttle * 100) / 127);
+			int16_t steering_cmd = static_cast<int16_t>(((steering + 127) * 120) / 254);
+            int16_t throttle_cmd = static_cast<int16_t>((throttle * 100) / 127);
 
 			CANProtocol::sendDriveCommand(*carControl.can, steering_cmd, throttle_cmd);
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));

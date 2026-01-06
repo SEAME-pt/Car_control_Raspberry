@@ -75,7 +75,7 @@ int	socketCan_init(const char *interface) {
 
 // Classical CAN Bus (8 bytes)
 int	can_send_frame(int socket, uint16_t can_id, 
-		const int8_t *data, uint8_t len) {
+		const int16_t *data, uint8_t len) {
 
 	struct can_frame frame;
 
@@ -103,7 +103,7 @@ int	can_send_frame(int socket, uint16_t can_id,
 
 // CAN_FD (64 bytes)
 int	can_send_frame_fd(int socket, uint16_t can_id, 
-					  const int8_t *data, uint8_t len) {
+					  const int16_t *data, uint8_t len) {
 
 	struct canfd_frame frame;
 

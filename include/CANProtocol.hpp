@@ -9,7 +9,7 @@ namespace CANID {
 	constexpr uint16_t	DRIVE_MODE      = 0x102;	//low priority
 };
 
-enum class DriveMode : int8_t {
+enum class DriveMode : int16_t {
 	MANUAL 		= 0x00,
 	AUTONOMOUS	= 0x01
 };
@@ -17,16 +17,16 @@ enum class DriveMode : int8_t {
 namespace CANProtocol {
 
 	inline void sendEmergencyBrake(CANController& can, bool active) {
-		int8_t data = active ? 0xFF : 0x00;
+		int16_t data = active ? 0xFF : 0x00;
 		can.sendFrame(CANID::EMERGENCY_BRAKE, &data, 1);
 	}
 
-	inline void sendDriveCommand(CANController& can, int8_t steering, int8_t throttle) {
+	inline void sendDriveCommand(CANController& can, int16_t steering, int16_t throttle) {
 		
-		steering = std::clamp(steering, (int8_t)0, (int8_t)120);
-		throttle = std::clamp(throttle, (int8_t)-100, (int8_t)100);
+		steering = std::clamp(steering, (int16_t)0, (int16_t)120);
+		throttle = std::clamp(throttle, (int16_t)-100, (int16_t)100);
 
-		int8_t data[2];
+		int16_t data[2];
 
 		// Big-endian encoding (network byte order)
 		data[0] = steering;	// 0-120 degrees
@@ -36,7 +36,7 @@ namespace CANProtocol {
 	}
 
 	inline void sendDriveMode(CANController& can, DriveMode mode) {
-		int8_t data[1] = { static_cast<int8_t>(mode) };
+		int16_t data[1] = { static_cast<int16_t>(mode) };
 		can.sendFrame(CANID::DRIVE_MODE, data, 1);
 	}
 }

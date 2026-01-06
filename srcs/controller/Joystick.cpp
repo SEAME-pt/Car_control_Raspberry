@@ -22,7 +22,7 @@ Joystick::~Joystick(){
     close(fd);
 }
 
-int8_t	Joystick::getAbs(bool steering) const {
+int16_t	Joystick::getAbs(bool steering) const {
     for (int code = 0; code <= ABS_MAX; ++code) {
         if (libevdev_has_event_code(dev, EV_ABS, code)) {
             const struct input_absinfo *ai = libevdev_get_abs_info(dev, code);
@@ -30,11 +30,11 @@ int8_t	Joystick::getAbs(bool steering) const {
                 // Normaliza para -127 a 127 usando min/max real do eixo
                 int range = ai->maximum - ai->minimum;
                 int normalized = ((ai->value - ai->minimum) * 254 / range) - 127;
-                return static_cast<int8_t>(normalized);
+                return static_cast<int16_t>(normalized);
             } else if (ai && !steering && code == ABS_Y) {
                 int range = ai->maximum - ai->minimum;
                 int normalized = ((ai->value - ai->minimum) * 254 / range) - 127;
-                return static_cast<int8_t>(-normalized);
+                return static_cast<int16_t>(-normalized);
             }
         }
     }
