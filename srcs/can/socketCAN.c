@@ -13,7 +13,7 @@ int	check_mtu_support(int s, struct ifreq *ifr) {
 		return (0);
 	else if (ifr->ifr_mtu == CAN_MTU)
 		printf("Device only supports Classical CAN\n");
-	return (1);
+	return (0);
 }
 
 int	socketCan_init(const char *interface) {
@@ -74,7 +74,7 @@ int	socketCan_init(const char *interface) {
 }
 
 // Classical CAN Bus (8 bytes)
-int	can_send_frame(int socket, uint32_t can_id, 
+int	can_send_frame(int socket, uint16_t can_id, 
 		const int8_t *data, uint8_t len) {
 
 	struct can_frame frame;
@@ -102,7 +102,7 @@ int	can_send_frame(int socket, uint32_t can_id,
 }
 
 // CAN_FD (64 bytes)
-int	can_send_frame_fd(int socket, uint32_t can_id, 
+int	can_send_frame_fd(int socket, uint16_t can_id, 
 					  const int8_t *data, uint8_t len) {
 
 	struct canfd_frame frame;

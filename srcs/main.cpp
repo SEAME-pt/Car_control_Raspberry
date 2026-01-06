@@ -12,8 +12,8 @@ static void	signalHandler(int signum) {
 
 int main(int argc, char *argv[]) {
 
-	static int16_t last_steering = 0;
-	static int16_t last_throttle = 0;
+	static int8_t last_steering = 0;
+	static int8_t last_throttle = 0;
 
 	t_carControl carControl = initCarControl(argc, argv);
 	if (carControl.exit)
@@ -30,9 +30,9 @@ int main(int argc, char *argv[]) {
 		std::cout << "Starting Joystick reading loop..." << std::endl;
 		while (g_running && !carControl.exit && carControl.controller != nullptr) {
 
-			int16_t value = carControl.controller->readPress();
-			int16_t steering = carControl.controller->getAbs(true);
-			int16_t throttle = carControl.controller->getAbs(false);
+			int8_t value = carControl.controller->readPress();
+			int8_t steering = carControl.controller->getAbs(true);
+			int8_t throttle = carControl.controller->getAbs(false);
 
 			if (value == START_BUTTON) {
 				std::cout << "Initiating graceful shutdown.." << std::endl;

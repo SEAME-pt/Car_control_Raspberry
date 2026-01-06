@@ -22,10 +22,10 @@ int		check_mtu_support(int s, struct ifreq *ifr);
 
 int		socketCan_init(const char *interface);
 
-int		can_send_frame(int socket, uint32_t can_id, 
+int		can_send_frame(int socket, uint16_t can_id, 
 					const int8_t *data, uint8_t len);
 
-int		can_send_frame_fd(int socket, uint32_t can_id, 
+int		can_send_frame_fd(int socket, uint16_t can_id, 
 					const int8_t *data, uint8_t len);
 
 void	can_close(int socket);

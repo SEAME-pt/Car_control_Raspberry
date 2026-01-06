@@ -25,10 +25,10 @@ public:
 	void	cleanup();
 
 	//Classical CAN
-	void	sendFrame(uint32_t can_id, const int8_t* data, uint8_t len);
+	void	sendFrame(uint16_t can_id, const int8_t* data, uint8_t len);
 
 	//CAN_FD
-	void	sendFrameFD(uint32_t can_id, const int8_t* data, size_t len);
+	void	sendFrameFD(uint16_t can_id, const int8_t* data, size_t len);
 
 	// Getters
     bool 				isInitialized() const { return _initialized; }

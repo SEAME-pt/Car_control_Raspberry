@@ -4,9 +4,9 @@
 #include <algorithm>
 
 namespace CANID {
-	constexpr uint32_t EMERGENCY_BRAKE = 0x100;	//max priority
-	constexpr uint32_t DRIVE_COMMAND   = 0x101;	//high priority
-	constexpr uint32_t DRIVE_MODE      = 0x102;	//low priority
+	constexpr uint16_t	EMERGENCY_BRAKE = 0x100;	//max priority
+	constexpr uint16_t	DRIVE_COMMAND   = 0x101;	//high priority
+	constexpr uint16_t	DRIVE_MODE      = 0x102;	//low priority
 };
 
 enum class DriveMode : int8_t {
@@ -18,7 +18,7 @@ namespace CANProtocol {
 
 	inline void sendEmergencyBrake(CANController& can, bool active) {
 		int8_t data = active ? 0xFF : 0x00;
-		can.sendFrameFD(CANID::EMERGENCY_BRAKE, &data, 1);
+		can.sendFrame(CANID::EMERGENCY_BRAKE, &data, 1);
 	}
 
 	inline void sendDriveCommand(CANController& can, int8_t steering, int8_t throttle) {
@@ -32,11 +32,11 @@ namespace CANProtocol {
 		data[0] = steering;	// 0-120 degrees
 		data[1] = throttle; // -100 to +100
 
-		can.sendFrameFD(CANID::DRIVE_COMMAND, data, 2);
+		can.sendFrame(CANID::DRIVE_COMMAND, data, 2);
 	}
 
 	inline void sendDriveMode(CANController& can, DriveMode mode) {
 		int8_t data[1] = { static_cast<int8_t>(mode) };
-		can.sendFrameFD(CANID::DRIVE_MODE, data, 1);
+		can.sendFrame(CANID::DRIVE_MODE, data, 1);
 	}
 }
