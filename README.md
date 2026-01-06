@@ -122,18 +122,7 @@ namespace CANID {
 
 ## Joystick
 
-Initialization of SDL to read Joystick input:
-
-```cpp
-// Initialize SDL Joystick subsystem
-SDL_Init(SDL_INIT_Joystick);
-
-// Get number of connected Joysticks
-SDL_NumJoysticks();
-
-// Open first Joystick
-SDL_Joystick *Joystick = SDL_JoystickOpen(CONTROLLER_0);
-```
+TODO
 
 # Build System
 
