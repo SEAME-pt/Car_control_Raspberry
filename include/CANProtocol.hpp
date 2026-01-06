@@ -28,7 +28,7 @@ namespace CANProtocol {
 
 		if (steering > -2 && steering < 2)
 			steering = 0;
-		if (steering > 57 && steering < 63)
+		else if (steering > 57 && steering < 63)
 			steering = 60;
 		if (throttle > -2 && throttle < 2)
 			throttle = 0;
