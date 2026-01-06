@@ -41,13 +41,13 @@ TEST(JoystickTest, RunPythonSimulation)
 	system("python3 ../tests/main.py A &");
 	// Wait for device to be created
 	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-	
+
 	std::string device_path = getGamepadPath();
 	if (device_path.empty()) {
 		GTEST_SKIP() << "Cannot test: Failed to get gamepad path";
 		return;
 	}
-	
+
 	try {
 		Joystick controller(device_path.c_str());
 		
@@ -70,7 +70,7 @@ TEST(JoystickTest, RunPythonSimulation)
 		}
 	} catch (const std::exception &err) {
 		GTEST_SKIP() << "Cannot test: " << err.what();
-	}	
+	}
 	// Kill Python script
 	system("sudo pkill -f main.py");
 	python_pid = system("python3 ../tests/main.py B &");
@@ -78,7 +78,7 @@ TEST(JoystickTest, RunPythonSimulation)
 	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	try {
 		Joystick controller(device_path.c_str());
-		
+
 		if (isMockMode(device_path)) {
 			// For mock mode, just test that we can create the controller
 			std::cout << "Mock mode: testing second controller instance" << std::endl;
@@ -97,7 +97,7 @@ TEST(JoystickTest, RunPythonSimulation)
 		}
 	} catch (const std::exception &err) {
 		GTEST_SKIP() << "Cannot test: " << err.what();
-	}	
+	}
 	// Kill Python script
 	system("sudo pkill -f main.py");
 }
