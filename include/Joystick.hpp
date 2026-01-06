@@ -15,6 +15,6 @@ class Joystick {
 		~Joystick();
 	
 		int8_t		getAbs(bool steering) const;
-		int8_t		readPress(void);
+		int			readPress(void);
 		void		findJoystickDevice();
 };

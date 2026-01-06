@@ -41,7 +41,7 @@ int8_t	Joystick::getAbs(bool steering) const {
 	return (0);   // ???????????????
 }
 
-int8_t	Joystick::readPress(void) {
+int	Joystick::readPress(void) {
 	rc = libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &ev);
 	if (rc == 0) {
 		if (ev.type != EV_SYN && ev.value != 0) { // Only consider key/button press events

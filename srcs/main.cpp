@@ -30,9 +30,9 @@ int main(int argc, char *argv[]) {
 		std::cout << "Starting Joystick reading loop..." << std::endl;
 		while (g_running && !carControl.exit && carControl.controller != nullptr) {
 
-			int8_t value = carControl.controller->readPress();
-			int8_t steering = carControl.controller->getAbs(true);
-			int8_t throttle = carControl.controller->getAbs(false);
+			int		value = carControl.controller->readPress();
+			int8_t	steering = carControl.controller->getAbs(true);
+			int8_t	throttle = carControl.controller->getAbs(false);
 
 			if (value == START_BUTTON) {
 				std::cout << "Initiating graceful shutdown.." << std::endl;
