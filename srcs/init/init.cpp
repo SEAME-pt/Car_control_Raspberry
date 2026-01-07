@@ -34,7 +34,7 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 	try {
 		carControl.controller = std::make_unique<Joystick>();	
 	} catch (...) {
-		carControl.exit = true;
+		carControl.useJoystick = false;
 		return (carControl);
 	}
 	return (carControl);
