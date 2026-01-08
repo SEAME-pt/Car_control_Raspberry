@@ -12,6 +12,7 @@
 #include <thread>
 #include <chrono>
 #include <fcntl.h>
+#include <iomanip>
 
 //index of the controller, if 0, the first, 
 //and only the first, has permission to connect
@@ -56,5 +57,6 @@ t_carControl	initCarControl(int argc, char *argv[]);
 int				parsingArgv(int argc, char *argv[],
 				                    t_carControl *carControl);
 void			signalManager();
+void			stableValues(int16_t *steering, int16_t *throttle);
 
 extern	std::atomic<bool> g_running;

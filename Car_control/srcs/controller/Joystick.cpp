@@ -22,18 +22,24 @@ Joystick::~Joystick(){
 	close(fd);
 }
 
-// Returns raw axis value for steering or throttle || -1 on error
+// Returns clamped axis value for steering & throttle || -1 on error
 int16_t	Joystick::getAbs(bool steering) const {
 
 	for (int code = 0; code <= ABS_MAX; ++code) {
 		if (libevdev_has_event_code(dev, EV_ABS, code)) {
 			const struct input_absinfo *ai = libevdev_get_abs_info(dev, code);
-			if (ai && steering && code == ABS_X)
-				return static_cast<int16_t>(ai->value);
+			if (ai && steering && code == ABS_X) {
+				int range = ai->maximum - ai->minimum;
+                int normalized = ((ai->value - ai->minimum) * 120) / range;
+                return static_cast<int16_t>(std::clamp(normalized, 0, 120));
+			}
 
-			else if (ai && !steering && code == ABS_Y)
-				return static_cast<int16_t>(ai->value);
-
+			else if (ai && !steering && code == ABS_Y) {
+				int range = ai->maximum - ai->minimum;
+                int center = (ai->maximum + ai->minimum) / 2;
+                int normalized = ((center - ai->value) * 200) / range;
+                return static_cast<int16_t>(std::clamp(normalized, -100, 100));
+			}
 		}
 	}
 	return (-1);

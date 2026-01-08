@@ -27,6 +27,7 @@ include_directories(
 set(SOURCES
     srcs/main.cpp
 	#utils
+	srcs/utils/joy_axis.cpp
 	srcs/utils/parsing.cpp
 	srcs/utils/signal.cpp
 	#init

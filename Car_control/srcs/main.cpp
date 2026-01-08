@@ -1,5 +1,4 @@
 #include "carControl.h"
-#include <iomanip>
 
 // Condition for the main loop to keep running
 std::atomic<bool> g_running{true};

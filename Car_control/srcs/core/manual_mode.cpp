@@ -11,13 +11,12 @@ void	manualLoop(t_carControl *carControl) {
 		int16_t	steering	= carControl->controller->getAbs(true);
 		int16_t	throttle	= carControl->controller->getAbs(false);
 
-		if (!steering || !throttle)
-			throw "ERROR! Impossible to read joystick input..."
-
 		if (value == START_BUTTON) {
 			std::cout << "Initiating graceful shutdown.." << std::endl;
 			g_running = false;
 		}
+
+		stableValues(&steering, &throttle);
 
 		if (steering == last_steering && throttle == last_throttle)
 			continue ;
@@ -25,10 +24,8 @@ void	manualLoop(t_carControl *carControl) {
 		last_steering = steering;
 		last_throttle = throttle;
 
-		int16_t steering_cmd = static_cast<int16_t>(((steering + 127) * 120) / 254);
-		int16_t throttle_cmd = static_cast<int16_t>((throttle * 100) / 127);
-
-		CANProtocol::sendDriveCommand(*carControl->can, steering_cmd, throttle_cmd);
+		std::cout << "Steering: " << steering << " | Throttle: " << throttle << std::endl;
+		CANProtocol::sendDriveCommand(*carControl->can, steering, throttle);
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
