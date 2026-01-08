@@ -24,11 +24,13 @@ public:
 	void	initialize();
 	void	cleanup();
 
-	//Classical CAN
+	// Send can frames
 	void	sendFrame(uint16_t can_id, const int16_t* data, uint8_t len);
-
-	//CAN_FD
 	void	sendFrameFD(uint16_t can_id, const int16_t* data, uint8_t len);
+
+	// Receive can frames
+	int		receiveFrame(struct can_frame *frame);
+	int		receiveFrameFD(struct canfd_frame *frame);
 
 	// Getters
     bool 				isInitialized() const { return _initialized; }

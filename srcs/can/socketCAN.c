@@ -120,7 +120,7 @@ int	can_send_frame_fd(int socket, uint16_t can_id,
 	frame.can_id = can_id;
 	frame.len = len;
 	frame.flags = CANFD_BRS;  // Faster Bit Rate Switch
-	
+
 	if (data && len > 0)
 		memcpy(frame.data, data, len);
 
@@ -128,6 +128,39 @@ int	can_send_frame_fd(int socket, uint16_t can_id,
 		perror("write CAN FD frame");
 		return (-1);
 	}
+	return (0);
+}
+
+// Responsible to detect if a message was received. Return -1 on error
+int	can_try_receive(int socket, struct can_frame *frame)
+{
+	struct pollfd	pfd;
+
+	pfd.fd 		= socket;
+	pfd.events	= POLLIN;
+
+	if (poll(&pfd, 1, 0) <= 0)
+		return (-1);
+
+	if (read(socket, frame, sizeof(*frame)) < 0)
+		return (-1);
+	
+	return (0);
+}
+
+int	canfd_try_receive(int socket, struct canfd_frame *frame)
+{
+	struct pollfd	pfd;
+
+	pfd.fd 		= socket;
+	pfd.events	= POLLIN;
+
+	if (poll(&pfd, 1, 0) <= 0)
+		return (-1);
+
+	if (read(socket, frame, sizeof(*frame)) < 0)
+		return (-1);
+	
 	return (0);
 }
 

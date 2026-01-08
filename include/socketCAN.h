@@ -9,6 +9,7 @@ extern "C" {
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <poll.h>
 
 #include <net/if.h>
 
@@ -27,6 +28,10 @@ int		can_send_frame(int socket, uint16_t can_id,
 
 int		can_send_frame_fd(int socket, uint16_t can_id, 
 					const int16_t *data, uint8_t len);
+
+int		can_try_receive(int socket, struct can_frame *frame);
+
+int		canfd_try_receive(int socket, struct canfd_frame *frame);
 
 void	can_close(int socket);
 

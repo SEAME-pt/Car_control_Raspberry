@@ -1,4 +1,5 @@
 #include "carControl.h"
+#include <iomanip>
 
 // Condition for the main loop to keep running
 std::atomic<bool> g_running{true};
@@ -10,12 +11,12 @@ static void	signalHandler(int signum) {
 
 int main(int argc, char *argv[]) {
 
-    struct sigaction sa{};
-    sa.sa_handler = signalHandler;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-    sigaction(SIGINT, &sa, nullptr);
-    sigaction(SIGTERM, &sa, nullptr);
+	struct sigaction sa{};
+	sa.sa_handler = signalHandler;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	sigaction(SIGINT, &sa, nullptr);
+	sigaction(SIGTERM, &sa, nullptr);
 
 	static int16_t last_steering = 0;
 	static int16_t last_throttle = 0;
@@ -26,12 +27,23 @@ int main(int argc, char *argv[]) {
 	try {
 		if (!carControl.useJoystick) {
 			std::cout << "Joystick not detected, running in debug mode." << std::endl;
-			while (g_running.load() && !carControl.exit)
-			{
-				CANProtocol::sendDriveMode(*carControl.can, DriveMode::MANUAL);
-				CANProtocol::sendEmergencyBrake(*carControl.can, false);
-				CANProtocol::sendDriveCommand(*carControl.can, MID_ANGLE, 0);
-				std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Add delay
+			while (g_running.load() && !carControl.exit) {
+
+				CANProtocol::sendEmergencyBrake(*carControl.can, true);
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+				can_frame rx;
+				memset(&rx, 0, sizeof(can_frame));
+				if (carControl.can->receiveFrame(&rx) == 0) {  // 0 = sucesso
+					std::cout << "ID: 0x" << std::hex << rx.can_id 
+							  << " DLC: " << std::dec << (int)rx.can_dlc 
+							 << " Data: ";
+					for (int i = 0; i < rx.can_dlc; i++) {
+						std::cout << std::hex << std::setw(2) << std::setfill('0') 
+						  	<< (int)rx.data[i] << " ";
+					}
+					std::cout << std::dec << std::endl;
+				}
 			}
 		} else {
 			std::cout << "Starting Joystick reading loop..." << std::endl;
@@ -47,13 +59,13 @@ int main(int argc, char *argv[]) {
 				}
 
 				if (steering == last_steering && throttle == last_throttle)
-        	        continue;
+					continue;
 
 				last_steering = steering;
-        	    last_throttle = throttle;
+				last_throttle = throttle;
 
 				int16_t steering_cmd = static_cast<int16_t>(((steering + 127) * 120) / 254);
-        	    int16_t throttle_cmd = static_cast<int16_t>((throttle * 100) / 127);
+				int16_t throttle_cmd = static_cast<int16_t>((throttle * 100) / 127);
 
 				CANProtocol::sendDriveCommand(*carControl.can, steering_cmd, throttle_cmd);
 				std::this_thread::sleep_for(std::chrono::milliseconds(10));
