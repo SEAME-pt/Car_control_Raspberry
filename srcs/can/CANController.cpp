@@ -92,3 +92,15 @@ void	CANController::sendFrameFD(uint16_t can_id,
 		std::to_string(can_id) + ")");
 	}
 }
+
+// Reads incoming messages and stores all information on struct
+// -1 returned on error
+int		CANController::receiveFrame(struct can_frame *frame) {
+
+	return (can_try_receive(_socket, frame));
+}
+
+int		CANController::receiveFrameFD(struct canfd_frame *frame) {
+
+	return (canfd_try_receive(_socket, frame));
+}
