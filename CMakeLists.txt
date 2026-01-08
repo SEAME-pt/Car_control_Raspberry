@@ -28,9 +28,13 @@ set(SOURCES
     srcs/main.cpp
 	#utils
 	srcs/utils/parsing.cpp
+	srcs/utils/signal.cpp
 	#init
 	srcs/init/init_can.cpp
 	srcs/init/init.cpp
+	#core
+	srcs/core/autonomous_mode.cpp
+	srcs/core/manual_mode.cpp
 	#controller
     srcs/controller/Joystick.cpp
 	#can

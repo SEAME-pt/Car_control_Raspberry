@@ -43,6 +43,10 @@ typedef struct s_carControl {
 	bool			exit;
 } t_carControl;
 
+//core
+void			autonomousLoop(const t_carControl &carControl);
+void			manualLoop(t_carControl *carControl);
+
 //init
 std::unique_ptr<CANController>	
 				init_can(const std::string &interface);
