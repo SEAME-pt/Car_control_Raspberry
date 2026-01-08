@@ -4,19 +4,9 @@
 // Condition for the main loop to keep running
 std::atomic<bool> g_running{true};
 
-static void	signalHandler(int signum) {
-	(void)signum;
-	g_running.store(false);
-}
-
 int main(int argc, char *argv[]) {
 
-	struct sigaction sa{};
-	sa.sa_handler = signalHandler;
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = 0;
-	sigaction(SIGINT, &sa, nullptr);
-	sigaction(SIGTERM, &sa, nullptr);
+	signalManager();
 
 	static int16_t last_steering = 0;
 	static int16_t last_throttle = 0;
@@ -24,6 +14,8 @@ int main(int argc, char *argv[]) {
 	t_carControl carControl = initCarControl(argc, argv);
 	if (carControl.exit)
 		return (1);
+
+
 	try {
 		if (!carControl.useJoystick) {
 			std::cout << "Joystick not detected, running in debug mode." << std::endl;
