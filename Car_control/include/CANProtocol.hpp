@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CANController.hpp"
-#include <algorithm>
 
 namespace CANID {
 	constexpr uint16_t	EMERGENCY_BRAKE = 0x100;	//max priority

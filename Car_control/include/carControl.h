@@ -39,7 +39,7 @@ typedef struct s_carControl {
 	std::unique_ptr<CANController>	can;
 	std::unique_ptr<Joystick>		controller;
 	std::string		canInterface;
-	bool			useJoystick;
+	bool			manual;
 	bool			debug;
 	bool			exit;
 } t_carControl;

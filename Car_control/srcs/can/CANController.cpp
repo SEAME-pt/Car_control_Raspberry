@@ -48,13 +48,11 @@ void	CANController::initialize() {
 		return ;
 	}
 
-	std::cout << "DEBUG: Initializing CAN interface: " << _interface << std::endl;
 	_socket = socketCan_init(_interface.c_str());
 	if (_socket < 0) {
 		throw CANException("Failed to initialize interface: "
 		+ _interface);
 	}
-	std::cout << "DEBUG: CAN interface initialized successfully, socket: " << _socket << std::endl;
 	_initialized = true;
 }
 
