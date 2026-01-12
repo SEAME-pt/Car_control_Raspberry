@@ -45,6 +45,7 @@ int16_t	Joystick::getAbs(bool steering) const {
 	return (-1);
 }
 
+// Reads joystick buttons events pressed
 int	Joystick::readPress(void) {
 	rc = libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &ev);
 	if (rc == 0) {
@@ -57,6 +58,7 @@ int	Joystick::readPress(void) {
 	return (-1);
 }
 
+// Find if device is connected and what's the name
 void	Joystick::findJoystickDevice() {
 
 	_device = "";
@@ -71,4 +73,21 @@ void	Joystick::findJoystickDevice() {
 	} catch (const std::filesystem::filesystem_error& e) {
 		throw std::runtime_error("Error! No joystick device found.");
 	}
+}
+
+// Function to stabilize input values.
+// This addresses potential joystick calibration issues,
+// ensuring that standard values remain reliable.
+void	stableValues(int16_t *steering, int16_t *throttle) {
+
+	const int16_t	STEERING_CENTER   = 60;
+	const int16_t	STEERING_DEADZONE = 2;
+	const int16_t	THROTTLE_DEADZONE = 2;
+
+	if (*steering > STEERING_CENTER - STEERING_DEADZONE && 
+        *steering < STEERING_CENTER + STEERING_DEADZONE)
+        *steering = STEERING_CENTER;
+    
+    if (*throttle > -THROTTLE_DEADZONE && *throttle < THROTTLE_DEADZONE)
+        *throttle = 0;
 }

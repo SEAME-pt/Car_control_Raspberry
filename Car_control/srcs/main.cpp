@@ -1,7 +1,7 @@
 #include "carControl.h"
 
 // Condition for the main loop to keep running
-std::atomic<bool> g_running{true};
+std::atomic<bool> g_running = true;
 
 int	main(int argc, char *argv[]) {
 

@@ -40,7 +40,6 @@ typedef struct s_carControl {
 	std::unique_ptr<Joystick>		controller;
 	std::string		canInterface;
 	bool			manual;
-	bool			debug;
 	bool			exit;
 } t_carControl;
 
@@ -58,5 +57,7 @@ int				parsingArgv(int argc, char *argv[],
 				                    t_carControl *carControl);
 void			signalManager();
 void			stableValues(int16_t *steering, int16_t *throttle);
+void			signalHandler(int signum);
+void			readCan(const std::unique_ptr<CANController> &can);
 
 extern	std::atomic<bool> g_running;

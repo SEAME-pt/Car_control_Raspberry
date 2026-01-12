@@ -8,9 +8,9 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Compiler flags
-set(CMAKE_C_FLAGS_DEBUG "-g -Wall -Wextra")
+set(CMAKE_C_FLAGS_DEBUG "-g -Wall -Wextra -Werror")
 set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
-set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall -Wextra")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall -Wextra -Werror")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
 # Find LIBEVDEV
@@ -27,9 +27,9 @@ include_directories(
 set(SOURCES
     srcs/main.cpp
 	#utils
-	srcs/utils/joy_axis.cpp
 	srcs/utils/parsing.cpp
 	srcs/utils/signal.cpp
+	srcs/utils/temp_print_can_rx.cpp
 	#init
 	srcs/init/init_can.cpp
 	srcs/init/init.cpp
@@ -59,6 +59,8 @@ message(STATUS "Libevdev version: ${LIBEVDEV_VERSION}")
 message(STATUS "Libevdev libraries: ${LIBEVDEV_LIBRARIES}")
 message(STATUS "Libevdev include: ${LIBEVDEV_INCLUDE_DIRS}")
 message(STATUS "================================")
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 ## ================================
 ## Testing with Google Test

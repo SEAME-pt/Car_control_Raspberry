@@ -1,6 +1,6 @@
 #include "carControl.h"
 
-static void	signalHandler(int signum) {
+void	signalHandler(int signum) {
 	(void)signum;
 	g_running.store(false);
 }
