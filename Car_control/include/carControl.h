@@ -1,6 +1,5 @@
 #pragma once
 
-#include "exceptions.hpp"
 #include "CANController.hpp"
 #include "CANProtocol.hpp"
 #include "Joystick.hpp"
