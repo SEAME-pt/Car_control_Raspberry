@@ -51,5 +51,9 @@ t_carControl	initCarControl(int argc, char *argv[]);
 //utils
 int				parsingArgv(int argc, char *argv[],
 				                    t_carControl *carControl);
+								
+void	manualLoop(t_carControl *carControl);
+void	autonomousLoop(const t_carControl &carControl);
+void			signalManager();
 
-extern	std::atomic<bool> g_running;
+extern std::atomic<bool> g_running;

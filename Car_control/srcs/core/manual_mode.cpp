@@ -11,8 +11,9 @@ void	manualLoop(t_carControl *carControl) {
 		int16_t	steering	= carControl->controller->getAbs(true);
 		int16_t	throttle	= carControl->controller->getAbs(false);
 
-		if (!steering || !throttle)
-			throw "ERROR! Impossible to read joystick input..."
+		if (steering == -1 || throttle == -1) {
+			throw std::runtime_error("ERROR! Impossible to read joystick input...");
+		}
 
 		if (value == START_BUTTON) {
 			std::cout << "Initiating graceful shutdown.." << std::endl;

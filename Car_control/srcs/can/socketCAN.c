@@ -11,9 +11,11 @@ int	check_mtu_support(int s, struct ifreq *ifr) {
 	// Check CAN_FD support
 	if (ifr->ifr_mtu == CANFD_MTU)
 		return (0);
-	else if (ifr->ifr_mtu == CAN_MTU)
+	else if (ifr->ifr_mtu == CAN_MTU) {
 		printf("Device only supports Classical CAN\n");
-	return (0);
+		return (1);
+	}
+	return (-1);
 }
 
 int	socketCan_init(const char *interface) {

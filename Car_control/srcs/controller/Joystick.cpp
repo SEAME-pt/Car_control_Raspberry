@@ -65,7 +65,7 @@ void	Joystick::findJoystickDevice() {
 		}
 		return ;
 	} catch (const std::filesystem::filesystem_error&) {
-		// Diretório não existe
+		// Directory doesn't exist or can't access
 	}
 	throw std::runtime_error("No joystick device found in " + inputPath);
 }

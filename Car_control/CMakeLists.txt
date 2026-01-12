@@ -27,6 +27,7 @@ include_directories(
 set(SOURCES
     srcs/main.cpp
 	#utils
+    srcs/utils/signal.cpp
 	srcs/utils/parsing.cpp
 	#init
 	srcs/init/init_can.cpp
@@ -36,6 +37,9 @@ set(SOURCES
 	#can
     srcs/can/socketCAN.c
     srcs/can/CANController.cpp
+    #core
+    srcs/core/autonomous_mode.cpp
+    srcs/core/manual_mode.cpp
 )
 
 # Executable
@@ -69,21 +73,29 @@ if(BUILD_TESTS)
 
     # Test source files (excluding main.cpp from main project)
     set(TEST_SOURCES
-        srcs/utils/parsing.cpp
-        srcs/init/init_can.cpp
-        srcs/init/init.cpp
+        srcs/utils/signal.cpp
+	    srcs/utils/parsing.cpp
+	    #init
+	    srcs/init/init_can.cpp
+	    srcs/init/init.cpp
+	    #controller
         srcs/controller/Joystick.cpp
+	    #can
         srcs/can/socketCAN.c
         srcs/can/CANController.cpp
+        #core
+        srcs/core/autonomous_mode.cpp
+        srcs/core/manual_mode.cpp
     )
 
     # Test files
     set(TEST_FILES
 		tests/CANControllerTest.cpp
-		#tests/CANInitTest.cpp
-		#tests/CANProtocolTest.cpp
-		#tests/SocketCANTest.cpp
-		#tests/JoystickTest.cpp
+		tests/CANInitTest.cpp
+		tests/CANProtocolTest.cpp
+		tests/SocketCANTest.cpp
+		tests/JoystickTest.cpp
+        tests/autonomousModeTest.cpp
     )
 
     # Create test executable
