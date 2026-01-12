@@ -1,5 +1,8 @@
 #pragma once
 
+#include <unistd.h>
+#include <fcntl.h>
+#include <algorithm>
 #include <libevdev/libevdev.h>
 #include <filesystem>
 
@@ -14,7 +17,7 @@ class Joystick {
 		Joystick();
 		~Joystick();
 	
-		int16_t		getAbs(bool steering) const;
-		int			readPress(void);
-		void		findJoystickDevice();
+		int16_t	getAbs(bool steering) const;
+		int		readPress(void);
+		void	findJoystickDevice();
 };
