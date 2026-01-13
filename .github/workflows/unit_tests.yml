@@ -38,19 +38,19 @@ jobs:
           sudo cp lib/*.a /usr/lib
 
       - name: Create build directory
-        run: mkdir Car_Control/build
+        run: mkdir Car_control/build
 
       - name: Configure with CMake
         run: |
-          cd Car_Control/build
+          cd Car_control/build
           cmake -DBUILD_TESTS=ON ..
 
       - name: Build project
         run: |
-          cd Car_Control/build
+          cd Car_control/build
           make
 
       - name: Run unit tests with ctest
         run: |
-          cd Car_Control/build
+          cd Car_control/build
           ctest --output-on-failure --verbose
