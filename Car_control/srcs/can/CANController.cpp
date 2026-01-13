@@ -48,13 +48,11 @@ void	CANController::initialize() {
 		return ;
 	}
 
-	std::cout << "DEBUG: Initializing CAN interface: " << _interface << std::endl;
 	_socket = socketCan_init(_interface.c_str());
 	if (_socket < 0) {
 		throw CANException("Failed to initialize interface: "
 		+ _interface);
 	}
-	std::cout << "DEBUG: CAN interface initialized successfully, socket: " << _socket << std::endl;
 	_initialized = true;
 }
 
@@ -93,8 +91,7 @@ void	CANController::sendFrameFD(uint16_t can_id,
 	}
 }
 
-// Reads incoming messages and stores all information on struct
-// -1 returned on error
+// Reads incoming can messages present on the class socket
 int		CANController::receiveFrame(struct can_frame *frame) {
 
 	return (can_try_receive(_socket, frame));

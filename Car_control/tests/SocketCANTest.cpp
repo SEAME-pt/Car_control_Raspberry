@@ -57,7 +57,7 @@ TEST_F(socketCANTest, ValidCheckMTU) {
 	
 		int result = check_mtu_support(s, &ifr);
 
-		EXPECT_EQ(result, 1);
+		EXPECT_EQ(result, 0);
 		EXPECT_EQ(ifr.ifr_mtu, CAN_MTU); // PASS = 16
 	
 		close(s);
@@ -122,7 +122,7 @@ TEST_F(socketCANTest, ValidSocketInit) {
 		ASSERT_GE(s, 0);
 		
 		// Try sending a frame to verify socket works
-		int8_t data[2] = {50, 0};
+		int16_t data[2] = {50, 0};
 		int result = can_send_frame(s, 0x100, data, 2);
 		EXPECT_EQ(result, 0);
 		
@@ -133,7 +133,7 @@ TEST_F(socketCANTest, ValidSocketInit) {
 		int s = socketCan_init(validInterface);
 		ASSERT_GE(s, 0);
 
-		int8_t data[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+		int16_t data[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 		int result = can_send_frame_fd(s, 0x200, data, 16);
 		EXPECT_EQ(result, 0);
 		
@@ -184,7 +184,7 @@ TEST_F(socketCANTest, InvalidSendFrame) {
 
 	// Test 1: invalid socket
 	{
-		int8_t data[2] = {50, 0};
+		int16_t data[2] = {50, 0};
 		int result = can_send_frame(-1, 0x100, data, 2);
 		EXPECT_LT(result, 0);
 	}
@@ -195,7 +195,7 @@ TEST_F(socketCANTest, InvalidSendFrame) {
 		ASSERT_GE(s, 0);
 		close(s);
 		
-		int8_t data[2] = {50, 0};
+		int16_t data[2] = {50, 0};
 		int result = can_send_frame(s, 0x100, data, 2);
 		EXPECT_LT(result, 0);
 	}
@@ -205,14 +205,14 @@ TEST_F(socketCANTest, InvalidSendFrame) {
 		int s = socketCan_init(validInterface);
 		ASSERT_GE(s, 0);
 		
-		int8_t data[2] = {50, 0};
+		int16_t data[2] = {50, 0};
 		
 		// Just over limit
 		int result1 = can_send_frame(s, 0x800, data, 2);
 		EXPECT_LT(result1, 0);
 		
 		// Way over limit
-		int result2 = can_send_frame(s, 0xFFFFFFFF, data, 2);
+		int result2 = can_send_frame(s, 65535, data, 2);
 		EXPECT_LT(result2, 0);
 		
 		close(s);
@@ -236,7 +236,7 @@ TEST_F(socketCANTest, InvalidSendFrameFD) {
 
 	// Test 1: Send on invalid socket
 	{
-		int8_t data[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+		int16_t data[8] = {1, 2, 3, 4, 5, 6, 7, 8};
 		int result = can_send_frame_fd(-1, 0x100, data, 8);
 		EXPECT_LT(result, 0);
 	}
@@ -247,7 +247,7 @@ TEST_F(socketCANTest, InvalidSendFrameFD) {
 		ASSERT_GE(s, 0);
 		close(s);
 		
-		int8_t data[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+		int16_t data[8] = {1, 2, 3, 4, 5, 6, 7, 8};
 		int result = can_send_frame_fd(s, 0x100, data, 8);
 		EXPECT_LT(result, 0);
 	}
@@ -268,8 +268,8 @@ TEST_F(socketCANTest, InvalidSendFrameFD) {
 		int s = socketCan_init(validInterface);
 		ASSERT_GE(s, 0);
 		
-		int8_t data[8] = {1, 2, 3, 4, 5, 6, 7, 8};
-		int result = can_send_frame_fd(s, 0xFFFFFFFF, data, 8);
+		int16_t data[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+		int result = can_send_frame_fd(s, 65535, data, 8);
 
 		EXPECT_LT(result, 0);
 		

@@ -66,7 +66,7 @@ TEST_F(CANInitTest, CanSendFramesAfterInit) {
 	ASSERT_NE(can, nullptr);
 	
 	// Sending a frame
-	int8_t data[2] = {50, 0};
+	int16_t data[2] = {50, 0};
 	ASSERT_NO_THROW({
 		can->sendFrame(0x100, data, 2);
 	});
