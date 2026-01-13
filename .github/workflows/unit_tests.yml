@@ -3,10 +3,7 @@ on:
   push:
     branches:
       - main
-      - refactor/Joystick
-  pull_request:
-    branches:
-      - main
+      - development
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
@@ -41,19 +38,19 @@ jobs:
           sudo cp lib/*.a /usr/lib
 
       - name: Create build directory
-        run: mkdir build
+        run: mkdir Car_Control/build
 
       - name: Configure with CMake
         run: |
-          cd build
+          cd Car_Control/build
           cmake -DBUILD_TESTS=ON ..
 
       - name: Build project
         run: |
-          cd build
+          cd Car_Control/build
           make
 
       - name: Run unit tests with ctest
         run: |
-          cd build
+          cd Car_Control/build
           ctest --output-on-failure --verbose
