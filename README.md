@@ -1,6 +1,6 @@
 # TEAM1 - Velocity Era
 
-This repository consolidates the most up to date software stack for our autonomous vehicle, Vera, which runs on a Raspberry Pi 5. Currently, the program fully integrates Joystick support, capturing axis values and converting them into I²C data. These values are then transmitted via CAN-FD to the microcontroller, enabling safe and reliable control of Vera’s movement in a safety critical environment.
+This repository consolidates the most up to date software stack for our autonomous vehicle, Vera, which runs on a Raspberry Pi 5. Currently, the program fully integrates Joystick support, capturing axis values and converting them messages. These values are then transmitted via CAN-FD to the microcontroller, enabling safe and reliable control of Vera’s movement in a safety critical environment.
 
 Additionally, the program is responsible for running the Qt interface, which displays on the car’s screen the data received from the microcontroller (such as speed sensor readings and motor/servo feedback) also communicated through CAN-FD.
 
@@ -22,14 +22,14 @@ This platform integrates dependencies like:
 ## File Structure
 
 ```
-TEAM1-Car_control_Raspberry/
+Car_control/
 │
 ├── CMakeLists.txt                       # Build configuration
-├── README.md                            # Project documentation
 │
 ├── include/                             # Header files
 │   ├── CANController.hpp                # CAN controller class (smart pointer)
 │   ├── CANProtocol.hpp                  # CAN protocol definitions
+│   ├── Joystick.hpp 					 # Joystick class definition
 │   ├── carControl.h                     # Main control structures and functions
 │   ├── exceptions.hpp                   # Custom exception classes
 │   └── socketCAN.h                      # C wrapper for CAN socket operations
@@ -44,11 +44,17 @@ TEAM1-Car_control_Raspberry/
 │   ├── controller/                      # Input controllers
 │   │   └── Joystick.cpp                 # Joystick handling
 │   │
+│   ├── core/ 							 # Core control loops
+│   │   ├── autonomous_mode.cpp 		 # Autonomous driving loop
+│   │   └── manual_mode.cpp 			 # Manual joystick control loop
+│   │
 │   ├── init/                            # Initialization modules
 │   │   ├── init.cpp                     # Main initialization
 │   │
 │   └── utils/                           # Utility functions
-│       └── parsing.cpp                  # Command-line argument parsing
+│   |   ├── parsing.cpp 				 # Command-line argument parsing
+│   |   ├── signal.cpp 					 # Signal handling (graceful shutdown)
+│   |── └── temp_print_can_rx.cpp 		 # CAN receive debug utility
 │
 ├── tests/
 │ ├── CANControllerTest.cpp 			 # CAN controller unit tests
@@ -96,6 +102,14 @@ frame.flags = CANFD_BRS; // Faster Bit Rate Switch (only for CAN_FD)
 
 //write bits to the desired socket 
 write(socket, &frame, sizeof(struct canfd_frame))
+
+// Using the same socket, we can check for incoming messages.
+// The use of poll() ensures efficient, non-blocking operation,
+// returning immediately when no data is available to read.
+if (poll(&pfd, 1, 0) <= 0)
+	return (-1);
+if (read(socket, frame, sizeof(*frame)) < 0)
+	return (-1);
 ```
 
 CAN instructions and their respective id's are:
@@ -104,19 +118,9 @@ Raspberry Pi -> STM32:
 
 ```cpp
 namespace CANID {
-	constexpr uint32_t EMERGENCY_BRAKE = 0x100;		// max priority
-	constexpr uint32_t DRIVE_COMMAND   = 0x101;		// high priority
-	constexpr uint32_t DRIVE_MODE      = 0x102;		// low priority
-};
-```
-
-STM32 -> Raspberry Pi
-
-```cpp
-namespace CANID {
-	constexpr uint32_t MOTOR_SERVO		= 0x200;	// max priority
-	constexpr uint32_t SPEED_SENSOR		= 0x201;	// high priority
-	constexpr uint32_t ERROR_UPDATES	= 0x202;	// low priority
+	constexpr uint16_t EMERGENCY_BRAKE = 0x100;		// max priority
+	constexpr uint16_t DRIVE_COMMAND   = 0x101;		// high priority
+	constexpr uint16_t DRIVE_MODE      = 0x102;		// low priority
 };
 ```
 
@@ -177,7 +181,7 @@ make
 candump vcan0
 
 # Terminal 2: Run
-sudo ./car --can=vcan0 --debug
+sudo ./car --can=vcan0
 ```
 
 This program also includes a full test suite with 100% function coverage. If you wish to run the tests, follow these steps:
@@ -192,6 +196,11 @@ make coverage
 
 ## Note
 Root permissions are required due to CAN socket initialization and, when testing, to properly create a virtual interface that simulates a CAN transceiver inside the development machine.
+
+## How To Expand the project
+This program doesn't focus entirely on safety-critical aspects. However, there is a feature that must be as close to safety-critical as possible: the emergency brake. To ensure the message is sent as fast as possible, integration tests are necessary, and delay tests for the messages are also required.
+
+Add an exclusive thread just for the emergency brake and explore struct sched_param to set the priority to the maximum level.
 
 ## Team members
 

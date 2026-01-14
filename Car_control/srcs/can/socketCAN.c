@@ -10,12 +10,14 @@ int	check_mtu_support(int s, struct ifreq *ifr) {
 
 	// Check CAN_FD support
 	if (ifr->ifr_mtu == CANFD_MTU)
-		return (0);
-	else if (ifr->ifr_mtu == CAN_MTU) {
-		printf("Device only supports Classical CAN\n");
-		return (1);
+		printf("Device supports CAN_FD.\n");
+	else if (ifr->ifr_mtu == CAN_MTU)
+		printf("Device supports Classical CAN.\n");
+	else {
+		printf("ERROR! Unkown MTU suported by device...");
+		return (-1);
 	}
-	return (-1);
+	return (0);
 }
 
 int	socketCan_init(const char *interface) {
@@ -133,7 +135,8 @@ int	can_send_frame_fd(int socket, uint16_t can_id,
 	return (0);
 }
 
-// Responsible to detect if a message was received. Return -1 on error
+// Reads incoming messages and stores all information on struct
+// -1 returned if no message was read
 int	can_try_receive(int socket, struct can_frame *frame)
 {
 	struct pollfd	pfd;
@@ -150,6 +153,7 @@ int	can_try_receive(int socket, struct can_frame *frame)
 	return (0);
 }
 
+// Same as previous function but for can-fd
 int	canfd_try_receive(int socket, struct canfd_frame *frame)
 {
 	struct pollfd	pfd;

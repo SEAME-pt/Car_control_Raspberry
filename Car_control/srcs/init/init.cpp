@@ -7,11 +7,10 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 
 	//Initializing carControl with default values
 	carControl.controller 		= nullptr;
-	carControl.canInterface		= "can0";
-	carControl.useJoystick		= true;
-	carControl.debug 			= false;
-	carControl.exit				= false;
 	carControl.can				= nullptr;
+	carControl.canInterface		= "can0";
+	carControl.manual			= true;
+	carControl.exit				= false;
 
 	// Overriding default values using user input
 	if (parsingArgv(argc, argv, &carControl) <= 0)
@@ -32,9 +31,11 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 
 	// Joystick init
 	try {
-		carControl.controller = std::make_unique<Joystick>();	
-	} catch (...) {
-		carControl.useJoystick = false;
+		if (carControl.manual)
+			carControl.controller = std::make_unique<Joystick>();
+	} catch (const std::exception& e) {
+		std::cerr << e.what() << std::endl;
+		carControl.exit = true;
 		return (carControl);
 	}
 	return (carControl);

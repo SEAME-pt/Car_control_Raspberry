@@ -1,10 +1,6 @@
 #include "carControl.h"
-#include <iomanip>
 
-// Condition for the main loop to keep running
-
-
-int main(int argc, char *argv[]) {
+int	main(int argc, char *argv[]) {
 
 	signalManager();
 
@@ -13,11 +9,11 @@ int main(int argc, char *argv[]) {
 		return (1);
 
 	try {
-		if (!carControl.useJoystick) {
-			std::cout << "Joystick not detected, running in debug mode." << std::endl;
+		if (!carControl.manual) {
+			std::cout << "Autonomous mode chosed, initiating ai..." << std::endl;
 			autonomousLoop(carControl);
 		} else {
-			std::cout << "Starting Joystick reading loop..." << std::endl;
+			std::cout << "Manual mode chosed, initiating joystick..." << std::endl;
 			manualLoop(&carControl);
 		}
 	} catch (const std::exception &err) {

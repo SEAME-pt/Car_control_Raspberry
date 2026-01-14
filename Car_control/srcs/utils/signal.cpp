@@ -1,9 +1,6 @@
 #include "carControl.h"
 
-// Define the global variable
-std::atomic<bool> g_running{true};
-
-static void	signalHandler(int signum) {
+void	signalHandler(int signum) {
 	(void)signum;
 	g_running.store(false);
 }

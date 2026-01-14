@@ -1,6 +1,5 @@
 #pragma once
 
-#include "exceptions.hpp"
 #include "CANController.hpp"
 #include "CANProtocol.hpp"
 #include "Joystick.hpp"
@@ -12,6 +11,7 @@
 #include <thread>
 #include <chrono>
 #include <fcntl.h>
+#include <iomanip>
 
 //index of the controller, if 0, the first, 
 //and only the first, has permission to connect
@@ -38,8 +38,7 @@ typedef struct s_carControl {
 	std::unique_ptr<CANController>	can;
 	std::unique_ptr<Joystick>		controller;
 	std::string		canInterface;
-	bool			useJoystick;
-	bool			debug;
+	bool			manual;
 	bool			exit;
 } t_carControl;
 
@@ -55,5 +54,8 @@ int				parsingArgv(int argc, char *argv[],
 void	manualLoop(t_carControl &carControl);
 void	autonomousLoop(const t_carControl &carControl);
 void			signalManager();
+void			stableValues(int16_t *steering, int16_t *throttle);
+void			signalHandler(int signum);
+void			readCan(const std::unique_ptr<CANController> &can);
 
 extern std::atomic<bool> g_running;

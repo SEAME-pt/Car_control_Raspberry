@@ -8,9 +8,9 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Compiler flags
-set(CMAKE_C_FLAGS_DEBUG "-g -Wall -Wextra")
+set(CMAKE_C_FLAGS_DEBUG "-g -Wall -Wextra -Werror")
 set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
-set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall -Wextra")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall -Wextra -Werror")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
 # Find LIBEVDEV
@@ -27,19 +27,20 @@ include_directories(
 set(SOURCES
     srcs/main.cpp
 	#utils
-    srcs/utils/signal.cpp
 	srcs/utils/parsing.cpp
+	srcs/utils/signal.cpp
+	srcs/utils/temp_print_can_rx.cpp
 	#init
 	srcs/init/init_can.cpp
 	srcs/init/init.cpp
+	#core
+	srcs/core/autonomous_mode.cpp
+	srcs/core/manual_mode.cpp
 	#controller
     srcs/controller/Joystick.cpp
 	#can
     srcs/can/socketCAN.c
     srcs/can/CANController.cpp
-    #core
-    srcs/core/autonomous_mode.cpp
-    srcs/core/manual_mode.cpp
 )
 
 # Executable
