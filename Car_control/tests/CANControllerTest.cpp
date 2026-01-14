@@ -173,7 +173,7 @@ TEST_F(CANControllerTest, ValidSendFrame) {
 
 	// Test 2: Boundary values
 	{
-		uint32_t can_id = 0x100;
+		uint16_t can_id = 0x100;
 		
 		int16_t data_min[2] = {0, -100};
 		ASSERT_NO_THROW(can.sendFrame(can_id, data_min, 2));
@@ -187,7 +187,7 @@ TEST_F(CANControllerTest, ValidSendFrame) {
 
 	// Test 3: Different data lengths up to 8 bytes
 	{
-		uint32_t can_id = 0x200;
+		uint16_t can_id = 0x200;
 		
 		int16_t data1[1] = {50};
 		ASSERT_NO_THROW(can.sendFrame(can_id, data1, 1));
@@ -210,13 +210,13 @@ TEST_F(CANControllerTest, ValidSendFrame) {
 
 	// Test 5: Empty data
 	{
-		uint32_t can_id = 0x100;
+		uint16_t can_id = 0x100;
 		ASSERT_NO_THROW(can.sendFrame(can_id, nullptr, 0));
 	}
 
 	// Test 6: Sequential sends
 	{
-		uint32_t can_id = 0x300;
+		uint16_t can_id = 0x300;
 		
 		for (int i = 0; i < 50; i++) {
 			int16_t data[2] = {static_cast<int16_t>(i % 121), 
@@ -227,7 +227,7 @@ TEST_F(CANControllerTest, ValidSendFrame) {
 
 	// Test 7: Normal driving values
 	{
-		uint32_t can_id = 0x100;
+		uint16_t can_id = 0x100;
 
 		int16_t data_idle[2] = {0, 0};
 		ASSERT_NO_THROW(can.sendFrame(can_id, data_idle, 2));
@@ -289,10 +289,10 @@ TEST_F(CANControllerTest, InvalidSendFrame) {
 		CANController can(validInterface);
 		int16_t data[2] = {50, 0};
 	
-		uint32_t invalid_id = 0xFFFFFFFF;
+		uint16_t invalid_id = 65535;
 		EXPECT_THROW(can.sendFrame(invalid_id, data, 2), CANController::CANException);
 	
-		uint32_t just_over_limit = 0x800;
+		uint16_t just_over_limit = 0x800;
 		EXPECT_THROW(can.sendFrame(just_over_limit, data, 2), CANController::CANException);
 	}
 }
@@ -316,7 +316,7 @@ TEST_F(CANControllerTest, ValidSendFrameFD) {
 
 	// Test 2: Boundary values
 	{
-		uint32_t can_id = 0x100;
+		uint16_t can_id = 0x100;
 		
 		int16_t data_min[2] = {0, -100};
 		ASSERT_NO_THROW(can.sendFrameFD(can_id, data_min, 2));
@@ -330,7 +330,7 @@ TEST_F(CANControllerTest, ValidSendFrameFD) {
 
 	// Test 3: Different data lengths up to 64 bytes
 	{
-		uint32_t can_id = 0x200;
+		uint16_t can_id = 0x200;
 		
 		//low
 		int16_t data1[1] = {50};
@@ -367,13 +367,13 @@ TEST_F(CANControllerTest, ValidSendFrameFD) {
 
 	// Test 5: Empty data
 	{
-		uint32_t can_id = 0x100;
+		uint16_t can_id = 0x100;
 		ASSERT_NO_THROW(can.sendFrameFD(can_id, nullptr, 0));
 	}
 
 	// Test 6: Sequential sends with varying lengths
 	{
-		uint32_t can_id = 0x300;
+		uint16_t can_id = 0x300;
 		
 		for (int i = 0; i < 50; i++) {
 			size_t len = (i % 8) + 1; // 1-8 bytes varying
@@ -387,7 +387,7 @@ TEST_F(CANControllerTest, ValidSendFrameFD) {
 
 	// Test 7: Large payload
 	{
-		uint32_t can_id = 0x400;
+		uint16_t can_id = 0x400;
 
 		int16_t large_data[48];
 		for (int i = 0; i < 48; i++) {
@@ -398,7 +398,7 @@ TEST_F(CANControllerTest, ValidSendFrameFD) {
 
 	// Test 8: Typical driving values with extended data
 	{
-		uint32_t can_id = 0x100;
+		uint16_t can_id = 0x100;
 		
 		// Extended telemetry: throttle, steering, speed, battery, temp, etc.
 		int16_t telemetry[16] = {
@@ -414,7 +414,7 @@ TEST_F(CANControllerTest, ValidSendFrameFD) {
 
 	// Test 9: Exceeding max length
 	{
-		uint32_t can_id = 0x100;
+		uint16_t can_id = 0x100;
 		
 		int16_t oversized[100];
 		for (int i = 0; i < 100; i++) oversized[i] = i;
@@ -461,10 +461,10 @@ TEST_F(CANControllerTest, InvalidSendFrameFD) {
 		CANController can(validInterface);
 		int16_t data[2] = {50, 0};
 	
-		uint32_t invalid_id = 0xFFFFFFFF;
+		uint16_t invalid_id = 65535;
 		EXPECT_THROW(can.sendFrameFD(invalid_id, data, 2), CANController::CANException);
 	
-		uint32_t just_over_limit = 0x800;
+		uint16_t just_over_limit = 0x800;
 		EXPECT_THROW(can.sendFrameFD(just_over_limit, data, 2), CANController::CANException);
 	}
 }

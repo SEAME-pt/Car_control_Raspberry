@@ -59,7 +59,7 @@ TEST_F(socketCANTest, ValidCheckMTU) {
 	
 		int result = check_mtu_support(s, &ifr);
 
-		EXPECT_EQ(result, 1);
+		EXPECT_EQ(result, 0);
 		EXPECT_EQ(ifr.ifr_mtu, CAN_MTU); // PASS = 16
 	
 		close(s);
@@ -214,7 +214,7 @@ TEST_F(socketCANTest, InvalidSendFrame) {
 		EXPECT_LT(result1, 0);
 		
 		// Way over limit
-		int result2 = can_send_frame(s, 0xFFFFFFFF, data, 2);
+		int result2 = can_send_frame(s, 65535, data, 2);
 		EXPECT_LT(result2, 0);
 		
 		close(s);
