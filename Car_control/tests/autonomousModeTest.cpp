@@ -322,10 +322,3 @@ TEST_F(AutonomousModeTest, MaxSizeCanFrame)
     // If we reach here without crashing, the test passes
     SUCCEED();
 }
-
-TEST_F(AutonomousModeTest, ZeroCanFrame)
-{
-    
-}
-
-

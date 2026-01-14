@@ -96,6 +96,7 @@ if(BUILD_TESTS)
 		tests/SocketCANTest.cpp
 		tests/JoystickTest.cpp
         tests/autonomousModeTest.cpp
+        tests/manualModeTest.cpp
     )
 
     # Create test executable
