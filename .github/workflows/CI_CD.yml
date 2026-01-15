@@ -39,9 +39,16 @@ jobs:
         make
     - name: Compile Car Control
       run: |
-        cd /tmp/Car_control_Raspberry
+        cd /tmp/Car_control_Raspberry/Car_Control
         source /opt/agl-sdk/20.90.0-aarch64/environment-setup-aarch64-agl-linux
         mkdir build
         cd build
         cmake ..
         make
+    - name: send to Raspberry Pi
+      run: |
+        scp -o StrictHostKeyChecking=no /tmp/Car_control_Raspberry/Car_Control/build/car /tmp/Car_control_Raspberry/Qt/build/Car_1 \
+            ${{ secrets.RASPBERRY_PI_USER }}@${{ secrets.RASPBERRY_PI_IP }}:${{ secrets.RASPBERRY_PI_DESTINATION_PATH }}
+    - name: Cleanup
+      run: |
+        rm -rf /tmp/Car_control_Raspberry
