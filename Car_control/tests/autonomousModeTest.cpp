@@ -31,8 +31,6 @@ TEST_F(AutonomousModeTest, AutonomousLoopExitsWhenCarControlExitIsTrue) {
     }
     
     carControl.exit = true;
-    carControl.useJoystick = false;
-    carControl.debug = false;
     
     // Measure execution time to ensure it exits quickly
     auto start = std::chrono::high_resolution_clock::now();
@@ -55,8 +53,6 @@ TEST_F(AutonomousModeTest, AutonomousLoopRunsUntilGlobalRunningIsFalse) {
     }
     
     carControl.exit = false;  // Loop should continue
-    carControl.useJoystick = false;
-    carControl.debug = false;
     
     // Start the autonomous loop in a separate thread
     std::atomic<bool> loop_started{false};
@@ -95,8 +91,6 @@ TEST_F(AutonomousModeTest, AutonomousLoopHandlesCANFailure) {
     
     t_carControl carControl;
     carControl.exit = true;  // Set exit true so it won't loop indefinitely
-    carControl.useJoystick = false;
-    carControl.debug = false;
     
     // This should throw an exception because vcan0 doesn't exist
     EXPECT_THROW({
@@ -120,8 +114,6 @@ TEST_F(AutonomousModeTest, AutonomousLoopReceivesAndPrintsCAN) {
     }
     
     carControl.exit = false;
-    carControl.useJoystick = false;
-    carControl.debug = false;
     
     // Create separate CAN controller to send frames from outside
     std::unique_ptr<CANController> sender_can;
@@ -181,8 +173,6 @@ TEST_F(AutonomousModeTest, AutonomousLoopHandlesNoCANController) {
     t_carControl carControl;
     carControl.can = nullptr;  // No CAN controller
     carControl.exit = true;    // So it doesn't loop indefinitely
-    carControl.useJoystick = false;
-    carControl.debug = false;
     
     // Expect no exceptions - loop should exit immediately
     EXPECT_NO_THROW({
@@ -199,8 +189,6 @@ TEST_F(AutonomousModeTest, HandlesSocketDisconnect) {
     }
     
     carControl.exit = false;
-    carControl.useJoystick = false;
-    carControl.debug = false;
     
     // Start autonomous loop in separate thread
     std::atomic<bool> loop_started{false};
@@ -244,8 +232,6 @@ TEST_F(AutonomousModeTest, CorruptedCanFrames)
     }
     
     carControl.exit = false;
-    carControl.useJoystick = false;
-    carControl.debug = false;
     
     // Start autonomous loop in separate thread
     std::atomic<bool> loop_started{false};
@@ -287,8 +273,6 @@ TEST_F(AutonomousModeTest, MaxSizeCanFrame)
     }
     
     carControl.exit = false;
-    carControl.useJoystick = false;
-    carControl.debug = false;
     
     // Start autonomous loop in separate thread
     std::atomic<bool> loop_started{false};

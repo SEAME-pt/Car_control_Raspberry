@@ -5,6 +5,7 @@
 #include <chrono>
 #include <thread>
 
+
 // Test when joystick device exists (if any)
 TEST(JoystickTest, ConstructorWithJoystick) {
 	// Check if any joystick devices exist
@@ -221,4 +222,45 @@ TEST(JoystickTest, InteractiveButtonTest) {
 	} catch (const std::runtime_error& e) {
 		GTEST_SKIP() << "No joystick available for interactive testing: " << e.what();
 	}
+}
+
+TEST(StableValuesTest, SteeringWithinDeadzoneIsCentered) {
+	int16_t steering = 60;
+	int16_t throttle = 100;
+	stableValues(&steering, &throttle);
+	EXPECT_EQ(steering, 60);
+}
+
+TEST(StableValuesTest, SteeringOutsideDeadzoneUnchanged) {
+	int16_t steering = 65;
+	int16_t throttle = 100;
+	stableValues(&steering, &throttle);
+	EXPECT_EQ(steering, 65);
+}
+
+TEST(StableValuesTest, ThrottleWithinDeadzoneIsZero) {
+	int16_t steering = 100;
+	int16_t throttle = 1;
+	stableValues(&steering, &throttle);
+	EXPECT_EQ(throttle, 0);
+}
+
+TEST(StableValuesTest, ThrottleOutsideDeadzoneUnchanged) {
+	int16_t steering = 100;
+	int16_t throttle = 5;
+	stableValues(&steering, &throttle);
+	EXPECT_EQ(throttle, 5);
+}
+
+TEST(StableValuesTest, EdgeCases) {
+	int16_t steering1 = 58; // just outside lower deadzone
+	int16_t steering2 = 62; // just outside upper deadzone
+	int16_t throttle1 = -3; // just outside lower deadzone
+	int16_t throttle2 = 3;  // just outside upper deadzone
+	stableValues(&steering1, &throttle1);
+	stableValues(&steering2, &throttle2);
+	EXPECT_EQ(steering1, 58);
+	EXPECT_EQ(steering2, 62);
+	EXPECT_EQ(throttle1, -3);
+	EXPECT_EQ(throttle2, 3);
 }

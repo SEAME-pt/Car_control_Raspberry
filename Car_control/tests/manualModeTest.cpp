@@ -31,13 +31,11 @@ TEST_F(ManualModeTest, ManualLoopExitsWhenCarControlExitIsTrue) {
     }
     
     carControl.exit = true;
-    carControl.useJoystick = false;
-    carControl.debug = false;
     
     // Measure execution time to ensure it exits quickly
     auto start = std::chrono::high_resolution_clock::now();
     
-    manualLoop(carControl);
+    manualLoop(&carControl);
     
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
@@ -55,14 +53,12 @@ TEST_F(ManualModeTest, ManualLoopRunsUntilGlobalRunningIsFalse) {
     }
     
     carControl.exit = false;  // Loop should continue
-    carControl.useJoystick = false;
-    carControl.debug = false;
     
     // Start the manual loop in a separate thread
     std::atomic<bool> loop_started{false};
     std::thread loop_thread([&carControl, &loop_started]() {
         loop_started.store(true);
-        manualLoop(carControl);
+        manualLoop(&carControl);
     });
     
     // Wait for the loop to start
@@ -95,13 +91,11 @@ TEST_F(ManualModeTest, ManualLoopHandlesCANFailure) {
     
     t_carControl carControl;
     carControl.exit = true;  // Set exit true so it won't loop indefinitely
-    carControl.useJoystick = false;
-    carControl.debug = false;
     
     // This should throw an exception because vcan0 doesn't exist
     EXPECT_THROW({
         carControl.can = std::make_unique<CANController>("vcan0");
-        manualLoop(carControl);
+        manualLoop(&carControl);
     }, CANController::CANException);
     
     // Recreate vcan0 for cleanup in TearDown
@@ -120,8 +114,6 @@ TEST_F(ManualModeTest, ManualLoopReceivesAndPrintsCAN) {
     }
     
     carControl.exit = false;
-    carControl.useJoystick = false;
-    carControl.debug = false;
     
     // Create separate CAN controller to send frames from outside
     std::unique_ptr<CANController> sender_can;
@@ -138,7 +130,7 @@ TEST_F(ManualModeTest, ManualLoopReceivesAndPrintsCAN) {
     std::atomic<bool> loop_started{false};
     std::thread loop_thread([&carControl, &loop_started]() {
         loop_started.store(true);
-        manualLoop(carControl);  // Call the REAL function
+        manualLoop(&carControl);  // Call the REAL function
     });
     
     // Wait for loop to start

@@ -51,10 +51,9 @@ t_carControl	initCarControl(int argc, char *argv[]);
 int				parsingArgv(int argc, char *argv[],
 				                    t_carControl *carControl);
 								
-void	manualLoop(t_carControl &carControl);
+void	manualLoop(t_carControl *carControl);
 void	autonomousLoop(const t_carControl &carControl);
 void			signalManager();
-void			stableValues(int16_t *steering, int16_t *throttle);
 void			signalHandler(int signum);
 void			readCan(const std::unique_ptr<CANController> &can);
 
