@@ -66,3 +66,41 @@ TEST(ParsingTest, ParsesManualBadValueAndCan0) {
     EXPECT_EQ(cfg.canInterface, "can0");  // can interface set
     EXPECT_FALSE(cfg.exit);               // not an early-exit option
 }
+
+// Testing --help option triggers exit
+TEST(ParsingTest, ParsesHelpOptionTriggersExit) {
+    t_carControl cfg;
+    cfg.canInterface = "can1";
+    cfg.manual = true;
+    cfg.exit = false;
+
+    char* argv[] = {
+        (char*)"prog",
+        (char*)"--help"
+    };
+    int argc = 2;
+
+    int ret = parsingArgv(argc, argv, &cfg);
+
+    EXPECT_EQ(ret, 0);                    // parsing succeeded
+    EXPECT_TRUE(cfg.exit);               // not an early-exit option
+}
+
+// Testing unknown option triggers exit
+TEST(ParsingTest, ParsesUnknownOptionTriggersExit) {
+    t_carControl cfg;
+    cfg.canInterface = "can1";
+    cfg.manual = true;
+    cfg.exit = false;
+
+    char* argv[] = {
+        (char*)"prog",
+        (char*)"--unkown"
+    };
+    int argc = 2;
+
+    int ret = parsingArgv(argc, argv, &cfg);
+
+    EXPECT_EQ(ret, 0);                    // parsing succeeded
+    EXPECT_TRUE(cfg.exit);               // not an early-exit option
+}

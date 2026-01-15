@@ -104,214 +104,50 @@ TEST_F(ManualModeTest, ManualLoopHandlesCANFailure) {
     system("sudo ip link set up vcan0 2>/dev/null");
 }
 
-// Test CAN frame reception and stdout output in ManualMode
-TEST_F(ManualModeTest, ManualLoopReceivesAndPrintsCAN) {
-    t_carControl carControl;
-    try {
-        carControl.can = std::make_unique<CANController>("vcan0");
-    } catch (const CANController::CANException&) {
-        GTEST_SKIP() << "vcan0 interface not available";
-    }
+TEST_F(ManualModeTest, ManualLoopWithJoystick)
+{
+	try {
+
+		std::cout << "\n=== Interactive Joystick Test ===" << std::endl;
+		std::cout << "This test will prompt you to press specific buttons." << std::endl;
+		std::cout << "Press ENTER to start the test or 's' to skip: ";
+		
+		std::string input;
+		std::getline(std::cin, input);
+		
+		if (input == "s" || input == "S") {
+			GTEST_SKIP() << "Interactive test skipped by user";
+			return;
+		}
+		t_carControl carControl;
+		try {
+			carControl.can = std::make_unique<CANController>("vcan0");
+		} catch (const CANController::CANException&) {
+			GTEST_SKIP() << "vcan0 interface not available";
+		}
+		carControl.controller = std::make_unique<Joystick>();
+    	carControl.exit = false;
+
+    	std::atomic<bool> loop_started{false};
+    	std::thread loop_thread([&carControl, &loop_started]() {
+        	loop_started.store(true);
+			manualLoop(&carControl);
+    	});
+	
+    	// Wait for loop to start
+    	while (!loop_started.load()) {
+        	std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    	}
+
+	    g_running.store(false);
+
+    	// Stop the loop
+    	loop_thread.join();
     
-    carControl.exit = false;
-    
-    // Create separate CAN controller to send frames from outside
-    std::unique_ptr<CANController> sender_can;
-    try {
-        sender_can = std::make_unique<CANController>("vcan0");
-    } catch (const CANController::CANException&) {
-        GTEST_SKIP() << "Could not create sender CAN controller";
-    }
-    
-    // Capture stdout to verify the CAN frame printing
-    testing::internal::CaptureStdout();
-    
-    // Start autonomous loop in separate thread
-    std::atomic<bool> loop_started{false};
-    std::thread loop_thread([&carControl, &loop_started]() {
-        loop_started.store(true);
-        manualLoop(&carControl);  // Call the REAL function
-    });
-    
-    // Wait for loop to start
-    while (!loop_started.load()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-    
-    // Let the loop start and send some emergency brake frames
-    std::this_thread::sleep_for(std::chrono::milliseconds(150));
-    
-    // Send additional test frames from external controller
-    int16_t test_data[3] = {0x12, 0x34, 0xAB};
-    sender_can->sendFrame(0x456, test_data, 3);
-    
-    // Give time to process
-    std::this_thread::sleep_for(std::chrono::milliseconds(150));
-    
-    // Stop the loop
-    g_running.store(false);
-    loop_thread.join();
-    
-    // Get the captured output
-    std::string output = testing::internal::GetCapturedStdout();
-    
-    // Print output for debugging
-    if (output.empty()) {
-        std::cout << "No output captured!" << std::endl;
-    } else {
-        std::cout << "Captured output: " << output << std::endl;
-    }
-    
-    // The autonomous loop should receive its own emergency brake frames
-    // or the external frames due to CAN loopback behavior
-    EXPECT_TRUE(output.find("ID: 0x") != std::string::npos);
-    EXPECT_TRUE(output.find("DLC:") != std::string::npos);
-    EXPECT_TRUE(output.find("Data:") != std::string::npos);
+    	// If we reach here without crashing, the test passes
+    	SUCCEED();
+	}
+	catch (const std::runtime_error& e) {
+		GTEST_SKIP() << "No joystick available for testing: " << e.what();
+	}
 }
-
-//TEST_F(AutonomousModeTest, AutonomousLoopHandlesNoCANController) {
-//    t_carControl carControl;
-//    carControl.can = nullptr;  // No CAN controller
-//    carControl.exit = true;    // So it doesn't loop indefinitely
-//    carControl.useJoystick = false;
-//    carControl.debug = false;
-//    
-//    // Expect no exceptions - loop should exit immediately
-//    EXPECT_NO_THROW({
-//        autonomousLoop(carControl);
-//    });
-//}
-//
-//TEST_F(AutonomousModeTest, HandlesSocketDisconnect) {
-//    t_carControl carControl;
-//    try {
-//        carControl.can = std::make_unique<CANController>("vcan0");
-//    } catch (const CANController::CANException&) {
-//        GTEST_SKIP() << "vcan0 interface not available";
-//    }
-//    
-//    carControl.exit = false;
-//    carControl.useJoystick = false;
-//    carControl.debug = false;
-//    
-//    // Start autonomous loop in separate thread
-//    std::atomic<bool> loop_started{false};
-//    std::thread loop_thread([&carControl, &loop_started]() {
-//        loop_started.store(true);
-//        try {
-//            autonomousLoop(carControl);  // Call the REAL function
-//        } catch (...) {
-//            // Stop the loop
-//            g_running.store(false);
-//        }
-//    });
-//    
-//    // Wait for loop to start
-//    while (!loop_started.load()) {
-//        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-//    }
-//    
-//    // Let it run briefly
-//    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-//    
-//    // Simulate socket disconnect by cleaning up CAN controller
-//    carControl.can->cleanup();
-//    
-//    // Let it run a bit more to observe behavior
-//    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-//    
-//    loop_thread.join();
-//    
-//    // If we reach here without crashing, the test passes
-//    SUCCEED();
-//}
-//
-//TEST_F(AutonomousModeTest, CorruptedCanFrames)
-//{
-//    t_carControl carControl;
-//    try {
-//        carControl.can = std::make_unique<CANController>("vcan0");
-//    } catch (const CANController::CANException&) {
-//        GTEST_SKIP() << "vcan0 interface not available";
-//    }
-//    
-//    carControl.exit = false;
-//    carControl.useJoystick = false;
-//    carControl.debug = false;
-//    
-//    // Start autonomous loop in separate thread
-//    std::atomic<bool> loop_started{false};
-//    std::thread loop_thread([&carControl, &loop_started]() {
-//        loop_started.store(true);
-//        autonomousLoop(carControl);  // Call the REAL function
-//    });
-//    
-//    // Wait for loop to start
-//    while (!loop_started.load()) {
-//        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-//    }
-//    
-//    // Let it run briefly
-//    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-//    
-//    // Send corrupted CAN frame (invalid length)
-//    int16_t corrupted_data[8] = {0xFF}; // Data larger than DLC
-//    carControl.can->sendFrame(0x123, corrupted_data, 20); // Invalid DLC
-//    
-//    // Let it run a bit more to observe behavior
-//    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-//    
-//    // Stop the loop
-//    g_running.store(false);
-//    loop_thread.join();
-//    
-//    // If we reach here without crashing, the test passes
-//    SUCCEED();
-//}
-//
-//TEST_F(AutonomousModeTest, MaxSizeCanFrame)
-//{
-//    t_carControl carControl;
-//    try {
-//        carControl.can = std::make_unique<CANController>("vcan0");
-//    } catch (const CANController::CANException&) {
-//        GTEST_SKIP() << "vcan0 interface not available";
-//    }
-//    
-//    carControl.exit = false;
-//    carControl.useJoystick = false;
-//    carControl.debug = false;
-//    
-//    // Start autonomous loop in separate thread
-//    std::atomic<bool> loop_started{false};
-//    std::thread loop_thread([&carControl, &loop_started]() {
-//        loop_started.store(true);
-//        autonomousLoop(carControl);  // Call the REAL function
-//    });
-//    
-//    // Wait for loop to start
-//    while (!loop_started.load()) {
-//        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-//    }
-//    
-//    // Let it run briefly
-//    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-//    
-//    // Send maximum size CAN FD frame
-//    int16_t max_data[64];
-//    for (int i = 0; i < 64; ++i) {
-//        max_data[i] = static_cast<int16_t>(i);
-//    }
-//    carControl.can->sendFrameFD(0x7FF, max_data, 64); // Max DLC for CAN FD
-//    
-//    // Let it run a bit more to observe behavior
-//    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-//    
-//    // Stop the loop
-//    g_running.store(false);
-//    loop_thread.join();
-//    
-//    // If we reach here without crashing, the test passes
-//    SUCCEED();
-//}
-

@@ -97,7 +97,8 @@ if(BUILD_TESTS)
         tests/autonomousModeTest.cpp
 		tests/signalTest.cpp
 		tests/parsingTest.cpp
-        # tests/manualModeTest.cpp
+		tests/initTest.cpp
+        tests/manualModeTest.cpp
     )
 
     # Create test executable
