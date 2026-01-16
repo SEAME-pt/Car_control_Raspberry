@@ -1,21 +1,37 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
-# Update system
-echo "Updating system..."
+LCOV_TAG="v1.14"
+
+echo "Installing lcov ${LCOV_TAG} from GitHub..."
+
+echo "Updating apt package lists..."
 sudo apt update
 
-# Install dependencies
-echo "Installing required packages..."
-sudo apt install -y build-essential perl
+echo "Installing build dependencies..."
+sudo apt install -y build-essential git wget perl ca-certificates || true
 
-# Install stable version from apt
-echo "Installing lcov via apt..."
-sudo apt install -y lcov
+echo "Removing any distro lcov package to avoid conflicts..."
+sudo apt remove -y lcov || true
 
-# Verify installation
-echo "Verifying installation..."
-lcov --version
+TMPDIR=$(mktemp -d)
+cleanup() {
+	rm -rf "$TMPDIR"
+}
+trap cleanup EXIT
 
-echo "✔ lcov successfully installed!"
+cd "$TMPDIR"
+echo "Cloning lcov repository..."
+git clone --depth 1 --branch ${LCOV_TAG} https://github.com/linux-test-project/lcov.git lcov-src
+cd lcov-src
+
+echo "Installing lcov ${LCOV_TAG}..."
+sudo make install
+
+echo "Installation complete. Verifying versions..."
+echo "lcov:" && lcov --version || true
+echo "gcov:" && gcov --version || true
+
+echo "✔ lcov ${LCOV_TAG} installed"
+

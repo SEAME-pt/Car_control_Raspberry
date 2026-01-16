@@ -161,7 +161,7 @@ TEST_F(CANControllerTest, ValidSendFrame) {
 	// Test 1: Random valid data
 	{
 		int16_t data[2];
-		uint16_t can_id = 0x100;
+		uint32_t can_id = 0x100;
 		std::srand(std::time(nullptr));
 
 		for (int i = 0; i < 100; i++) {
@@ -304,7 +304,7 @@ TEST_F(CANControllerTest, ValidSendFrameFD) {
 	// Test 1: Random valid data
 	{
 		int16_t data[2];
-		uint16_t can_id = 0x100;
+		uint32_t can_id = 0x100;
 		std::srand(std::time(nullptr));
 
 		for (int i = 0; i < 100; i++) {

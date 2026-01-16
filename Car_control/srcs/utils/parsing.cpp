@@ -1,10 +1,17 @@
 #include "carControl.h"
 
+std::string to_upper(const std::string &s) {
+    std::string out = s;
+	for (auto &c : out)
+		c = std::toupper(c);
+    return out;
+}
+
 // Convert input "TRUE"/"FALSE" strings into actual booleans
-static bool parseBool(const std::string& value, bool defaultValue) {
-	if (value == "true" || value == "TRUE" || value == "True")
+static bool parseBool(std::string& value, bool defaultValue) {
+	if (to_upper(value) == "TRUE")
 		return (true);
-	if (value == "false" || value == "FALSE" || value == "False")
+	if (to_upper(value) == "FALSE")
 		return (false);
 	
 	std::cerr << "Invalid boolean value '" << value 

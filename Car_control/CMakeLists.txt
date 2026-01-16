@@ -18,27 +18,24 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBEVDEV REQUIRED libevdev)
 
 # Include directories
-include_directories(
-    ${CMAKE_SOURCE_DIR}/include
-	${LIBEVDEV_INCLUDE_DIRS}
-)
+include_directories(${CMAKE_SOURCE_DIR}/include ${LIBEVDEV_INCLUDE_DIRS})
 
 # Source files
 set(SOURCES
     srcs/main.cpp
-	#utils
-	srcs/utils/parsing.cpp
-	srcs/utils/signal.cpp
-	srcs/utils/temp_print_can_rx.cpp
-	#init
-	srcs/init/init_can.cpp
-	srcs/init/init.cpp
-	#core
-	srcs/core/autonomous_mode.cpp
-	srcs/core/manual_mode.cpp
-	#controller
+    #utils
+    srcs/utils/parsing.cpp
+    srcs/utils/signal.cpp
+    srcs/utils/temp_print_can_rx.cpp
+    #init
+    srcs/init/init_can.cpp
+    srcs/init/init.cpp
+    #core
+    srcs/core/autonomous_mode.cpp
+    srcs/core/manual_mode.cpp
+    #controller
     srcs/controller/Joystick.cpp
-	#can
+    #can
     srcs/can/socketCAN.c
     srcs/can/CANController.cpp
 )
@@ -60,11 +57,9 @@ message(STATUS "Libevdev libraries: ${LIBEVDEV_LIBRARIES}")
 message(STATUS "Libevdev include: ${LIBEVDEV_INCLUDE_DIRS}")
 message(STATUS "================================")
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-## ================================
-## Testing with Google Test
-## ================================
+# ================================
+# Testing with Google Test
+# ================================
 option(BUILD_TESTS "Build the tests" ON)
 
 if(BUILD_TESTS)
@@ -76,34 +71,49 @@ if(BUILD_TESTS)
 
     # Test source files (excluding main.cpp from main project)
     set(TEST_SOURCES
+        srcs/utils/signal.cpp
         srcs/utils/parsing.cpp
+        srcs/utils/temp_print_can_rx.cpp
+        #init
         srcs/init/init_can.cpp
         srcs/init/init.cpp
+        #controller
         srcs/controller/Joystick.cpp
+        #can
         srcs/can/socketCAN.c
         srcs/can/CANController.cpp
+        #core
+        srcs/core/autonomous_mode.cpp
+        srcs/core/manual_mode.cpp
     )
 
     # Test files
     set(TEST_FILES
-		tests/CANControllerTest.cpp
-		tests/CANInitTest.cpp
-		tests/CANProtocolTest.cpp
-		tests/SocketCANTest.cpp
-		#tests/JoystickTest.cpp
+        tests/CANControllerTest.cpp
+        tests/CANInitTest.cpp
+        tests/CANProtocolTest.cpp
+        tests/SocketCANTest.cpp
+        tests/JoystickTest.cpp
+        tests/autonomousModeTest.cpp
+		tests/signalTest.cpp
+		tests/parsingTest.cpp
+		tests/initTest.cpp
+        tests/manualModeTest.cpp
     )
 
     # Create test executable
     add_executable(tests ${TEST_SOURCES} ${TEST_FILES})
 
     # Link libraries for tests
-    target_link_libraries(tests 
-        PRIVATE 
-		${LIBEVDEV_LIBRARIES}
-        GTest::GTest
-        GTest::Main
-        pthread
+    target_link_libraries(
+        tests
+        PRIVATE ${LIBEVDEV_LIBRARIES} GTest::GTest GTest::Main pthread
     )
+
+    # Propagate joystick option to tests so code can conditionally compile hardware checks
+    if(ENABLE_JOYSTICK)
+        target_compile_definitions(tests PRIVATE ENABLE_JOYSTICK=1)
+    endif()
 
     # Add tests to CTest
     include(GoogleTest)
@@ -116,25 +126,56 @@ endif()
 # ================================
 # Code Coverage
 # ================================
-# option(ENABLE_COVERAGE "Enable code coverage" OFF)
+option(ENABLE_COVERAGE "Enable code coverage" OFF)
 
 if(ENABLE_COVERAGE)
     message(STATUS "Code coverage enabled")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage"
+    )
+    set(CMAKE_C_FLAGS
+        "${CMAKE_C_FLAGS} --coverage -fprofile-arcs -ftest-coverage"
+    )
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
 
     # Optional: Add coverage target
-    add_custom_target(coverage
-        COMMAND ${CMAKE_BINARY_DIR}/tests
-        COMMAND lcov --capture --directory . --output-file coverage.info --ignore-errors mismatch,inconsistent 2>/dev/null
-        COMMAND lcov --remove coverage.info '/usr/*' '*/tests/*' --output-file coverage_filtered.info --ignore-errors mismatch,unused,inconsistent 2>/dev/null
-        COMMAND genhtml coverage_filtered.info --output-directory coverage_html --quiet
-        COMMAND echo "✅ Coverage report generated: coverage_html/index.html"
-        COMMAND xdg-open coverage_html/index.html
-        COMMAND stty sane
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        DEPENDS tests
-        COMMENT "Generating coverage report..."
-    )
+	if (ENABLE_JOYSTICK)
+    	add_custom_target(
+    	    coverage
+    	    COMMAND env SKIP_HARDWARE_TESTS=1 ${CMAKE_BINARY_DIR}/tests
+    	    COMMAND
+    	        lcov --capture --directory . --output-file coverage.info 2>/dev/null
+    	    COMMAND
+    	        lcov --remove coverage.info '/usr/*' '*/tests/*' --output-file
+    	        coverage_filtered.info 2>/dev/null
+    	    COMMAND
+    	        genhtml coverage_filtered.info --output-directory coverage_html
+    	        --quiet
+    	    COMMAND echo "✅ Coverage report generated: coverage_html/index.html"
+    	    COMMAND xdg-open coverage_html/index.html
+    	    COMMAND stty sane
+    	    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    	    DEPENDS tests
+    	    COMMENT "Generating coverage report..."
+    	)
+	else()
+    	add_custom_target(
+    	    coverage
+    	    COMMAND env SKIP_HARDWARE_TESTS=0 ${CMAKE_BINARY_DIR}/tests
+    	    COMMAND
+    	        lcov --capture --directory . --output-file coverage.info 2>/dev/null
+    	    COMMAND
+    	        lcov --remove coverage.info '/usr/*' '*/tests/*' --output-file
+    	        coverage_filtered.info 2>/dev/null
+    	    COMMAND
+    	        genhtml coverage_filtered.info --output-directory coverage_html
+    	        --quiet
+    	    COMMAND echo "✅ Coverage report generated: coverage_html/index.html"
+    	    COMMAND xdg-open coverage_html/index.html
+    	    COMMAND stty sane
+    	    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    	    DEPENDS tests
+    	    COMMENT "Generating coverage report..."
+    	)
+	endif()
 endif()

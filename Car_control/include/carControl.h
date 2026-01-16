@@ -42,10 +42,6 @@ typedef struct s_carControl {
 	bool			exit;
 } t_carControl;
 
-//core
-void			autonomousLoop(const t_carControl &carControl);
-void			manualLoop(t_carControl *carControl);
-
 //init
 std::unique_ptr<CANController>	
 				init_can(const std::string &interface);
@@ -54,9 +50,11 @@ t_carControl	initCarControl(int argc, char *argv[]);
 //utils
 int				parsingArgv(int argc, char *argv[],
 				                    t_carControl *carControl);
+								
+void	manualLoop(t_carControl *carControl);
+void	autonomousLoop(const t_carControl &carControl);
 void			signalManager();
-void			stableValues(int16_t *steering, int16_t *throttle);
 void			signalHandler(int signum);
 void			readCan(const std::unique_ptr<CANController> &can);
 
-extern	std::atomic<bool> g_running;
+extern std::atomic<bool> g_running;

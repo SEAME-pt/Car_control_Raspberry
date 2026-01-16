@@ -21,3 +21,5 @@ class Joystick {
 		int		readPress(void);
 		void	findJoystickDevice();
 };
+
+void	stableValues(int16_t *steering, int16_t *throttle);
