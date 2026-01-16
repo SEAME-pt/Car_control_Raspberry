@@ -2,7 +2,6 @@
 
 std::atomic<bool> g_running = true;
 
-
 void	signalHandler(int signum) {
 	(void)signum;
 	g_running.store(false);
