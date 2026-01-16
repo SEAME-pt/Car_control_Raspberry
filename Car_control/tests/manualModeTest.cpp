@@ -111,9 +111,9 @@ TEST_F(ManualModeTest, ManualLoopWithJoystick)
 {
 	try {
 
-		if (std::getenv("SKIP_HARDWARE_TESTS")) {
-			GTEST_SKIP() << "Skipping interactive joystick test (SKIP_HARDWARE_TESTS set)";
-		}
+		#ifndef ENABLE_JOYSTICK
+			GTEST_SKIP() << "Joystick support not enabled in build.";
+		#endif
 		t_carControl carControl;
 		try {
 			carControl.can = std::make_unique<CANController>("vcan0");

@@ -231,8 +231,20 @@ This program also includes a full test suite with 100% function coverage. If you
 ```shell
 cd build
 rm -rf *
-cmake -DENABLE_COVERAGE=ON ..
-make coverage
+# To build tests and run without joystick/hardware tests (recommended for CI/coverage):
+cmake -DBUILD_TESTS=ON -DENABLE_COVERAGE=ON ..
+cmake --build . --target tests
+
+# To run tests with joystick/hardware support enabled (requires enabling joystick at build time):
+cmake -DBUILD_TESTS=ON -DENABLE_COVERAGE=ON -DENABLE_JOYSTICK=ON ..
+cmake --build . --target tests
+
+# Run tests (executable created by the test build):
+ctest --output-on-failure --verbose
+
+# Generate coverage report (coverage target will skip hardware tests by default; pass -DSKIP_HARDWARE_TESTS=OFF to include them):
+cmake -DENABLE_COVERAGE=ON -DSKIP_HARDWARE_TESTS=ON ..
+cmake --build . --target coverage
 ```
 
 ---

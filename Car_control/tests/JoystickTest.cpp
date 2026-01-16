@@ -98,7 +98,9 @@ TEST(JoystickTest, BasicFunctionality) {
 TEST(JoystickTest, InteractiveButtonTest) {
 	try {
 		Joystick joystick;
-		if (std::getenv("SKIP_HARDWARE_TESTS")) GTEST_SKIP() << "Skipping hardware tests";	
+		#ifndef ENABLE_JOYSTICK
+			GTEST_SKIP() << "Joystick support not enabled in build.";
+		#endif
 
 		// Test different buttons based on common joystick layouts
 		struct ButtonTest {

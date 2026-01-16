@@ -127,7 +127,6 @@ endif()
 # Code Coverage
 # ================================
 option(ENABLE_COVERAGE "Enable code coverage" OFF)
-option(ENABLE_JOYSTICK "Enable joystick support" OFF)
 
 if(ENABLE_COVERAGE)
     message(STATUS "Code coverage enabled")
