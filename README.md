@@ -15,6 +15,7 @@ This platform integrates dependencies like:
 - LIBEVDEV
 - SocketCAN
 - Google Tests
+- gcov
 - lcov
 
 ---
@@ -198,9 +199,11 @@ make coverage
 Root permissions are required due to CAN socket initialization and, when testing, to properly create a virtual interface that simulates a CAN transceiver inside the development machine.
 
 ## How To Expand the project
-This program doesn't focus entirely on safety-critical aspects. However, there is a feature that must be as close to safety-critical as possible: the emergency brake. To ensure the message is sent as fast as possible, integration tests are necessary, and delay tests for the messages are also required.
+This program focus on safety-critical aspects. Having that in mind, there is a special feature that must be closer to a safety-critical manner: the emergency brake. To ensure the message is sent as fast as possible, integration tests are necessary, and delay tests for the messages are also required.
 
 Add an exclusive thread just for the emergency brake and explore struct sched_param to set the priority to the maximum level.
+
+Add the possibility to receibe a message (heartbeat) from the microcontroller to ensure its everything still alive.
 
 ## Team members
 
