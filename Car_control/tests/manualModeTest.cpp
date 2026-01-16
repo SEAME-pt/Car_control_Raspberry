@@ -9,8 +9,6 @@ extern std::atomic<bool> g_running;
 class ManualModeTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        if (std::getenv("SKIP_HARDWARE_TESTS"))
-            GTEST_SKIP() << "Skipping hardware tests (SKIP_HARDWARE_TESTS set)";
 
         // Try to create vcan0 without sudo; skip if it cannot be created
         system("modprobe vcan 2>/dev/null || true");
@@ -113,16 +111,8 @@ TEST_F(ManualModeTest, ManualLoopWithJoystick)
 {
 	try {
 
-		std::cout << "\n=== Interactive Joystick Test ===" << std::endl;
-		std::cout << "This test will prompt you to press specific buttons." << std::endl;
-		std::cout << "Press ENTER to start the test or 's' to skip: ";
-		
-		std::string input;
-		std::getline(std::cin, input);
-		
-		if (input == "s" || input == "S") {
-			GTEST_SKIP() << "Interactive test skipped by user";
-			return;
+		if (std::getenv("SKIP_HARDWARE_TESTS")) {
+			GTEST_SKIP() << "Skipping interactive joystick test (SKIP_HARDWARE_TESTS set)";
 		}
 		t_carControl carControl;
 		try {
