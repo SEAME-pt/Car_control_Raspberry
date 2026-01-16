@@ -33,7 +33,7 @@ jobs:
                   echo "Repository cloned successfully to /tmp/Car_control_Raspberry"
             - name: Compile Dashboard
               run: |
-                  cd /tmp/Car_control_Raspberry/Qt
+                  cd /tmp/Car_control_Raspberry/Dashboard
                   source /opt/agl-sdk/20.90.0-aarch64/environment-setup-aarch64-agl-linux
                   mkdir build
                   cd build
