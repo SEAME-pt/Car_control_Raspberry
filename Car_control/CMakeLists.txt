@@ -138,10 +138,10 @@ if(ENABLE_COVERAGE)
         coverage
         COMMAND env SKIP_HARDWARE_TESTS=0 ${CMAKE_BINARY_DIR}/tests
         COMMAND
-            lcov --capture --directory . --output-file coverage.info 2>/dev/null
+            lcov --capture --directory . --output-file coverage.info --ignore-errors mismatch 2>/dev/null
         COMMAND
             lcov --remove coverage.info '/usr/*' '*/tests/*' --output-file
-            coverage_filtered.info 2>/dev/null
+            coverage_filtered.info --ignore-errors mismatch 2>/dev/null
         COMMAND
             genhtml coverage_filtered.info --output-directory coverage_html
             --quiet
