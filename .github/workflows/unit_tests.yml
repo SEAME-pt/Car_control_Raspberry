@@ -18,20 +18,6 @@ jobs:
                   sudo apt-get update
                   sudo apt-get install -y cmake build-essential pkg-config libevdev-dev libgtest-dev can-utils linux-modules-extra-$(uname -r)
 
-            - name: Set up virtual CAN interface (if available)
-              run: |
-                  # Check if vcan module is available
-                  if sudo modprobe vcan 2>/dev/null; then
-                      echo "Setting up virtual CAN interface..."
-                      sudo ip link add dev vcan0 type vcan
-                      sudo ip link set vcan0 mtu 72
-                      sudo ip link set up vcan0
-                      echo "Virtual CAN interface vcan0 ready"
-                  else
-                      echo "Warning: vcan module not available in CI environment"
-                      echo "CAN-dependent tests may be skipped or mocked"
-                  fi
-
             - name: Build Google Test
               run: |
                   cd /usr/src/gtest
@@ -40,7 +26,7 @@ jobs:
                   sudo cp lib/*.a /usr/lib
 
             - name: Create build directory
-              run: mkdir Car_control/build
+              run: mkdir -p Car_control/build
 
             - name: Configure with CMake
               run: |
