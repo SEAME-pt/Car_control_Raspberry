@@ -110,6 +110,11 @@ if(BUILD_TESTS)
         PRIVATE ${LIBEVDEV_LIBRARIES} GTest::GTest GTest::Main pthread
     )
 
+    # Propagate joystick option to tests so code can conditionally compile hardware checks
+    if(ENABLE_JOYSTICK)
+        target_compile_definitions(tests PRIVATE ENABLE_JOYSTICK=1)
+    endif()
+
     # Add tests to CTest
     include(GoogleTest)
     gtest_discover_tests(tests)
@@ -122,6 +127,7 @@ endif()
 # Code Coverage
 # ================================
 option(ENABLE_COVERAGE "Enable code coverage" OFF)
+option(ENABLE_JOYSTICK "Enable joystick support" OFF)
 
 if(ENABLE_COVERAGE)
     message(STATUS "Code coverage enabled")
@@ -134,22 +140,43 @@ if(ENABLE_COVERAGE)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
 
     # Optional: Add coverage target
-    add_custom_target(
-        coverage
-        COMMAND env SKIP_HARDWARE_TESTS=0 ${CMAKE_BINARY_DIR}/tests
-        COMMAND
-            lcov --capture --directory . --output-file coverage.info 2>/dev/null
-        COMMAND
-            lcov --remove coverage.info '/usr/*' '*/tests/*' --output-file
-            coverage_filtered.info 2>/dev/null
-        COMMAND
-            genhtml coverage_filtered.info --output-directory coverage_html
-            --quiet
-        COMMAND echo "✅ Coverage report generated: coverage_html/index.html"
-        COMMAND xdg-open coverage_html/index.html
-        COMMAND stty sane
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        DEPENDS tests
-        COMMENT "Generating coverage report..."
-    )
+	if (ENABLE_JOYSTICK)
+    	add_custom_target(
+    	    coverage
+    	    COMMAND env SKIP_HARDWARE_TESTS=1 ${CMAKE_BINARY_DIR}/tests
+    	    COMMAND
+    	        lcov --capture --directory . --output-file coverage.info 2>/dev/null
+    	    COMMAND
+    	        lcov --remove coverage.info '/usr/*' '*/tests/*' --output-file
+    	        coverage_filtered.info 2>/dev/null
+    	    COMMAND
+    	        genhtml coverage_filtered.info --output-directory coverage_html
+    	        --quiet
+    	    COMMAND echo "✅ Coverage report generated: coverage_html/index.html"
+    	    COMMAND xdg-open coverage_html/index.html
+    	    COMMAND stty sane
+    	    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    	    DEPENDS tests
+    	    COMMENT "Generating coverage report..."
+    	)
+	else()
+    	add_custom_target(
+    	    coverage
+    	    COMMAND env SKIP_HARDWARE_TESTS=0 ${CMAKE_BINARY_DIR}/tests
+    	    COMMAND
+    	        lcov --capture --directory . --output-file coverage.info 2>/dev/null
+    	    COMMAND
+    	        lcov --remove coverage.info '/usr/*' '*/tests/*' --output-file
+    	        coverage_filtered.info 2>/dev/null
+    	    COMMAND
+    	        genhtml coverage_filtered.info --output-directory coverage_html
+    	        --quiet
+    	    COMMAND echo "✅ Coverage report generated: coverage_html/index.html"
+    	    COMMAND xdg-open coverage_html/index.html
+    	    COMMAND stty sane
+    	    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    	    DEPENDS tests
+    	    COMMENT "Generating coverage report..."
+    	)
+	endif()
 endif()
