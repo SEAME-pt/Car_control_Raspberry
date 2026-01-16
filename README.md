@@ -127,7 +127,49 @@ namespace CANID {
 
 ## Joystick
 
-TODO
+The `Joystick` class provides a simple abstraction around a Linux joystick using
+libevdev. It locates a device under `/dev/input/by-id/*-event-joystick` and
+exposes a minimal API for reading axes and button presses used by the manual
+control loop.
+
+### Public API
+- `Joystick()` — constructor: finds and opens the joystick device; throws
+	`std::runtime_error` if no device is found or initialization fails.
+- `~Joystick()` — destructor: frees libevdev and closes the device FD.
+- `int16_t getAbs(bool steering) const` — returns a normalized axis value:
+	- `steering == true` → normalized range `0..120` (center default ~60)
+	- `steering == false` → normalized range `-100..100` for throttle
+	- returns `-1` on error
+- `int readPress()` — returns button code (0-based) when pressed, `-1` if none;
+	throws when the device is removed.
+- `void findJoystickDevice()` — scans `/dev/input/by-id/` for a joystick device
+	(used internally).
+- `void stableValues(int16_t *steering, int16_t *throttle)` — utility to
+	snap steering to center and throttle to zero when within small deadzones
+	(implemented in `Joystick.cpp`).
+
+### Behavior & Errors
+- Uses `libevdev` to read events in non-blocking mode.
+- Throws `std::runtime_error` when the device cannot be opened or initialized.
+- `getAbs` may return `-1` if no appropriate axis information is available.
+
+### Usage example
+```cpp
+Joystick joy;
+int16_t steer = joy.getAbs(true);
+int16_t throttle = joy.getAbs(false);
+stableValues(&steer, &throttle);
+if (joy.readPress() == START_BUTTON) { /* handle start */ }
+```
+
+### Testing notes
+- Unit tests are in `Car_control/tests/JoystickTest.cpp` and cover the
+	`stableValues` behavior and edge cases.
+- Hardware-dependent tests (those that require a physical joystick or virtual
+	device) can be skipped by setting the environment variable
+	`SKIP_HARDWARE_TESTS=1` when running tests or when generating coverage.
+
+---
 
 # Build System
 
