@@ -136,7 +136,7 @@ if(ENABLE_COVERAGE)
     # Optional: Add coverage target
     add_custom_target(
         coverage
-        COMMAND ${CMAKE_BINARY_DIR}/tests
+        COMMAND env SKIP_HARDWARE_TESTS=0 ${CMAKE_BINARY_DIR}/tests
         COMMAND
             lcov --capture --directory . --output-file coverage.info 2>/dev/null
         COMMAND

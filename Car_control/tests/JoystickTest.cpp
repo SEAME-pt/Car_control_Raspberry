@@ -98,25 +98,14 @@ TEST(JoystickTest, BasicFunctionality) {
 TEST(JoystickTest, InteractiveButtonTest) {
 	try {
 		Joystick joystick;
-		
-		std::cout << "\n=== Interactive Joystick Test ===" << std::endl;
-		std::cout << "This test will prompt you to press specific buttons." << std::endl;
-		std::cout << "Press ENTER to start the test or 's' to skip: ";
-		
-		std::string input;
-		std::getline(std::cin, input);
-		
-		if (input == "s" || input == "S") {
-			GTEST_SKIP() << "Interactive test skipped by user";
-			return;
-		}
-		
+		if (std::getenv("SKIP_HARDWARE_TESTS")) GTEST_SKIP() << "Skipping hardware tests";	
+
 		// Test different buttons based on common joystick layouts
 		struct ButtonTest {
 			std::string name;
 			int expectedCode;
 		};
-		
+
 		std::vector<ButtonTest> buttonsToTest = {
 			{"A/Cross button", 0},      // BTN_SOUTH (304) - 304 = 0
 			{"B/Circle button", 1},     // BTN_EAST (305) - 304 = 1  

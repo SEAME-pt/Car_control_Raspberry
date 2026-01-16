@@ -9,15 +9,20 @@ extern std::atomic<bool> g_running;
 class ManualModeTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        system("sudo ip link add dev vcan0 type vcan");
-        system("sudo ip link set vcan0 mtu 72");
-        system("sudo ip link set up vcan0");
+        if (std::getenv("SKIP_HARDWARE_TESTS"))
+            GTEST_SKIP() << "Skipping hardware tests (SKIP_HARDWARE_TESTS set)";
+
+        // Try to create vcan0 without sudo; skip if it cannot be created
+        system("modprobe vcan 2>/dev/null || true");
+        system("ip link add dev vcan0 type vcan 2>/dev/null || true");
+        system("ip link set vcan0 mtu 72 2>/dev/null || true");
+        system("ip link set up vcan0 2>/dev/null || true");
         g_running.store(true);
     }
     
     void TearDown() override {
         g_running.store(false);
-        system("sudo ip link delete vcan0 2>/dev/null");
+        system("ip link delete vcan0 2>/dev/null || true");
     }
 };
 

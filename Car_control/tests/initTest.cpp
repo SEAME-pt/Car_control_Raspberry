@@ -12,16 +12,21 @@ protected:
 	const char *emptyInterface = "";
 
 	void SetUp() override {
-		// Setup vcan0 with loopback enabled
-		system("sudo ip link add dev vcan0 type vcan");
-		system("sudo ip link set vcan0 mtu 72");
-		system("sudo ip link set vcan0 type vcan loopback on");
-		system("sudo ip link set up vcan0");
+		// Skip hardware-dependent tests when requested (useful for coverage/CI)
+		// if (std::getenv("SKIP_HARDWARE_TESTS"))
+		// 	GTEST_SKIP() << "Skipping hardware tests (SKIP_HARDWARE_TESTS set)";
+
+		// Try to create vcan0 without sudo; if it already exists this is a no-op
+		system("modprobe vcan 2>/dev/null || true");
+		system("ip link add dev vcan0 type vcan 2>/dev/null || true");
+		system("ip link set vcan0 mtu 72 2>/dev/null || true");
+		system("ip link set vcan0 type vcan loopback on 2>/dev/null || true");
+		system("ip link set up vcan0 2>/dev/null || true");
 	}
 
 	void TearDown() override {
-		// Cleanup: remove virtual CAN interface
-		system("sudo ip link delete vcan0 2>/dev/null");
+		// Cleanup: remove virtual CAN interface (ignore errors)
+		system("ip link delete vcan0 2>/dev/null || true");
 	}
 };
 
@@ -69,20 +74,12 @@ TEST_F(InitTest, ValidTrueManualModeInitSucceeds) {
 		std::string valid_device = "--can=" + validInterface;
 		char* argv[] = { (char*)"prog", (char*)valid_device.c_str(), (char*)"--manual=true" };
 		int argc = 3;
-
-		std::cout << "\n=== Interactive Joystick Test ===" << std::endl;
-		std::cout << "Either disconnect the controller or skip the test" << std::endl;
-		std::cout << "Press ENTER to start the test or 's' to skip: ";
-		
-		std::string input;
-		std::getline(std::cin, input);
-		
-		if (input == "s" || input == "S") {
-			GTEST_SKIP() << "Interactive test skipped by user";
-			return;
+		// Skip interactive joystick test in CI/coverage environments
+		if (std::getenv("SKIP_HARDWARE_TESTS")) {
+			GTEST_SKIP() << "Skipping interactive joystick test (SKIP_HARDWARE_TESTS set)";
 		}
-		cfg = initCarControl(argc, argv);
 
+		cfg = initCarControl(argc, argv);
 	} catch (const std::filesystem::filesystem_error& e) {
 	}
 	EXPECT_TRUE(cfg.exit);
