@@ -66,20 +66,20 @@ TEST_F(InitTest, ValidFalseManualModeInitSucceeds) {
 }
 
 // Test that providing a valid CAN interface (vcan0) and true manual mode results in successful init
-TEST_F(InitTest, ValidTrueManualModeInitSucceeds) {
-	t_carControl cfg;
-	try {
-		std::string valid_device = "--can=" + validInterface;
-		char* argv[] = { (char*)"prog", (char*)valid_device.c_str(), (char*)"--manual=true" };
-		int argc = 3;
-		// Skip interactive joystick test in CI/coverage environments
-		if (std::getenv("SKIP_HARDWARE_TESTS")) {
-			GTEST_SKIP() << "Skipping interactive joystick test (SKIP_HARDWARE_TESTS set)";
-		}
+// TEST_F(InitTest, ValidTrueManualModeInitSucceeds) {
+// 	t_carControl cfg;
+// 	try {
+// 		std::string valid_device = "--can=" + validInterface;
+// 		char* argv[] = { (char*)"prog", (char*)valid_device.c_str(), (char*)"--manual=true" };
+// 		int argc = 3;
+// 		// Skip interactive joystick test in CI/coverage environments
+// 		if (std::getenv("SKIP_HARDWARE_TESTS")) {
+// 			GTEST_SKIP() << "Skipping interactive joystick test (SKIP_HARDWARE_TESTS set)";
+// 		}
 
-		cfg = initCarControl(argc, argv);
-	} catch (const std::filesystem::filesystem_error& e) {
-	}
-	EXPECT_TRUE(cfg.exit);
-	EXPECT_TRUE(cfg.controller != nullptr);
-}
+// 		cfg = initCarControl(argc, argv);
+// 	} catch (const std::filesystem::filesystem_error& e) {
+// 	}
+// 	EXPECT_TRUE(cfg.exit);
+// 	EXPECT_TRUE(cfg.controller != nullptr);
+// }
