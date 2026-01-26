@@ -173,6 +173,16 @@ if (joy.readPress() == START_BUTTON) { /* handle start */ }
 
 # Build System
 
+## Intructions to compile and flash
+In order to compile the program and flash the binary into the raspberry Pi 5, follow the steps:
+
+```shell
+cd build
+cmake .. -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ -DBUILD_TESTS=OFF
+make
+scp car root@10.21.220.250:/root/
+```
+
 ## Instructions to run the program
 
 Is this your first time running the program? If so, check out how to properly install all dependencies:
