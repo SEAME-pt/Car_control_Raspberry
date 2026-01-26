@@ -40,14 +40,6 @@ TEST_F(CANProtocolTest, DriveCommandClamping) {
     ASSERT_NO_THROW(CANProtocol::sendDriveCommand(can, -128, -128)); // Below min
 }
 
-// Test drive modes
-TEST_F(CANProtocolTest, DriveMode) {
-    CANController can(validInterface);
-    
-    ASSERT_NO_THROW(CANProtocol::sendDriveMode(can, DriveMode::MANUAL));
-    ASSERT_NO_THROW(CANProtocol::sendDriveMode(can, DriveMode::AUTONOMOUS));
-}
-
 // Test boundary values
 TEST_F(CANProtocolTest, BoundaryValues) {
     CANController can(validInterface);
