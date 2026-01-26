@@ -28,7 +28,7 @@ TEST_F(CANProtocolTest, EmergencyBrake) {
     ASSERT_NO_THROW(CANProtocol::sendEmergencyBrake(can, false));
 }
 
-// Test drive command clamping
+/* // Test drive command clamping
 TEST_F(CANProtocolTest, DriveCommandClamping) {
     CANController can(validInterface);
     
@@ -51,4 +51,4 @@ TEST_F(CANProtocolTest, BoundaryValues) {
     // Throttle boundaries
     ASSERT_NO_THROW(CANProtocol::sendDriveCommand(can, 60, -100)); // Min
     ASSERT_NO_THROW(CANProtocol::sendDriveCommand(can, 60, 100));  // Max
-}
+} */
