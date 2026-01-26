@@ -19,15 +19,17 @@ void	manualLoop(t_carControl *carControl) {
 		}
 
 		stableValues(&steering, &throttle);
+
+		if (steering != last_steering) {
+			last_steering = steering;
+			CANProtocol::sendSteeringCommand(*carControl->can, steering);
+			std::cout << "Steering: " << steering << std::endl;
+		} 
+		if (throttle != last_throttle) {
+			last_throttle = throttle;
+			CANProtocol::sendThrottleCommand(*carControl->can, throttle);
+			std::cout << "Throttle: " << throttle << std::endl;
+		}
 		readCan(carControl->can);
-
-		if (steering == last_steering && throttle == last_throttle)
-			continue ;
-
-		last_steering = steering;
-		last_throttle = throttle;
-
-		std::cout << "Steering: " << steering << " | Throttle: " << throttle << std::endl;
-		CANProtocol::sendDriveCommand(*carControl->can, steering, throttle);
 	}
 }
