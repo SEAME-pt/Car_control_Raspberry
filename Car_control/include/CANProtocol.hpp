@@ -2,10 +2,19 @@
 
 #include "CANController.hpp"
 
+/**
+ * @file CANProtocol.hpp
+ * @brief CAN IDs and protocol helper functions for sending vehicle commands.
+ */
+
+/**
+ * @namespace CANID
+ * @brief Predefined CAN IDs used by the vehicle communication protocol.
+ */
 namespace CANID {
-	constexpr uint16_t	EMERGENCY_BRAKE = 0x100;	//max priority
-	constexpr uint16_t	DRIVE_COMMAND   = 0x101;	//high priority
-	constexpr uint16_t	DRIVE_MODE      = 0x102;	//low priority
+	constexpr uint16_t	EMERGENCY_BRAKE = 0x100;	/**< Emergency brake command (max priority) */
+	constexpr uint16_t	DRIVE_COMMAND   = 0x101;	/**< Steering and throttle command (high priority) */
+	constexpr uint16_t	DRIVE_MODE      = 0x102;	/**< Drive mode selection (low priority) */
 };
 
 enum class DriveMode : int16_t {
