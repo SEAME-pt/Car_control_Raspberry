@@ -19,20 +19,80 @@ extern "C" {
 #include <linux/can.h>
 #include <linux/can/raw.h>
 
+
+/**
+ * @file socketCAN.h
+ * @brief SocketCAN interface for CAN / CAN-FD communication
+ */
+
+/**
+ * @brief Checks if the interface supports the required MTU
+ * 
+ * Determines if the interface supports classical CAN, CAN-FD or other unkown.
+ * 
+ * @param s CAN socket
+ * @param ifr Pointer to the interface request struct
+ * @return 0 if supported, -1 if not supported or error
+ */
 int		check_mtu_support(int s, struct ifreq *ifr);
 
+/**
+ * @brief Initializes a SocketCAN interface
+ *
+ * Creates a raw CAN socket, binds it to the interface, and enables CAN-FD if supported.
+ *
+ * @param interface Name of the CAN interface (e.g., "can0")
+ * @return Socket file descriptor on success, -1 on failure
+ */
 int		socketCan_init(const char *interface);
 
+/**
+ * @brief Sends a standard CAN frame (8 bytes max)
+ *
+ * @param socket Socket returned by socketCan_init
+ * @param can_id 11-bit CAN identifier
+ * @param data Pointer to data buffer
+ * @param len Number of bytes to send (max 8)
+ * @return 0 if successful, -1 on error
+ */
 int		can_send_frame(int socket, uint16_t can_id, 
 					const int16_t *data, uint8_t len);
 
+/**
+ * @brief Sends a CAN-FD frame (up to 64 bytes)
+ *
+ * @param socket Socket returned by socketCan_init
+ * @param can_id 11-bit CAN identifier
+ * @param data Pointer to data buffer
+ * @param len Number of bytes to send (max 64)
+ * @return 0 if successful, -1 on error
+ */
 int		can_send_frame_fd(int socket, uint16_t can_id, 
 					const int16_t *data, uint8_t len);
 
+/**
+ * @brief Attempts to receive a standard CAN frame (non-blocking)
+ *
+ * @param socket CAN socket
+ * @param frame Pointer to can_frame struct to store received data
+ * @return 0 if a frame was read, -1 if no data or error
+ */
 int		can_try_receive(int socket, struct can_frame *frame);
 
+/**
+ * @brief Attempts to receive a CAN-FD frame (non-blocking)
+ *
+ * @param socket CAN socket
+ * @param frame Pointer to canfd_frame struct to store received data
+ * @return 0 if a frame was read, -1 if no data or error
+ */
 int		canfd_try_receive(int socket, struct canfd_frame *frame);
 
+/**
+ * @brief Closes a CAN socket
+ *
+ * @param socket Socket returned by socketCan_init
+ */
 void	can_close(int socket);
 
 #ifdef __cplusplus
@@ -41,35 +101,6 @@ void	can_close(int socket);
 
 #endif
 
-/*
-struct sockaddr_can {
-        sa_family_t can_family;
-        int         can_ifindex;
-        union {
-                // transport protocol class address info (e.g. ISOTP)
-                struct { canid_t rx_id, tx_id; } tp;
-
-                // J1939 address information
-                struct {
-                        //8 byte name when using dynamic addressing
-                        __u64 name;
-
-                        //pgn:
-                        ///8 bit: PS in PDU2 case, else 0
-                        //8 bit: PF
-                        //1 bit: DP
-                        //1 bit: reserved
-                        
-                        __u32 pgn;
-
-                        // 1 byte address
-                        __u8 addr;
-                } j1939;
-
-                // reserved for future CAN protocols address information
-        } can_addr;
-};
-*/
 /*
 struct canfd_frame {
 	canid_t can_id;  // 32 bit CAN_ID + EFF/RTR/ERR flags
