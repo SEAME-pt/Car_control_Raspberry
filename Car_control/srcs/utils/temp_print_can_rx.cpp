@@ -10,5 +10,6 @@ void	readCan(const std::unique_ptr<CANController> &can) {
             uint16_t rpm = (rx.data[0] << 8) | rx.data[1];
             std::cout << "Raw RPM: " << rpm << std::endl;
         }
+		std::cout << "Emergency break message sent!" << std::endl;
     }
 }

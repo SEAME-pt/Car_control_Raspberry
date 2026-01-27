@@ -6,7 +6,8 @@ void	autonomousLoop(const t_carControl &carControl) {
 	while (g_running.load() && !carControl.exit) {
 
 		CANProtocol::sendEmergencyBrake(*carControl.can, true);
-		std::this_thread::sleep_for(std::chrono::milliseconds(1200));
+		//std::cout << "Emergency break message sent!" << std::endl;
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 		readCan(carControl.can);
 	}
