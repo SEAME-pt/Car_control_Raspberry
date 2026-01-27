@@ -13,6 +13,13 @@
 #include <fcntl.h>
 #include <iomanip>
 
+/**
+ * @file carControl.hpp
+ * @brief High-level vehicle control abstractions for manual and autonomous operation.
+ *
+ * Provides initialization, main loops, signal handling, and CAN/Joystick integration.
+ */
+
 //index of the controller, if 0, the first, 
 //and only the first, has permission to connect
 #define CONTROLLER_0    0
@@ -33,6 +40,12 @@
 #define R2_BUTTON		9
 #define START_BUTTON	11
 
+/**
+ * @struct s_carControl
+ * @brief Aggregates all vehicle control objects and configuration.
+ *
+ * Contains the CAN controller, joystick, interface name, and operation mode.
+ */
 typedef struct s_carControl {
 
 	std::unique_ptr<CANController>	can;
@@ -42,19 +55,84 @@ typedef struct s_carControl {
 	bool			exit;
 } t_carControl;
 
-//init
+/**
+ * @brief Initialize a CAN controller instance.
+ *
+ * @param interface CAN interface name (e.g., "can0")
+ * @return Unique pointer to a CANController
+ * @throws CANController::CANException if initialization fails
+ */
 std::unique_ptr<CANController>	
 				init_can(const std::string &interface);
+
+/**
+ * @brief Initializes core car control components.
+ *
+ * Sets up joystick, CAN controller, and parses command line arguments.
+ *
+ * @param argc Argument count from main
+ * @param argv Argument values from main
+ * @return Initialized t_carControl struct
+ */
 t_carControl	initCarControl(int argc, char *argv[]);
 
-//utils
-int				parsingArgv(int argc, char *argv[],
+/**
+ * @brief Parse command line arguments and update carControl structure.
+ *
+ * Supported options:
+ * - --manual=true|false
+ * - --can=INTERFACE
+ * - --help or -h
+ *
+ * @param argc Argument count
+ * @param argv Argument values
+ * @param carControl Pointer to t_carControl to update
+ * @return 1 if parsing successful, 0 if exit requested
+ */
+int	parsingArgv(int argc, char *argv[],
 				                    t_carControl *carControl);
-								
-void	manualLoop(t_carControl *carControl);
-void	autonomousLoop(const t_carControl &carControl);
-void			signalManager();
-void			signalHandler(int signum);
-void			readCan(const std::unique_ptr<CANController> &can);
 
+/**
+ * @brief Main loop for manual joystick control.
+ *
+ * Aggregates joystick outputs, stabilizes values, and sends CAN frames.
+ *
+ * @param carControl Pointer to t_carControl containing CAN and joystick
+ */
+void	manualLoop(t_carControl *carControl);
+
+/**
+ * @brief Main loop for autonomous operation.
+ *
+ * Sends emergency brake commands periodically and reads CAN bus messages.
+ *
+ * @param carControl Reference to t_carControl
+ */
+void	autonomousLoop(const t_carControl &carControl);
+
+/**
+ * @brief Sets up signal handling for graceful shutdown (SIGINT, SIGTERM)
+ */
+void	signalManager();
+
+/**
+ * @brief Signal handler to stop the main loops safely.
+ *
+ * @param signum Signal number
+ */
+void	signalHandler(int signum);
+
+/**
+ * @brief Reads available CAN frames from the bus.
+ *
+ * @param can Reference to initialized CANController
+ */
+void	readCan(const std::unique_ptr<CANController> &can);
+
+
+/**
+ * @brief Global atomic flag controlling main loops.
+ *
+ * Set to false to terminate manualLoop or autonomousLoop safely.
+ */
 extern std::atomic<bool> g_running;
