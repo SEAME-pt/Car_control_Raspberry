@@ -95,7 +95,6 @@ int	can_send_frame(int socket, uint16_t can_id,
 	frame.can_id = can_id;
 	frame.can_dlc = len;
 
-	printf("%d\n", len);
 	printf("%d\n", frame.can_dlc);
 
 	if (data && len > 0)
