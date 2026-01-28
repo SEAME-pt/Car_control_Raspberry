@@ -22,7 +22,12 @@ Joystick::~Joystick() {
 	close(fd);
 }
 
-// Returns clamped axis value for steering & throttle || -1 on error
+/**
+ * @brief Normalizes steering axis to 0–120 range.
+ *
+ * Uses the axis min/max values from libevdev.
+ * Returns -1 if the axis is unavailable.
+ */
 int16_t	Joystick::getAbs(bool steering) const {
 
 	for (int code = 0; code <= ABS_MAX; ++code) {

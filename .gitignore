@@ -24,3 +24,6 @@ compile_commands.json
 # Cross-compilation
 rpi-sysroot/
 *.tar.gz
+
+# doxygen
+html
