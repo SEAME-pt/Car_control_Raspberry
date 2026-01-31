@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>srcs/Main.qml</file>
+        <file>assets/battery.svg</file>
+    </qresource>
+</RCC>
