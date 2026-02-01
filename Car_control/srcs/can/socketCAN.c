@@ -47,15 +47,6 @@ int	socketCan_init(const char *interface) {
 		return (-1);
 	}
 
-	// Informs Kernel to accept CAN_FD and that allows on the same
-	// socket send & receive CAN frames
-	if (setsockopt(s, SOL_CAN_RAW, CAN_RAW_FD_FRAMES, 
-					&enable_canfd, sizeof(enable_canfd)) < 0) {
-		perror("setsockopt CAN_RAW_FD_FRAMES");
-		close(s);
-		return (-1);
-	}
-
 	// Get interface index
 	if (ioctl(s, SIOCGIFINDEX, &ifr) < 0) {
 		perror("ioctl SIOCGIFINDEX");
@@ -95,6 +86,13 @@ int	can_send_frame(int socket, uint16_t can_id,
 
 	if (data && len > 0)
 		memcpy(frame.data, data, len);
+
+	frame.len = len;
+	frame.can_id = can_id;
+
+	for (int i = 0; i < len; ++i)
+    	printf("%02X ", frame.data[i]);
+	printf("\n");
 
 	if (write(socket, &frame, sizeof(struct can_frame)) < 0) {
 		perror("write CAN frame");

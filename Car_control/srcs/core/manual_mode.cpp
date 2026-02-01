@@ -21,15 +21,21 @@ void	manualLoop(t_carControl *carControl) {
 
 		stableValues(&steering, &throttle);
 
+		if (steering != last_steering) {
+    		CANProtocol::sendSteeringCommand(*carControl->can, steering);
+    		std::cout << "Steering: " << std::endl;
+    		last_steering = steering;
+		}
+
 		if (throttle == 0) {
     		if (counter < 3) {
         		CANProtocol::sendThrottleCommand(*carControl->can, throttle);
-        		std::cout << "Throttle: " << throttle << std::endl;
+        		std::cout << "Throttle: " << std::endl;
         		counter++;
     		}
 		} else if (throttle != last_throttle) {
     		CANProtocol::sendThrottleCommand(*carControl->can, throttle);
-    		std::cout << "Throttle: " << throttle << std::endl;
+    		std::cout << "Throttle: " << std::endl;
     		counter = 0;
 		}
 		last_throttle = throttle;

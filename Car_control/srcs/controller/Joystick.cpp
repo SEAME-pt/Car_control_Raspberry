@@ -87,6 +87,7 @@ void	Joystick::findJoystickDevice() {
 // This addresses potential joystick calibration issues,
 // ensuring that standard values remain reliable.
 void stableValues(int16_t *steering, int16_t *throttle) {
+
     const int16_t STEERING_CENTER   = 60;
     const int16_t STEERING_DEADZONE = 2;
     const int16_t THROTTLE_DEADZONE = 2;
