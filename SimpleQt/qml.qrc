@@ -1,6 +1,17 @@
 <RCC>
     <qresource prefix="/">
         <file>srcs/Main.qml</file>
+        <file>srcs/CenterDisplay/CenterDisplay.qml</file>
+        <file>srcs/CenterDisplay/MotorState.qml</file>
+        <file>srcs/CenterDisplay/BatteryInfo.qml</file>
+        <file>srcs/CenterDisplay/SpeedLimit.qml</file>
+        <file>srcs/CenterDisplay/SpeedInfo.qml</file>
+        <file>srcs/LeftDisplay/LeftDisplay.qml</file>
+        <file>srcs/LeftDisplay/GridCanvas.qml</file>
+        <file>srcs/LeftDisplay/RoadCanvas.qml</file>
         <file>assets/battery.svg</file>
+        <file>assets/car.svg</file>
+        <file>fonts/VWTextRegular.otf</file>
     </qresource>
+    
 </RCC>
