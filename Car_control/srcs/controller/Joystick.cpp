@@ -22,32 +22,35 @@ Joystick::~Joystick() {
 	close(fd);
 }
 
-/**
- * @brief Normalizes steering axis to 0–120 range.
- *
- * Uses the axis min/max values from libevdev.
- * Returns -1 if the axis is unavailable.
- */
-int16_t	Joystick::getAbs(bool steering) const {
-
-	for (int code = 0; code <= ABS_MAX; ++code) {
-		if (libevdev_has_event_code(dev, EV_ABS, code)) {
-			const struct input_absinfo *ai = libevdev_get_abs_info(dev, code);
-			if (ai && steering && code == ABS_X) {
-				int range = ai->maximum - ai->minimum;
+// ABS_X
+int16_t Joystick::getSteering() const {
+    for (int code = 0; code <= ABS_MAX; ++code) {
+        if (libevdev_has_event_code(dev, EV_ABS, code) && code == ABS_X) {
+            const struct input_absinfo *ai = libevdev_get_abs_info(dev, code);
+            if (ai) {
+                int range = ai->maximum - ai->minimum;
                 int normalized = ((ai->value - ai->minimum) * 120) / range;
-                return static_cast<int16_t>(std::clamp(normalized, 0, 120));
-			}
+                return (static_cast<int16_t>(std::clamp(normalized, 0, 120)));
+            }
+        }
+    }
+    return (-1);
+}
 
-			else if (ai && !steering && code == ABS_Y) {
-				int range = ai->maximum - ai->minimum;
+// ABS_Y
+int16_t Joystick::getThrottle() const {
+    for (int code = 0; code <= ABS_MAX; ++code) {
+        if (libevdev_has_event_code(dev, EV_ABS, code) && code == ABS_Y) {
+            const struct input_absinfo *ai = libevdev_get_abs_info(dev, code);
+            if (ai) {
+                int range = ai->maximum - ai->minimum;
                 int center = (ai->maximum + ai->minimum) / 2;
                 int normalized = ((center - ai->value) * 200) / range;
-                return static_cast<int16_t>(std::clamp(normalized, -100, 100));
-			}
-		}
-	}
-	return (-1);
+                return (static_cast<int16_t>(std::clamp(normalized, -100, 100)));
+            }
+        }
+    }
+    return (-1);
 }
 
 // Reads joystick buttons events pressed
@@ -83,19 +86,24 @@ void	Joystick::findJoystickDevice() {
 // Function to stabilize input values.
 // This addresses potential joystick calibration issues,
 // ensuring that standard values remain reliable.
-void	stableValues(int16_t *steering, int16_t *throttle) {
+void stableValues(int16_t *steering, int16_t *throttle) {
+    const int16_t STEERING_CENTER   = 60;
+    const int16_t STEERING_DEADZONE = 2;
+    const int16_t THROTTLE_DEADZONE = 2;
+    const int16_t THROTTLE_MAX = 99;
 
-	const int16_t	STEERING_CENTER   = 60;
-	const int16_t	STEERING_DEADZONE = 2;
-	const int16_t	THROTTLE_DEADZONE = 2;
-	const int16_t	THROTTLE_MAX = 99;
-
-	if (*steering > STEERING_CENTER - STEERING_DEADZONE && 
+    if (*steering > STEERING_CENTER - STEERING_DEADZONE && 
         *steering < STEERING_CENTER + STEERING_DEADZONE)
         *steering = STEERING_CENTER;
     
     if (*throttle > -THROTTLE_DEADZONE && *throttle < THROTTLE_DEADZONE)
         *throttle = 0;
-	if (*throttle == THROTTLE_MAX)
-		*throttle = 100;
+    if (*throttle == THROTTLE_MAX)
+        *throttle = 100;
+
+    // Rounds throttle to a multiple of 10 
+    *throttle = static_cast<int16_t>(std::round(*throttle / 10.0) * 10);
+
+    // Rounds steering to a multiple of 5
+    *steering = static_cast<int16_t>(std::round(*steering / 5.0) * 5);
 }

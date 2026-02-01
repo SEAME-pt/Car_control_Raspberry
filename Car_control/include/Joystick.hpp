@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <libevdev/libevdev.h>
 #include <filesystem>
+#include <cmath>
 
 /**
  * @file Joystick.hpp
@@ -34,12 +35,24 @@ class Joystick {
 		~Joystick();
 	
 		/**
-		 * @brief Reads an absolute axis value from the joystick.
+		 * @brief Reads the steering value from the joystick (right axis, ABS_X).
 		 *
-		 * @param steering If true, reads steering (X axis). If false, reads throttle (Y axis).
-		 * @return Clamped axis value (0–120 for steering, -100–100 for throttle), or -1 on error
+		 * Normalizes the value to the range 0–120.
+		 * Returns -1 if the axis is unavailable.
+		 *
+		 * @return Clamped steering value (0–120), or -1 on error.
 		 */
-		int16_t	getAbs(bool steering) const;
+		int16_t getSteering() const;
+
+		/**
+		 * @brief Reads the throttle value from the joystick (left axis, ABS_Y).
+		 *
+		 * Normalizes the value to the range -100–100.
+		 * Returns -1 if the axis is unavailable.
+		 *
+		 * @return Clamped throttle value (-100–100), or -1 on error.
+		 */
+		int16_t getThrottle() const;  // ABS_Y
 
 		/**
 		 * @brief Reads button press events.
