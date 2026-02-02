@@ -124,7 +124,7 @@ TEST_F(socketCANTest, ValidSocketInit) {
 		ASSERT_GE(s, 0);
 		
 		// Try sending a frame to verify socket works
-		int16_t data[2] = {50, 0};
+		int8_t data[2] = {50, 0};
 		int result = can_send_frame(s, 0x100, data, 2);
 		EXPECT_EQ(result, 0);
 		
@@ -186,7 +186,7 @@ TEST_F(socketCANTest, InvalidSendFrame) {
 
 	// Test 1: invalid socket
 	{
-		int16_t data[2] = {50, 0};
+		int8_t data[2] = {50, 0};
 		int result = can_send_frame(-1, 0x100, data, 2);
 		EXPECT_LT(result, 0);
 	}
@@ -197,7 +197,7 @@ TEST_F(socketCANTest, InvalidSendFrame) {
 		ASSERT_GE(s, 0);
 		close(s);
 		
-		int16_t data[2] = {50, 0};
+		int8_t data[2] = {50, 0};
 		int result = can_send_frame(s, 0x100, data, 2);
 		EXPECT_LT(result, 0);
 	}
@@ -207,7 +207,7 @@ TEST_F(socketCANTest, InvalidSendFrame) {
 		int s = socketCan_init(validInterface);
 		ASSERT_GE(s, 0);
 		
-		int16_t data[2] = {50, 0};
+		int8_t data[2] = {50, 0};
 		
 		// Just over limit
 		int result1 = can_send_frame(s, 0x800, data, 2);
@@ -315,7 +315,7 @@ TEST_F(socketCANTest, ValidReceiveFrame) {
 	
 	// Test data
 	uint8_t expected_bytes[4] = {0xAA, 0xBB, 0xCC, 0xDD};
-	int16_t *test_data = (int16_t*)expected_bytes;
+	int8_t *test_data = (int8_t*)expected_bytes;
 	uint16_t test_id = 0x123;
 
 	// Send a frame using CANController
@@ -357,7 +357,7 @@ TEST_F(socketCANTest, DirectReceiveTest) {
 
 	// Test data
 	uint8_t expected_bytes[4] = {0x11, 0x22, 0x33, 0x44};
-	int16_t *test_data = (int16_t*)expected_bytes;
+	int8_t *test_data = (int8_t*)expected_bytes;
 	uint16_t test_id = 0x456;
 
 	// Send frame using raw function

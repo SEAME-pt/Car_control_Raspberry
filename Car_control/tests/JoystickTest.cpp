@@ -78,8 +78,8 @@ TEST(JoystickTest, BasicFunctionality) {
 		Joystick joystick;
 		
 		// Test that methods don't crash (values might be -1 if no actual input)
-		int16_t steering = joystick.getAbs(true);  // steering
-		int16_t throttle = joystick.getAbs(false); // throttle
+		int16_t steering = joystick.getAbs(ABS_Z);  // steering
+		int16_t throttle = joystick.getAbs(ABS_Y); // throttle
 		
 		// Values should be valid int16_t (including -1 for no data)
 		EXPECT_GE(steering, -1);
@@ -152,8 +152,8 @@ TEST(JoystickTest, InteractiveButtonTest) {
 		auto analogStart = std::chrono::steady_clock::now();
 		auto analogTimeout = std::chrono::seconds(8);
 		
-		int16_t initialSteering = joystick.getAbs(true);
-		int16_t initialThrottle = joystick.getAbs(false);
+		int16_t initialSteering = joystick.getAbs(ABS_X);
+		int16_t initialThrottle = joystick.getAbs(ABS_Y);
 		
 		std::cout << "Initial position - Steering: " << initialSteering 
 		          << " Throttle: " << initialThrottle << std::endl;
@@ -171,8 +171,8 @@ TEST(JoystickTest, InteractiveButtonTest) {
 				std::cout << "Button event detected: " << press << std::endl;
 			}
 			
-			int16_t currentSteering = joystick.getAbs(true);
-			int16_t currentThrottle = joystick.getAbs(false);
+			int16_t currentSteering = joystick.getAbs(ABS_X);
+			int16_t currentThrottle = joystick.getAbs(ABS_Y);
 			
 			// Track maximum deviation from center
 			int16_t steeringChange = abs(currentSteering - initialSteering);

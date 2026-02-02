@@ -22,35 +22,33 @@ Joystick::~Joystick() {
 	close(fd);
 }
 
-// ABS_X
-int16_t Joystick::getSteering() const {
-    for (int code = 0; code <= ABS_MAX; ++code) {
-        if (libevdev_has_event_code(dev, EV_ABS, code) && code == ABS_X) {
-            const struct input_absinfo *ai = libevdev_get_abs_info(dev, code);
-            if (ai) {
-                int range = ai->maximum - ai->minimum;
-                int normalized = ((ai->value - ai->minimum) * 120) / range;
-                return (static_cast<int16_t>(std::clamp(normalized, 0, 120)));
-            }
-        }
-    }
-    return (-1);
-}
+/**
+ * @brief Normalizes axis to appropriate range based on axis code.
+ *
+ * ABS_Z (steering): 0–180
+ * ABS_Y (throttle): -100–100
+ * Other axes: -100–100
+ * Returns -1 if the axis is unavailable.
+ */
+int16_t	Joystick::getAbs(int axis_code) const {
 
-// ABS_Y
-int16_t Joystick::getThrottle() const {
-    for (int code = 0; code <= ABS_MAX; ++code) {
-        if (libevdev_has_event_code(dev, EV_ABS, code) && code == ABS_Y) {
-            const struct input_absinfo *ai = libevdev_get_abs_info(dev, code);
-            if (ai) {
-                int range = ai->maximum - ai->minimum;
-                int center = (ai->maximum + ai->minimum) / 2;
-                int normalized = ((center - ai->value) * 200) / range;
-                return (static_cast<int16_t>(std::clamp(normalized, -100, 100)));
-            }
-        }
-    }
-    return (-1);
+	for (int code = 0; code <= ABS_MAX; ++code) {
+		if (libevdev_has_event_code(dev, EV_ABS, code) && code == axis_code) {
+			const struct input_absinfo *ai = libevdev_get_abs_info(dev, code);
+			if (ai) {
+				int range = ai->maximum - ai->minimum;
+				if (axis_code == ABS_Z) { // Steering
+					int normalized = ((ai->value - ai->minimum) * 180) / range;
+					return static_cast<int16_t>(std::clamp(normalized, 0, 180));
+				} else {
+					int center = (ai->maximum + ai->minimum) / 2;
+					int normalized = ((center - ai->value) * 200) / range;
+					return static_cast<int16_t>(std::clamp(normalized, -100, 100));
+				}
+			}
+		}
+	}
+	return (-1);
 }
 
 // Reads joystick buttons events pressed

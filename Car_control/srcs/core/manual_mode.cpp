@@ -11,8 +11,8 @@ void	manualLoop(t_carControl *carControl) {
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(7));
 		int		value 		= carControl->controller->readPress();
-		int16_t	steering	= carControl->controller->getSteering();
-		int16_t	throttle	= carControl->controller->getThrottle();
+		int16_t	steering	= carControl->controller->getAbs(ABS_Z);
+		int16_t	throttle	= carControl->controller->getAbs(ABS_Y);
 
 		if (value == START_BUTTON) {
 			std::cout << "Initiating graceful shutdown.." << std::endl;
