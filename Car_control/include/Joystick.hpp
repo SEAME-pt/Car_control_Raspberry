@@ -6,6 +6,7 @@
 #include <libevdev/libevdev.h>
 #include <filesystem>
 #include <linux/input.h>
+#include <cmath>
 
 /**
  * @file Joystick.hpp

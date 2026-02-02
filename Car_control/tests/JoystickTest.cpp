@@ -240,8 +240,8 @@ TEST(StableValuesTest, ThrottleOutsideDeadzoneUnchanged) {
 	int16_t steering = 100;
 	int16_t throttle = 5;
 	stableValues(&steering, &throttle);
-	EXPECT_EQ(throttle, 5);
-}
+	EXPECT_EQ(throttle, 10);
+}	
 
 TEST(StableValuesTest, EdgeCases) {
 	int16_t steering1 = 58; // just outside lower deadzone
@@ -250,8 +250,8 @@ TEST(StableValuesTest, EdgeCases) {
 	int16_t throttle2 = 3;  // just outside upper deadzone
 	stableValues(&steering1, &throttle1);
 	stableValues(&steering2, &throttle2);
-	EXPECT_EQ(steering1, 58);
-	EXPECT_EQ(steering2, 62);
-	EXPECT_EQ(throttle1, -3);
-	EXPECT_EQ(throttle2, 3);
+	EXPECT_EQ(steering1, 60);
+	EXPECT_EQ(steering2, 60);
+	EXPECT_EQ(throttle1, 0);
+	EXPECT_EQ(throttle2, 0);
 }

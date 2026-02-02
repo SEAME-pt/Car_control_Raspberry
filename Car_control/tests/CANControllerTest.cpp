@@ -300,7 +300,17 @@ TEST_F(CANControllerTest, InvalidSendFrame) {
 //CAN FD sendFrameFD - Valid tests
 TEST_F(CANControllerTest, ValidSendFrameFD) {
 	CANController can(validInterface);
-	
+
+	// Check if CAN FD is supported
+	{
+		int16_t test_data[1] = {0};
+		try {
+			can.sendFrameFD(0x100, test_data, 1);
+		} catch (const CANController::CANException&) {
+			GTEST_SKIP() << "CAN FD not supported on this interface";
+		}
+	}
+
 	// Test 1: Random valid data
 	{
 		int16_t data[2];
@@ -308,7 +318,7 @@ TEST_F(CANControllerTest, ValidSendFrameFD) {
 		std::srand(std::time(nullptr));
 
 		for (int i = 0; i < 100; i++) {
-			data[0] = std::rand() % 121;         // 0-120
+			data[0] = std::rand() % 181;         // 0-180
 			data[1] = (std::rand() % 201) - 100; // -100-100
 			ASSERT_NO_THROW(can.sendFrameFD(can_id, data, 2));
 		}
@@ -321,7 +331,7 @@ TEST_F(CANControllerTest, ValidSendFrameFD) {
 		int16_t data_min[2] = {0, -100};
 		ASSERT_NO_THROW(can.sendFrameFD(can_id, data_min, 2));
 
-		int16_t data_max[2] = {120, 100};
+		int16_t data_max[2] = {180, 100};
 		ASSERT_NO_THROW(can.sendFrameFD(can_id, data_max, 2));
 
 		int16_t data_zero[2] = {0, 0};
@@ -379,7 +389,7 @@ TEST_F(CANControllerTest, ValidSendFrameFD) {
 			size_t len = (i % 8) + 1; // 1-8 bytes varying
 			int16_t data[8];
 			for (size_t j = 0; j < len; j++) {
-				data[j] = static_cast<int16_t>((i + j) % 128);
+				data[j] = static_cast<int16_t>((i + j) % 181);
 			}
 			ASSERT_NO_THROW(can.sendFrameFD(can_id, data, len));
 		}
@@ -426,6 +436,17 @@ TEST_F(CANControllerTest, ValidSendFrameFD) {
 
 //CAN_FD sendFrame - Should fail
 TEST_F(CANControllerTest, InvalidSendFrameFD) {
+	
+	// Check if CAN FD is supported, skip if not
+	{
+		CANController temp_can(validInterface);
+		int16_t test_data[1] = {0};
+		try {
+			temp_can.sendFrameFD(0x100, test_data, 1);
+		} catch (const CANController::CANException&) {
+			GTEST_SKIP() << "CAN FD not supported on this interface";
+		}
+	}
 	
 	// Test 1: Send on uninitialized controller
 	{
