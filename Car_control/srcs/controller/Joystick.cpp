@@ -23,27 +23,28 @@ Joystick::~Joystick() {
 }
 
 /**
- * @brief Normalizes steering axis to 0–120 range.
+ * @brief Normalizes axis to appropriate range based on axis code.
  *
- * Uses the axis min/max values from libevdev.
+ * ABS_Z (steering): 0–180
+ * ABS_Y (throttle): -100–100
+ * Other axes: -100–100
  * Returns -1 if the axis is unavailable.
  */
-int16_t	Joystick::getAbs(bool steering) const {
+int16_t	Joystick::getAbs(int axis_code) const {
 
 	for (int code = 0; code <= ABS_MAX; ++code) {
-		if (libevdev_has_event_code(dev, EV_ABS, code)) {
+		if (libevdev_has_event_code(dev, EV_ABS, code) && code == axis_code) {
 			const struct input_absinfo *ai = libevdev_get_abs_info(dev, code);
-			if (ai && steering && code == ABS_X) {
+			if (ai) {
 				int range = ai->maximum - ai->minimum;
-                int normalized = ((ai->value - ai->minimum) * 120) / range;
-                return static_cast<int16_t>(std::clamp(normalized, 0, 120));
-			}
-
-			else if (ai && !steering && code == ABS_Y) {
-				int range = ai->maximum - ai->minimum;
-                int center = (ai->maximum + ai->minimum) / 2;
-                int normalized = ((center - ai->value) * 200) / range;
-                return static_cast<int16_t>(std::clamp(normalized, -100, 100));
+				if (axis_code == ABS_Z) { // Steering
+					int normalized = ((ai->value - ai->minimum) * 180) / range;
+					return static_cast<int16_t>(std::clamp(normalized, 0, 180));
+				} else {
+					int center = (ai->maximum + ai->minimum) / 2;
+					int normalized = ((center - ai->value) * 200) / range;
+					return static_cast<int16_t>(std::clamp(normalized, -100, 100));
+				}
 			}
 		}
 	}
@@ -83,19 +84,25 @@ void	Joystick::findJoystickDevice() {
 // Function to stabilize input values.
 // This addresses potential joystick calibration issues,
 // ensuring that standard values remain reliable.
-void	stableValues(int16_t *steering, int16_t *throttle) {
+void stableValues(int16_t *steering, int16_t *throttle) {
 
-	const int16_t	STEERING_CENTER   = 60;
-	const int16_t	STEERING_DEADZONE = 2;
-	const int16_t	THROTTLE_DEADZONE = 2;
-	const int16_t	THROTTLE_MAX = 99;
+    const int16_t STEERING_CENTER   = 60;
+    const int16_t STEERING_DEADZONE = 2;
+    const int16_t THROTTLE_DEADZONE = 2;
+    const int16_t THROTTLE_MAX = 99;
 
-	if (*steering > STEERING_CENTER - STEERING_DEADZONE && 
+    if (*steering > STEERING_CENTER - STEERING_DEADZONE && 
         *steering < STEERING_CENTER + STEERING_DEADZONE)
         *steering = STEERING_CENTER;
     
     if (*throttle > -THROTTLE_DEADZONE && *throttle < THROTTLE_DEADZONE)
         *throttle = 0;
-	if (*throttle == THROTTLE_MAX)
-		*throttle = 100;
+    if (*throttle == THROTTLE_MAX)
+        *throttle = 100;
+
+    // Rounds throttle to a multiple of 10 
+    *throttle = static_cast<int16_t>(std::round(*throttle / 10.0) * 10);
+
+    // Rounds steering to a multiple of 5
+    *steering = static_cast<int16_t>(std::round(*steering / 5.0) * 5);
 }

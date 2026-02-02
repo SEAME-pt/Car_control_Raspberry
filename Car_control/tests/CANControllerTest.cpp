@@ -160,7 +160,7 @@ TEST_F(CANControllerTest, ValidSendFrame) {
 	
 	// Test 1: Random valid data
 	{
-		int16_t data[2];
+		int8_t data[2];
 		uint32_t can_id = 0x100;
 		std::srand(std::time(nullptr));
 
@@ -175,13 +175,13 @@ TEST_F(CANControllerTest, ValidSendFrame) {
 	{
 		uint16_t can_id = 0x100;
 		
-		int16_t data_min[2] = {0, -100};
+		int8_t data_min[2] = {0, -100};
 		ASSERT_NO_THROW(can.sendFrame(can_id, data_min, 2));
 
-		int16_t data_max[2] = {120, 100};
+		int8_t data_max[2] = {120, 100};
 		ASSERT_NO_THROW(can.sendFrame(can_id, data_max, 2));
 
-		int16_t data_zero[2] = {0, 0};
+		int8_t data_zero[2] = {0, 0};
 		ASSERT_NO_THROW(can.sendFrame(can_id, data_zero, 2));
 	}
 
@@ -189,19 +189,19 @@ TEST_F(CANControllerTest, ValidSendFrame) {
 	{
 		uint16_t can_id = 0x200;
 		
-		int16_t data1[1] = {50};
+		int8_t data1[1] = {50};
 		ASSERT_NO_THROW(can.sendFrame(can_id, data1, 1));
 
-		int16_t data2[2] = {50, 25};
+		int8_t data2[2] = {50, 25};
 		ASSERT_NO_THROW(can.sendFrame(can_id, data2, 2));
 
-		int16_t data8[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+		int8_t data8[8] = {1, 2, 3, 4, 5, 6, 7, 8};
 		ASSERT_NO_THROW(can.sendFrame(can_id, data8, 8));
 	}
 
 	// Test 4: Different CAN IDs
 	{
-		int16_t data[2] = {50, 0};
+		int8_t data[2] = {50, 0};
 		
 		ASSERT_NO_THROW(can.sendFrame(0x100, data, 2));
 		ASSERT_NO_THROW(can.sendFrame(0x200, data, 2));
@@ -219,8 +219,8 @@ TEST_F(CANControllerTest, ValidSendFrame) {
 		uint16_t can_id = 0x300;
 		
 		for (int i = 0; i < 50; i++) {
-			int16_t data[2] = {static_cast<int16_t>(i % 121), 
-							  static_cast<int16_t>((i % 201) - 100)};
+			int8_t data[2] = {static_cast<int8_t>(i % 121), 
+							  static_cast<int8_t>((i % 201) - 100)};
 			ASSERT_NO_THROW(can.sendFrame(can_id, data, 2));
 		}
 	}
@@ -229,16 +229,16 @@ TEST_F(CANControllerTest, ValidSendFrame) {
 	{
 		uint16_t can_id = 0x100;
 
-		int16_t data_idle[2] = {0, 0};
+		int8_t data_idle[2] = {0, 0};
 		ASSERT_NO_THROW(can.sendFrame(can_id, data_idle, 2));
 
-		int16_t data_cruise[2] = {60, 0};
+		int8_t data_cruise[2] = {60, 0};
 		ASSERT_NO_THROW(can.sendFrame(can_id, data_cruise, 2));
 
-		int16_t data_full[2] = {120, 100};
+		int8_t data_full[2] = {120, 100};
 		ASSERT_NO_THROW(can.sendFrame(can_id, data_full, 2));
 
-		int16_t data_reverse[2] = {60, -100};
+		int8_t data_reverse[2] = {60, -100};
 		ASSERT_NO_THROW(can.sendFrame(can_id, data_reverse, 2));
 	}
 
@@ -246,7 +246,7 @@ TEST_F(CANControllerTest, ValidSendFrame) {
 	{
 		CANController can(validInterface);
 		
-		int16_t data[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+		int8_t data[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 		// Should truncate to 8 bytes
 		ASSERT_NO_THROW(can.sendFrame(0x100, data, 16));
 	}
@@ -261,7 +261,7 @@ TEST_F(CANControllerTest, InvalidSendFrame) {
 		can.cleanup();
 		EXPECT_FALSE(can.isInitialized());
 		
-		int16_t data[2] = {50, 0};
+		int8_t data[2] = {50, 0};
 		EXPECT_THROW(can.sendFrame(0x100, data, 2), CANController::CANException);
 	}
 	
@@ -270,7 +270,7 @@ TEST_F(CANControllerTest, InvalidSendFrame) {
 		CANController original(validInterface);
 		CANController moved(std::move(original));
 		
-		int16_t data[2] = {50, 0};
+		int8_t data[2] = {50, 0};
 		EXPECT_THROW(original.sendFrame(0x100, data, 2), CANController::CANException);
 	}
 	
@@ -280,14 +280,14 @@ TEST_F(CANControllerTest, InvalidSendFrame) {
 		int socket = can.getSocket();
 		close(socket);
 		
-		int16_t data[2] = {50, 0};
+		int8_t data[2] = {50, 0};
 		EXPECT_THROW(can.sendFrame(0x100, data, 2), CANController::CANException);
 	}
 	
 	// Test 4: Invalid CAN ID
 	{
 		CANController can(validInterface);
-		int16_t data[2] = {50, 0};
+		int8_t data[2] = {50, 0};
 	
 		uint16_t invalid_id = 65535;
 		EXPECT_THROW(can.sendFrame(invalid_id, data, 2), CANController::CANException);
@@ -300,7 +300,17 @@ TEST_F(CANControllerTest, InvalidSendFrame) {
 //CAN FD sendFrameFD - Valid tests
 TEST_F(CANControllerTest, ValidSendFrameFD) {
 	CANController can(validInterface);
-	
+
+	// Check if CAN FD is supported
+	{
+		int16_t test_data[1] = {0};
+		try {
+			can.sendFrameFD(0x100, test_data, 1);
+		} catch (const CANController::CANException&) {
+			GTEST_SKIP() << "CAN FD not supported on this interface";
+		}
+	}
+
 	// Test 1: Random valid data
 	{
 		int16_t data[2];
@@ -308,7 +318,7 @@ TEST_F(CANControllerTest, ValidSendFrameFD) {
 		std::srand(std::time(nullptr));
 
 		for (int i = 0; i < 100; i++) {
-			data[0] = std::rand() % 121;         // 0-120
+			data[0] = std::rand() % 181;         // 0-180
 			data[1] = (std::rand() % 201) - 100; // -100-100
 			ASSERT_NO_THROW(can.sendFrameFD(can_id, data, 2));
 		}
@@ -321,7 +331,7 @@ TEST_F(CANControllerTest, ValidSendFrameFD) {
 		int16_t data_min[2] = {0, -100};
 		ASSERT_NO_THROW(can.sendFrameFD(can_id, data_min, 2));
 
-		int16_t data_max[2] = {120, 100};
+		int16_t data_max[2] = {180, 100};
 		ASSERT_NO_THROW(can.sendFrameFD(can_id, data_max, 2));
 
 		int16_t data_zero[2] = {0, 0};
@@ -379,7 +389,7 @@ TEST_F(CANControllerTest, ValidSendFrameFD) {
 			size_t len = (i % 8) + 1; // 1-8 bytes varying
 			int16_t data[8];
 			for (size_t j = 0; j < len; j++) {
-				data[j] = static_cast<int16_t>((i + j) % 128);
+				data[j] = static_cast<int16_t>((i + j) % 181);
 			}
 			ASSERT_NO_THROW(can.sendFrameFD(can_id, data, len));
 		}
@@ -426,6 +436,17 @@ TEST_F(CANControllerTest, ValidSendFrameFD) {
 
 //CAN_FD sendFrame - Should fail
 TEST_F(CANControllerTest, InvalidSendFrameFD) {
+	
+	// Check if CAN FD is supported, skip if not
+	{
+		CANController temp_can(validInterface);
+		int16_t test_data[1] = {0};
+		try {
+			temp_can.sendFrameFD(0x100, test_data, 1);
+		} catch (const CANController::CANException&) {
+			GTEST_SKIP() << "CAN FD not supported on this interface";
+		}
+	}
 	
 	// Test 1: Send on uninitialized controller
 	{
@@ -527,7 +548,7 @@ TEST_F(CANControllerTest, Getters) {
 		int socket_before = can.getSocket();
 		
 		// Send some frames
-		int16_t data[2] = {50, 0};
+		int8_t data[2] = {50, 0};
 		can.sendFrame(0x100, data, 2);
 		can.sendFrame(0x200, data, 2);
 		

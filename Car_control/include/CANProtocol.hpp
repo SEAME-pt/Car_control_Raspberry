@@ -31,7 +31,7 @@ namespace CANProtocol {
 	 */
 	inline void sendEmergencyBrake(CANController& can, bool active) {
 
-		int16_t data = active ? 0xFF : 0x00;
+		int8_t data = active ? 0xF : 0x00;
 		can.sendFrame(CANID::EMERGENCY_BRAKE, &data, 1);
 	}
 
@@ -43,7 +43,10 @@ namespace CANProtocol {
 	 */
 	inline void sendThrottleCommand(CANController& can, int16_t throttle) {
 
-		can.sendFrame(CANID::COMMAND_THROTTLE, &throttle, sizeof(int16_t));
+		int8_t data[2];
+    	data[0] = static_cast<int8_t>(throttle & 0xFF);         // Low byte
+    	data[1] = static_cast<int8_t>((throttle >> 8) & 0xFF);  // High byte
+		can.sendFrame(CANID::COMMAND_THROTTLE, data, 2);
 	}
 
 	/**
@@ -54,6 +57,9 @@ namespace CANProtocol {
 	 */
 	inline void sendSteeringCommand(CANController& can, int16_t steering) {
 		
-		can.sendFrame(CANID::COMMAND_STEERING, &steering, sizeof(int16_t));
+		int8_t data[2];
+    	data[0] = static_cast<int8_t>(steering & 0xFF);         // Low byte
+    	data[1] = static_cast<int8_t>((steering >> 8) & 0xFF);  // High byte
+		can.sendFrame(CANID::COMMAND_STEERING, data, 2);
 	}
 }
