@@ -17,6 +17,10 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBEVDEV REQUIRED libevdev)
 
+# Find Qt6
+find_package(Qt6 COMPONENTS Core Network REQUIRED)
+set(CMAKE_AUTOMOC ON)
+
 # Include directories
 include_directories(${CMAKE_SOURCE_DIR}/include ${LIBEVDEV_INCLUDE_DIRS})
 
@@ -38,13 +42,16 @@ set(SOURCES
     #can
     srcs/can/socketCAN.c
     srcs/can/CANController.cpp
+    #communication
+    srcs/communication/CarDataSender.cpp
+    srcs/communication/CarDataSender.hpp
 )
 
 # Executable
 add_executable(car ${SOURCES})
 
 # Link libraries
-target_link_libraries(car PRIVATE ${LIBEVDEV_LIBRARIES})
+target_link_libraries(car PRIVATE ${LIBEVDEV_LIBRARIES} Qt6::Core Qt6::Network)
 
 # Summary
 message(STATUS "================================")
