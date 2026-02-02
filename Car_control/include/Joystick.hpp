@@ -39,7 +39,7 @@ class Joystick {
 		 * @brief Reads the steering value from the joystick (right axis, ABS_X).
 		 *
 		 * @param axis_code The axis code (e.g., ABS_X, ABS_Y, ABS_Z)
-		 * @return Clamped axis value (0–120 for steering, -100–100 for throttle, -100–100 for others), or -1 on error
+		 * @return Clamped axis value (0–180 for steering, -100–100 for throttle, -100–100 for others), or -1 on error
 		 */
 		int16_t	getAbs(int axis_code) const;
 
