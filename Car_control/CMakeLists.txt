@@ -24,9 +24,9 @@ include_directories(${CMAKE_SOURCE_DIR}/include ${LIBEVDEV_INCLUDE_DIRS})
 set(SOURCES
     srcs/main.cpp
     #utils
-    srcs/utils/parsing.cpp
+    srcs/utils/inputParsing.cpp
     srcs/utils/signal.cpp
-    srcs/utils/temp_print_can_rx.cpp
+    srcs/utils/canRxParsing.cpp
     #init
     srcs/init/init_can.cpp
     srcs/init/init.cpp
@@ -72,8 +72,8 @@ if(BUILD_TESTS)
     # Test source files (excluding main.cpp from main project)
     set(TEST_SOURCES
         srcs/utils/signal.cpp
-        srcs/utils/parsing.cpp
-        srcs/utils/temp_print_can_rx.cpp
+        srcs/utils/inputParsing.cpp
+        srcs/utils/canRxParsing.cpp
         #init
         srcs/init/init_can.cpp
         srcs/init/init.cpp
