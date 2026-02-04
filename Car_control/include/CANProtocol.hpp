@@ -77,7 +77,7 @@ namespace CANProtocol {
 		memset(&rx, 0, sizeof(can_frame));
 		
 		if (can.receiveFrame(&rx) == 0) {
-			if (rx.can_dlc >= 2) {	//&& rx.can_id == CANRECEIVERID::SPEEDRPMSTM32
+			if (rx.can_dlc >= 2 && rx.can_id == CANRECEIVERID::SPEEDRPMSTM32) {
 				uint16_t rpm = (rx.data[0] << 8) | rx.data[1];
 				return (rpmToSpeedMps(rpm));
 			} else
