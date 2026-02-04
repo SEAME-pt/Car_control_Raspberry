@@ -8,6 +8,8 @@ int	main(int argc, char *argv[]) {
 	if (carControl.exit)
 		return (1);
 
+	std::thread hbThread(heartbeatThread, carControl.can.get());
+
 	try {
 		if (!carControl.manual) {
 			std::cout << "Autonomous mode chosed, initiating ai..." << std::endl;
@@ -19,6 +21,11 @@ int	main(int argc, char *argv[]) {
 	} catch (const std::exception &err) {
 		std::cerr << err.what() << std::endl;
 	}
+
+	g_running.store(false);
+	if (hbThread.joinable())
+		hbThread.join();
+
 	try {
 		CANProtocol::sendEmergencyBrake(*carControl.can, true);
 	} catch (...) {

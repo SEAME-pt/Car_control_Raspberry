@@ -40,6 +40,9 @@
 #define R2_BUTTON		9
 #define START_BUTTON	11
 
+// Wheel values
+#define WHEEL_CIRCUMFERENCE_M	0.21
+
 /**
  * @struct s_carControl
  * @brief Aggregates all vehicle control objects and configuration.
@@ -123,12 +126,21 @@ void	signalManager();
 void	signalHandler(int signum);
 
 /**
- * @brief Reads available CAN frames from the bus.
+ * @brief Converts raw RPM into meters per second
  *
- * @param can Reference to initialized CANController
+ * @param can Reference raw RPM message received from stm32
  */
-void	readCan(const std::unique_ptr<CANController> &can);
+uint16_t	rpmToSpeedMps(uint16_t rpm);
 
+/**
+ * @brief Heartbeat thread function that sends periodic keep-alive signals.
+ *
+ * Runs independently of the main control loop, sending heartbeat messages
+ * every 100ms to indicate the Raspberry Pi is operational.
+ *
+ * @param can Pointer to CANController
+ */
+void	heartbeatThread(CANController* can);
 
 /**
  * @brief Global atomic flag controlling main loops.
