@@ -19,6 +19,7 @@ static QObject* carDataSingletonProvider(QQmlEngine *engine, QJSEngine *scriptEn
 
 int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
+    qDebug() << "App started";
     
     qmlRegisterSingletonType<Dashboard>("com.dashboard", 1, 0, "Dashboard", dashboardSingletonProvider);
     qmlRegisterSingletonType<CarDataController>("com.cardata", 1, 0, "CarData", carDataSingletonProvider);

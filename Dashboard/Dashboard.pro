@@ -8,4 +8,4 @@ RESOURCES += qml.qrc
 # QML_FILES += srcs/Main.qml
 
 # Set the target name
-TARGET = Dashboard
+TARGET = dashboard

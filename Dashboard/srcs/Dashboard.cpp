@@ -11,3 +11,7 @@ int Dashboard::height() const {
 int Dashboard::margin() const {
     return MARGIN;
 }
+
+int Dashboard::padding() const {
+	return PADDING;
+}

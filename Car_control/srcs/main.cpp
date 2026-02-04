@@ -3,11 +3,12 @@
 #include <QTimer>
 #include "communication/CarDataSender.hpp"
 
+CarDataSender *sender;
 int	main(int argc, char *argv[]) {
 	QCoreApplication app(argc, argv);
 
 	// Create the data sender (server listening on port 8888)
-	CarDataSender *sender = new CarDataSender(8888);
+	sender = new CarDataSender(8888);
 
 	// Timer to update and send data periodically
 	QTimer *updateTimer = new QTimer();
