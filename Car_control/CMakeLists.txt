@@ -32,6 +32,7 @@ set(SOURCES
     srcs/init/init.cpp
     #core
     srcs/core/autonomous_mode.cpp
+	srcs/core/heartbeat.cpp
     srcs/core/manual_mode.cpp
     #controller
     srcs/controller/Joystick.cpp

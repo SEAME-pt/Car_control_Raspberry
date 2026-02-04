@@ -69,6 +69,8 @@ void	CANController::cleanup() {
 void	CANController::sendFrame(uint16_t can_id, 
 			const int8_t* data, uint8_t len) {
 
+	std::lock_guard<std::mutex> lock(_mutex);
+
 	if (!_initialized)
 		throw CANException("CAN not initialized");
 	
@@ -82,6 +84,8 @@ void	CANController::sendFrame(uint16_t can_id,
 void	CANController::sendFrameFD(uint16_t can_id, 
 			const int16_t* data, uint8_t len) {
 
+	std::lock_guard<std::mutex> lock(_mutex);
+
 	if (!_initialized)
 		throw CANException("CAN not initialized");
 
@@ -94,10 +98,12 @@ void	CANController::sendFrameFD(uint16_t can_id,
 // Reads incoming can messages present on the class socket
 int		CANController::receiveFrame(struct can_frame *frame) {
 
+	std::lock_guard<std::mutex> lock(_mutex);
 	return (can_try_receive(_socket, frame));
 }
 
 int		CANController::receiveFrameFD(struct canfd_frame *frame) {
 
+	std::lock_guard<std::mutex> lock(_mutex);
 	return (canfd_try_receive(_socket, frame));
 }
