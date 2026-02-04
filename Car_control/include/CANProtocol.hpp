@@ -81,7 +81,7 @@ namespace CANProtocol {
 				uint16_t rpm = (rx.data[0] << 8) | rx.data[1];
 				return (rpmToSpeedMps(rpm));
 			} else
-				std::cout << "boi" << std::endl; 
+				return (-1);
 		}
 		return (0);
 	}

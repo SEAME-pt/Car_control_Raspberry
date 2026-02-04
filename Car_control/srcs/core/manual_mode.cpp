@@ -39,6 +39,7 @@ void	manualLoop(t_carControl *carControl) {
     		counter = 0;
 		}
 		last_throttle = throttle;
-		CANProtocol::receiveSpeedValues(*carControl->can);
+		if (!CANProtocol::receiveSpeedValues(*carControl->can))
+			std::cout << "Unkown message received! Ignoring...\n"; 
 	}
 }
