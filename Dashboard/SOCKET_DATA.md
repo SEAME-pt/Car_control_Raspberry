@@ -63,7 +63,6 @@ Each message consists of multiple field-value pairs serialized sequentially:
 | `speed`        | `qint32`  | Current vehicle speed                | km/h            |
 | `speedLimit`   | `qint32`  | Speed limit setting                  | km/h            |
 | `batteryLevel` | `qint32`  | Battery charge percentage            | 0-100 %         |
-
 | `batteryRange` | `qint32`  | Estimated remaining range            | km              |
 | `motorActive`  | `bool`    | Motor state (on/off)                 | true/false      |
 | `motorPower`   | `qint32`  | Motor power output                   | 0-100 %         |
@@ -127,12 +126,6 @@ void CarDataSender::sendData() {
     }
 }
 ```
-
-**Key Features**:
-- Broadcasts to multiple clients simultaneously
-- Automatic client connection management
-- 500ms update interval (configurable via timer)
-- Graceful handling of client disconnections
 
 ### Receiving End (Dashboard)
 
@@ -382,12 +375,6 @@ The protocol maintains backward compatibility:
 - **Update Rate**: 500ms provides smooth updates without excessive bandwidth
 - **Data Size**: Typical message size ~200-300 bytes
 - **Network Overhead**: Minimal due to binary serialization
-
-## Security Considerations
-
-- **Local Network Only**: Default configuration (127.0.0.1) restricts to localhost
-- **No Authentication**: Current implementation has no authentication mechanism
-- **Production Use**: Consider adding TLS encryption and authentication for production deployment
 
 ## Troubleshooting
 
