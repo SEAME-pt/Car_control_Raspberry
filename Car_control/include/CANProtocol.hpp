@@ -72,31 +72,13 @@ namespace CANProtocol {
 		can.sendFrame(CANSENDID::COMMAND_STEERING, data, 2);
 	}
 
-	inline uint16_t	receiveSpeedValues(CANController& can) {
-
-		can_frame	rx;
-		memset(&rx, 0, sizeof(can_frame));
-		
-		if (can.receiveFrame(&rx) == 0) {
-			if (rx.can_dlc >= 2 && rx.can_id == CANRECEIVERID::SPEEDRPMSTM32) {
-				uint16_t rpm = (rx.data[0] << 8) | rx.data[1];
-				return (rpmToSpeedMps(rpm));
-			} else if (rx.can_id == CANRECEIVERID::HEARTBEAT_STM)
-				std::cout << "HeartBeat received, YOU ARE ALIVE!" << std::endl;
-			else	
-				return (-1);
-		}
-		return (0);
-	}
-
 	/**
-	 * @brief Sends a heartbeat signal over CAN.
-	 *
-	 * @param can Reference to an initialized CANController
-	 */
-	inline void sendHeartbeat(CANController& can) {
-
-    	int8_t data = 0xAA;  // Heartbeat signature
-    	can.sendFrame(CANSENDID::HEARTBEAT_RASP, &data, 1);
-	}
+     * @brief Sends a heartbeat signal over CAN.
+     *
+     * @param can Reference to an initialized CANController
+     */
+    inline void sendHeartbeat(CANController& can) {
+        int8_t data = 0xAA;  // Heartbeat signature
+        can.sendFrame(CANSENDID::HEARTBEAT_RASP, &data, 1);
+    }
 }

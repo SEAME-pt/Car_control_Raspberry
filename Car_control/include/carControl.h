@@ -59,6 +59,16 @@ typedef struct s_carControl {
 } t_carControl;
 
 /**
+ * @struct s_heartbeatMonitor
+ * @brief Monitors STM32 status via speed sensor messages
+ */
+typedef struct s_heartbeatMonitor {
+    std::atomic<std::chrono::steady_clock::time_point> lastSpeedMessage;
+    std::atomic<bool>	stm32Alive;
+    CANController*		can;
+} t_heartbeatMonitor;
+
+/**
  * @brief Initialize a CAN controller instance.
  *
  * @param interface CAN interface name (e.g., "can0")
@@ -93,7 +103,7 @@ t_carControl	initCarControl(int argc, char *argv[]);
  * @return 1 if parsing successful, 0 if exit requested
  */
 int	parsingArgv(int argc, char *argv[],
-				                    t_carControl *carControl);
+		t_carControl *carControl);
 
 /**
  * @brief Main loop for manual joystick control.
