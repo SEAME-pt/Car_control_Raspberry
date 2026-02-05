@@ -2,6 +2,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QDebug>
+#include <QSettings>
+#include <QtMath>
 
 CarDataController::CarDataController(QObject *parent)
     : QObject(parent)
@@ -17,6 +19,8 @@ CarDataController::CarDataController(QObject *parent)
     , m_batteryRange(267)
     , m_motorActive(false)
     , m_motorPower(0)
+    , m_temperature(20.0)
+    , m_totalDistance(0.0)
     , m_showError(false)
     , m_errorMessage("")
 {
@@ -33,6 +37,10 @@ CarDataController::CarDataController(QObject *parent)
     
     // Auto-connect on startup
     QTimer::singleShot(500, this, &CarDataController::connectToServer);
+
+    // Load persisted settings
+    QSettings settings;
+    m_distanceUnit = settings.value("settings/distanceUnit", "Km").toString();
 }
 
 CarDataController::~CarDataController() {
@@ -55,14 +63,63 @@ void CarDataController::setServerPort(int port) {
     }
 }
 
+void CarDataController::setDistanceUnit(const QString &unit) {
+    if (m_distanceUnit != unit) {
+        m_distanceUnit = unit;
+        QSettings settings;
+        settings.setValue("settings/distanceUnit", m_distanceUnit);
+        emit distanceUnitChanged();
+    }
+        // Always notify speed and speed limit changed so UI can refresh display
+        emit speedChanged();
+        emit speedLimitChanged();
+}
+
+void CarDataController::setTemperatureUnit(const QString &unit) {
+    if (m_temperatureUnit != unit) {
+        m_temperatureUnit = unit;
+        QSettings settings;
+        settings.setValue("settings/temperatureUnit", m_temperatureUnit);
+        emit temperatureUnitChanged();
+    }
+        // Always notify temperature changed so UI can refresh display
+        emit temperatureChanged();
+}
+
+int CarDataController::speed() const {
+    if (m_distanceUnit.toLower() == "miles") {
+        return qRound(m_speed * 0.621371);
+    }
+    return m_speed;
+}
+
+int CarDataController::speedLimit() const {
+    if (m_distanceUnit.toLower() == "miles") {
+        return qRound(m_speedLimit * 0.621371);
+    }
+    return m_speedLimit;
+}
+
+double CarDataController::totalDistance() const {
+    if (m_distanceUnit.toLower() == "miles") {
+        return m_totalDistance * 0.621371;
+    }
+    return m_totalDistance;
+}
+
+double CarDataController::temperature() const {
+    if (m_temperatureUnit.toLower() == "fahrenheit") {
+        return (m_temperature * 9.0 / 5.0) + 32.0;
+    }
+    return m_temperature;
+}
+
 void CarDataController::connectToServer() {
     if (m_socket->state() == QAbstractSocket::ConnectedState ||
         m_socket->state() == QAbstractSocket::ConnectingState) {
-        qDebug() << "Already connected or connecting";
         return;
     }
     
-    qDebug() << "Connecting to" << m_serverAddress << ":" << m_serverPort;
     m_socket->connectToHost(m_serverAddress, m_serverPort);
 }
 
@@ -79,14 +136,12 @@ void CarDataController::reconnect() {
 }
 
 void CarDataController::onConnected() {
-    qDebug() << "Connected to car data server";
     m_isConnected = true;
     m_reconnectTimer->stop();
     emit connectionChanged();
 }
 
 void CarDataController::onDisconnected() {
-    qDebug() << "Disconnected from car data server";
     m_isConnected = false;
     emit connectionChanged();
      
@@ -116,10 +171,6 @@ void CarDataController::onReadyRead() {
             qint32 value;
             in >> value;
             updateBatteryLevel(value);
-        } else if (field == "batteryVoltage") {
-            qint32 value;
-            in >> value;
-            updateBatteryVoltage(value);
         } else if (field == "batteryRange") {
             qint32 value;
             in >> value;
@@ -132,6 +183,14 @@ void CarDataController::onReadyRead() {
             qint32 value;
             in >> value;
             updateMotorPower(value);
+        } else if (field == "temperature") {
+            double value;
+            in >> value;
+            updateTemperature(value);
+        } else if (field == "totalDistance") {
+            double value;
+            in >> value;
+            updateTotalDistance(value);
         } else if (field == "showError") {
             bool value;
             in >> value;
@@ -141,7 +200,6 @@ void CarDataController::onReadyRead() {
             in >> value;
             updateErrorMessage(value);
         }
-        
         if (in.status() != QDataStream::Ok) {
             qWarning() << "Error reading data stream";
             break;
@@ -166,7 +224,6 @@ void CarDataController::onError(QAbstractSocket::SocketError error) {
 }
 
 void CarDataController::attemptReconnect() {
-    qDebug() << "Attempting to reconnect...";
     connectToServer();
 }
 
@@ -191,13 +248,6 @@ void CarDataController::updateBatteryLevel(int value) {
     }
 }
 
-void CarDataController::updateBatteryVoltage(int value) {
-    if (m_batteryVoltage != value) {
-        m_batteryVoltage = value;
-        emit batteryVoltageChanged();
-    }
-}
-
 void CarDataController::updateBatteryRange(int value) {
     if (m_batteryRange != value) {
         m_batteryRange = value;
@@ -216,6 +266,20 @@ void CarDataController::updateMotorPower(int value) {
     if (m_motorPower != value) {
         m_motorPower = value;
         emit motorPowerChanged();
+    }
+}
+
+void CarDataController::updateTemperature(double value) {
+    if (m_temperature != value) {
+        m_temperature = value;
+        emit temperatureChanged();
+    }
+}
+
+void CarDataController::updateTotalDistance(double value) {
+    if (m_totalDistance != value) {
+        m_totalDistance = value;
+        emit totalDistanceChanged();
     }
 }
 

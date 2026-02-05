@@ -4,13 +4,15 @@ import com.dashboard 1.0
 import com.cardata 1.0
 import "CenterDisplay"
 import "LeftDisplay"
+import "RightDisplay"
 import "ErrorDisplay"
+import "TopRow"
 
 Window {
     visible: true
+    height: Dashboard.height
+    width: Dashboard.width
     title: qsTr("SimpleQt QML Window")
-	flags: Qt.FramelessWindowHint
-	visibility: Window.FullScreen
     color: "#131313"
 
     // Error state - local properties that update from signals
@@ -33,12 +35,8 @@ Window {
     }
 
     Component.onCompleted: {
-        console.log("Window created and visible")
-        console.log("Initial showError:", CarData.showError)
-        console.log("Initial errorMessage:", CarData.errorMessage)
         showError = CarData.showError
         errorMessage = CarData.errorMessage
-        currentTime = new Date().toLocaleTimeString(Qt.locale(), "hh:mm")
     }
 
     FontLoader {
@@ -47,16 +45,6 @@ Window {
         source: "qrc:/fonts/VWTextRegular.otf"
     }
 
-    // Property to hold current time
-    property string currentTime: ""
-
-    // Timer to update time every second
-    Timer {
-        interval: 1000
-        running: true
-        repeat: true
-        onTriggered: currentTime = new Date().toLocaleTimeString(Qt.locale(), "hh:mm")
-    }
 
     // 3x3 Grid Example
 
@@ -64,74 +52,60 @@ Window {
         id: gridContainer
 
         // Row heights
-        property real topRowHeight: gridContainer.height * 0.075
-        property real centerRowHeight: gridContainer.height * 0.825
-        property real bottomRowHeight: gridContainer.height * 0.10
+        property real topRowHeight: gridContainer.height * Dashboard.topHeight
+        property real centerRowHeight: gridContainer.height * Dashboard.centerHeight
+        property real bottomRowHeight: gridContainer.height * Dashboard.bottomHeight
         // Column width
-        property real leftColWidth: gridContainer.width * 0.30
-        property real centerColWidth: gridContainer.width * 0.40
-        property real rightColWidth: gridContainer.width * 0.30
+        property real leftColWidth: gridContainer.width * Dashboard.leftWidth
+        property real centerColWidth: gridContainer.width * Dashboard.centerWidth
+        property real rightColWidth: gridContainer.width * Dashboard.rightWidth
+        // Start Height
+        property real topStartY: 0
+        property real centerStartY: topRowHeight + (Dashboard.padding_y * gridContainer.height)
+        property real bottomStartY: topRowHeight + centerRowHeight
+        // Start Width
+        property real leftStartX: 0
+        property real centerStartX: leftColWidth + (Dashboard.padding_x * gridContainer.width)
+        property real rightStartX: centerStartX + centerColWidth + (Dashboard.padding_x * gridContainer.width)
 
         anchors.fill: parent
         anchors.margins: Dashboard.margin
 
-		// Top Row - Left Column
-		Rectangle {
-		    x: 0
-		    y: 0
-		    width: gridContainer.leftColWidth
-		    height: gridContainer.topRowHeight
-			color: "#131313"
-		    Text {
-		        text: currentTime
-		        color: "#F9F9F9"
-		        font.pixelSize: Math.min(parent.width * 0.3, parent.height * 0.8)  // Scale font size relative to cell size
-		        font.family: vwHeadFont.name
-		        font.bold: true
-		        anchors.centerIn: parent  // Center both horizontally and vertically
-		    }
-		}
-		// Top Row - Center Column
-		Rectangle {
-			x: gridContainer.leftColWidth
-            y: 0
-            width: gridContainer.centerColWidth
-            height: gridContainer.topRowHeight
-            color: "#00FF00"
-		}
-		// Top Row - Center Column
-		Rectangle {
-			x: gridContainer.leftColWidth + gridContainer.centerColWidth
-            y: 0
-            width: gridContainer.rightColWidth
-            height: gridContainer.topRowHeight
-            color: "#0000FF"
-		}
+        TopRow {
+            leftColWidth: gridContainer.leftColWidth
+            centerColWidth: gridContainer.centerColWidth
+            rightColWidth: gridContainer.rightColWidth
+            topRowHeight: gridContainer.topRowHeight
+            topStartY: gridContainer.topStartY
+            fontFamily: vwHeadFont.name
+            leftStartX: gridContainer.leftStartX
+            centerStartX: gridContainer.centerStartX
+            rightStartX: gridContainer.rightStartX
+        }
 
         // Center Row - Left Column
         LeftDisplay {
-            x: 0
-            y: gridContainer.topRowHeight
+            x: gridContainer.leftStartX
+            y: gridContainer.centerStartY
             width: gridContainer.leftColWidth
             height: gridContainer.centerRowHeight
         }
 
         // Center Row - Center Column
         CenterDisplay {
-            x: gridContainer.leftColWidth
-            y: gridContainer.topRowHeight
+            x: gridContainer.centerStartX
+            y: gridContainer.centerStartY
             width: gridContainer.centerColWidth
             height: gridContainer.centerRowHeight
         }
 
 
-        // Center Row - Left Column
-        Rectangle {
-            x: gridContainer.leftColWidth + gridContainer.centerColWidth
-            y: gridContainer.topRowHeight
+        // Center Row - right Column
+        RightDisplay {
+            x: gridContainer.rightStartX
+            y: gridContainer.centerStartY
             width: gridContainer.rightColWidth
             height: gridContainer.centerRowHeight
-            color: "#FFE66D"
         }
 
     }

@@ -14,10 +14,13 @@ CarDataSender::CarDataSender(quint16 port, QObject *parent)
       speed(0),
       speedLimit(120),
       batteryLevel(100),
-      batteryVoltage(48),
       batteryRange(300),
       motorActive(false),
-      motorPower(0) {
+      motorPower(0),
+      temperature(20.0),
+      totalDistance(0.0),
+      showError(false),
+      errorMessage("") {
 
     connect(server, &QTcpServer::newConnection, this, &CarDataSender::onNewConnection);
 
@@ -60,10 +63,13 @@ void CarDataSender::sendData() {
     out << QString("speed") << (qint32)speed;
     out << QString("speedLimit") << (qint32)speedLimit;
     out << QString("batteryLevel") << (qint32)batteryLevel;
-    out << QString("batteryVoltage") << (qint32)batteryVoltage;
     out << QString("batteryRange") << (qint32)batteryRange;
     out << QString("motorActive") << motorActive;
     out << QString("motorPower") << (qint32)motorPower;
+    out << QString("temperature") << temperature;
+    out << QString("totalDistance") << totalDistance;
+    out << QString("showError") << showError;
+    out << QString("errorMessage") << errorMessage;
 
     // Send to all connected clients
     for (QTcpSocket *client : clients) {
@@ -74,12 +80,58 @@ void CarDataSender::sendData() {
     }
 }
 
-void CarDataSender::updateData(int speed, int speedLimit, int batteryLevel, int batteryVoltage, int batteryRange, bool motorActive, int motorPower) {
+void CarDataSender::updateData(int speed, int speedLimit, int batteryLevel, int batteryRange, 
+                              bool motorActive, int motorPower, double temperature, 
+                              double totalDistance, bool showError, 
+                              const QString &errorMessage) {
     this->speed = speed;
     this->speedLimit = speedLimit;
     this->batteryLevel = batteryLevel;
-    this->batteryVoltage = batteryVoltage;
     this->batteryRange = batteryRange;
     this->motorActive = motorActive;
     this->motorPower = motorPower;
+    this->temperature = temperature;
+    this->totalDistance = totalDistance;
+    this->showError = showError;
+    this->errorMessage = errorMessage;
+}
+
+void CarDataSender::updateSpeed(int value) {
+    this->speed = value;
+}
+
+void CarDataSender::updateSpeedLimit(int value) {
+    this->speedLimit = value;
+}
+
+void CarDataSender::updateBatteryLevel(int value) {
+    this->batteryLevel = value;
+}
+
+void CarDataSender::updateBatteryRange(int value) {
+    this->batteryRange = value;
+}
+
+void CarDataSender::updateMotorActive(bool value) {
+    this->motorActive = value;
+}
+
+void CarDataSender::updateMotorPower(int value) {
+    this->motorPower = value;
+}
+
+void CarDataSender::updateTemperature(double value) {
+    this->temperature = value;
+}
+
+void CarDataSender::updateTotalDistance(double value) {
+    this->totalDistance = value;
+}
+
+void CarDataSender::updateShowError(bool value) {
+    this->showError = value;
+}
+
+void CarDataSender::updateErrorMessage(const QString &value) {
+    this->errorMessage = value;
 }

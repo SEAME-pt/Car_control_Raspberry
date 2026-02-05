@@ -42,6 +42,10 @@ class QtDataStreamWriter:
         """Write bool in QDataStream format"""
         self.buffer.extend(struct.pack('B', 1 if value else 0))
     
+    def write_double(self, value):
+        """Write double in QDataStream format"""
+        self.buffer.extend(struct.pack('>d', value))
+    
     def flush(self):
         """Send all buffered data"""
         self.sock.sendall(bytes(self.buffer))
@@ -50,13 +54,15 @@ class QtDataStreamWriter:
 def send_random_data(writer):
     """Send random car data"""
     # Randomize values
-    speed = random.randint(0, 180)
+    speed = 90
     speed_limit = random.choice([30, 50, 80, 120])
     battery_level = random.randint(20, 100)
     battery_voltage = random.randint(44, 52)
     battery_range = random.randint(50, 400)
     motor_active = random.choice([True, False])
     motor_power = random.randint(0, 100) if motor_active else 0
+    temperature = random.uniform(20.0, 100.0)  # Temperature in Celsius
+    total_km = 90000
     
     # Send all fields
     writer.write_string("speed")
@@ -68,9 +74,6 @@ def send_random_data(writer):
     writer.write_string("batteryLevel")
     writer.write_int32(battery_level)
     
-    writer.write_string("batteryVoltage")
-    writer.write_int32(battery_voltage)
-    
     writer.write_string("batteryRange")
     writer.write_int32(battery_range)
     
@@ -80,10 +83,16 @@ def send_random_data(writer):
     writer.write_string("motorPower")
     writer.write_int32(motor_power)
     
+    writer.write_string("temperature")
+    writer.write_double(temperature)
+    
+    writer.write_string("totalDistance")
+    writer.write_double(total_km)
+    
     # Flush all data at once
     writer.flush()
     
-    print(f"Sent: Speed={speed}, Battery={battery_level}%, Motor={'ON' if motor_active else 'OFF'}")
+    print(f"Sent: Speed={speed}, Battery={battery_level}%, Motor={'ON' if motor_active else 'OFF'}, Temp={temperature:.1f}°C, KM={total_km:.1f}")
 
 def send_error(writer, show_error, message=""):
     """Send error state"""

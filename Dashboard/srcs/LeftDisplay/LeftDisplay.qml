@@ -1,4 +1,4 @@
-import QtQuick 2.15
+import QtQuick
 
 Rectangle {
     id: leftDisplay
@@ -8,7 +8,9 @@ Rectangle {
 
     Item {
         id: roadContainer
-        anchors.fill: parent
+        height: parent.height * 0.875
+        width: parent.width
+        anchors.horizontalCenter: parent.horizontalCenter
 
         // Grid canvas (behind)
         GridCanvas {
@@ -29,6 +31,12 @@ Rectangle {
             anchors.bottomMargin: parent.height * 0.01
             fillMode: Image.PreserveAspectFit
             smooth: true
+        }
+        Rectangle {
+            width: parent.width
+            height: 2
+            color: "#6a6a6a"
+            y: parent.height
         }
     }
 }

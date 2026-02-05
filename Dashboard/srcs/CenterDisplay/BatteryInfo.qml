@@ -1,4 +1,4 @@
-import QtQuick 2.15
+import QtQuick
 import com.cardata 1.0
 
 Row {
@@ -80,7 +80,7 @@ Row {
         }
 
         Text {
-            text: "km"
+            text: CarData.distanceUnit
             color: "white"
             font.pixelSize: batteryInfo.baseFontSize
             font.family: vwHeadFont.name

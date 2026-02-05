@@ -1,4 +1,4 @@
-import QtQuick 2.15
+import QtQuick
 import com.cardata 1.0
 
 Column {
@@ -7,7 +7,7 @@ Column {
     spacing: centerDisplay.height * -0.05
 
     Text {
-        text: "km/h"
+        text: CarData.distanceUnit === "Km" ? "KM/H" : "MPH"
         color: "#F9F9F9"
         font.pixelSize: centerDisplay.height * 0.08
         font.family: vwHeadFont.name

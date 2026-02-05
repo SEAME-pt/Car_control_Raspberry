@@ -1,6 +1,10 @@
 <RCC>
     <qresource prefix="/">
         <file>srcs/Main.qml</file>
+        <file>srcs/TopRow/TopRow.qml</file>
+        <file>srcs/TopRow/TopLeft.qml</file>
+        <file>srcs/TopRow/TopCenter.qml</file>
+        <file>srcs/TopRow/TopRight.qml</file>
         <file>srcs/CenterDisplay/CenterDisplay.qml</file>
         <file>srcs/CenterDisplay/MotorState.qml</file>
         <file>srcs/CenterDisplay/BatteryInfo.qml</file>
@@ -9,6 +13,8 @@
         <file>srcs/LeftDisplay/LeftDisplay.qml</file>
         <file>srcs/LeftDisplay/GridCanvas.qml</file>
         <file>srcs/LeftDisplay/RoadCanvas.qml</file>
+        <file>srcs/RightDisplay/RightDisplay.qml</file>
+        <file>srcs/RightDisplay/Settings.qml</file>
         <file>srcs/ErrorDisplay/ErrorOverlay.qml</file>
         <file>assets/battery.svg</file>
         <file>assets/car.svg</file>

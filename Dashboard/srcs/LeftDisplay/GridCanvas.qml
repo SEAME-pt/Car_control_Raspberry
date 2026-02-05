@@ -1,4 +1,4 @@
-import QtQuick 6.2
+import QtQuick
 
 Canvas {
     id: gridCanvas

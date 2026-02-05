@@ -1,274 +1,424 @@
-# Socket-Based Real-Time Data Updates
+# Socket Communication Protocol - QDataStream Implementation
 
 ## Overview
-The dashboard now receives real-time updates via TCP socket connection. Car data like speed, battery level, motor state, and more are streamed from a server.
 
-## Features
-- 🔌 TCP socket connection to data server
-- 🔄 Auto-reconnect on connection loss
-- 📊 Real-time updates for:
-  - Speed (km/h)
-  - Speed limit
-  - Battery level (%)
-  - Battery voltage (V)
-  - Motor active state
-  - Motor power (%)
-- 🎨 Visual feedback for connection status
-- ⚡ Smooth animations for changing values
+This document describes the TCP/IP socket communication protocol used between the **Car_control** (transmitting end) and **Dashboard** (receiving end) applications. The communication uses Qt's `QDataStream` for binary serialization, providing efficient and type-safe data transmission.
 
-## Quick Start
+## Architecture
 
-### 1. Start the Test Server
+### Car_control (Transmitting End)
+- **Component**: `CarDataSender` class
+- **Location**: `/Car_control/srcs/communication/`
+- **Role**: TCP Server that broadcasts car telemetry data to connected clients
+- **Port**: 8888 (default)
+- **Protocol**: Qt Binary Protocol using `QDataStream`
 
-A Python test server is included that generates realistic car data:
+### Dashboard (Receiving End)
+- **Component**: `CarDataController` class
+- **Location**: `/Dashboard/srcs/` and `/Dashboard/incs/`
+- **Role**: TCP Client that receives and processes car telemetry data
+- **Protocol**: Qt Binary Protocol using `QDataStream`
 
-```bash
-cd /home/afogonca/seame/Car_control_Raspberry/SimpleQt
-chmod +x car_data_server.py
-python3 car_data_server.py
+## Connection Details
+
+### Server (Car_control)
+```cpp
+// Server configuration
+QTcpServer listening on: 0.0.0.0:8888 (any interface)
+Update frequency: 500ms (2 Hz)
+Protocol: QDataStream Qt_5_15
 ```
 
-The server will:
-- Listen on `127.0.0.1:8888`
-- Generate dynamic speed, battery, and motor data
-- Send JSON updates every 500ms
-- Automatically handle client reconnections
-
-### 2. Run the Dashboard
-
-In another terminal:
-
-```bash
-cd build
-qmake .. && make && ./SimpleQt
+### Client (Dashboard)
+```cpp
+// Client configuration
+Server address: 127.0.0.1 (configurable)
+Server port: 8888 (configurable)
+Auto-reconnect: Every 5 seconds on disconnect
+Protocol: QDataStream Qt_5_15
 ```
 
-The dashboard will automatically connect to the server on startup.
+## Data Format
 
-## Data Protocol
-
-### Message Format
-
-Messages are newline-delimited JSON sent over TCP:
-
-```json
-{
-  "speed": 65,
-  "speedLimit": 120,
-  "batteryLevel": 85,
-  "batteryVoltage": 48,
-  "motorActive": true,
-  "motorPower": 54
-}
+### QDataStream Configuration
+Both ends use:
+```cpp
+QDataStream::setVersion(QDataStream::Qt_5_15);
 ```
 
-### Field Descriptions
+This ensures compatibility and consistent serialization across Qt versions.
 
-| Field | Type | Range | Description |
-|-------|------|-------|-------------|
-| `speed` | int | 0-200 | Current speed in km/h |
-| `speedLimit` | int | 30-120 | Current speed limit in km/h |
-| `batteryLevel` | int | 0-100 | Battery percentage |
-| `batteryVoltage` | int | 0-60 | Battery voltage in V |
-| `motorActive` | bool | true/false | Whether motor is running |
-| `motorPower` | int | 0-100 | Motor power percentage |
+### Message Structure
 
-### Protocol Details
+Each message consists of multiple field-value pairs serialized sequentially:
 
-- **Transport**: TCP
-- **Encoding**: UTF-8
-- **Delimiter**: Newline (`\n`)
-- **Format**: JSON
-- **Update Rate**: Configurable (default: 500ms)
-
-## Configuration
-
-### Change Server Address/Port
-
-You can configure the connection in QML:
-
-```qml
-// In Main.qml or any component
-Component.onCompleted: {
-    CarData.serverAddress = "192.168.1.100"
-    CarData.serverPort = 9999
-    CarData.reconnect()
-}
+```
+[field_name (QString)][value (Type)] [field_name (QString)][value (Type)] ...
 ```
 
-Or directly from C++ before engine loads.
+### Field Definitions
 
-### Connection Properties
+| Field Name      | C++ Type  | Description                          | Unit/Range      |
+|----------------|-----------|--------------------------------------|-----------------|
+| `speed`        | `qint32`  | Current vehicle speed                | km/h            |
+| `speedLimit`   | `qint32`  | Speed limit setting                  | km/h            |
+| `batteryLevel` | `qint32`  | Battery charge percentage            | 0-100 %         |
 
-The `CarData` singleton exposes:
+| `batteryRange` | `qint32`  | Estimated remaining range            | km              |
+| `motorActive`  | `bool`    | Motor state (on/off)                 | true/false      |
+| `motorPower`   | `qint32`  | Motor power output                   | 0-100 %         |
+| `temperature`  | `double`  | System temperature (optional)        | °C              |
+| `totalDistance` | `double` | Total distance traveled (optional)   | km              |
+| `showError`    | `bool`    | Error display flag (optional)        | true/false      |
+| `errorMessage` | `QString` | Error message text (optional)        | UTF-8 string    |
 
-```qml
-CarData.serverAddress    // String: Server IP/hostname
-CarData.serverPort       // int: Server port
-CarData.isConnected      // bool: Connection status
+## Implementation Details
+
+### Transmitting End (Car_control)
+
+#### CarDataSender Class
+
+**Header**: `Car_control/srcs/communication/CarDataSender.hpp`
+
+```cpp
+class CarDataSender : public QObject {
+    Q_OBJECT
+public:
+    CarDataSender(quint16 port, QObject *parent = nullptr);
+    void updateData(int speed, int speedLimit, int batteryLevel, 
+                   int batteryRange, bool motorActive, int motorPower);
+private:
+    QTcpServer *server;
+    QList<QTcpSocket*> clients;
+    QTimer *timer;
+    // Data members...
+};
 ```
 
-### Methods
+**Implementation**: `Car_control/srcs/communication/CarDataSender.cpp`
 
-```qml
-CarData.connectToServer()    // Initiate connection
-CarData.disconnectFromServer() // Close connection
-CarData.reconnect()          // Reconnect
-```
+#### Data Transmission Logic
 
-## Visual Indicators
+```cpp
+void CarDataSender::sendData() {
+    if (clients.isEmpty()) {
+        return;
+    }
 
-The dashboard provides visual feedback:
+    // Prepare data using QDataStream
+    QByteArray data;
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
 
-### Speed Display
-- Shows current speed from `CarData.speed`
-- "PARK" (red) when speed = 0
-- "DRIVE" (green) when speed > 0
+    // Serialize field-value pairs
+    out << QString("speed") << (qint32)speed;
+    out << QString("speedLimit") << (qint32)speedLimit;
+    out << QString("batteryLevel") << (qint32)batteryLevel;
+    out << QString("batteryRange") << (qint32)batteryRange;
+    out << QString("motorActive") << motorActive;
+    out << QString("motorPower") << (qint32)motorPower;
 
-### Battery Display
-- Percentage from `CarData.batteryLevel`
-- Visual battery fill indicator
-- Voltage from `CarData.batteryVoltage`
-- Red color when battery < 20%
-
-### Motor State
-- Green bar when motor active
-- Gray when inactive
-- Fill width represents motor power
-
-### Speed Limit
-- Updates from `CarData.speedLimit`
-- Red border speed sign
-
-## Integration with Your System
-
-### Arduino/Raspberry Pi Integration
-
-If you have sensors or CAN bus data:
-
-```python
-import socket
-import json
-
-def send_data(speed, battery, voltage):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(('127.0.0.1', 8888))
-    
-    while True:
-        data = {
-            "speed": read_speed_sensor(),
-            "batteryLevel": read_battery_level(),
-            "batteryVoltage": read_voltage(),
-            "motorActive": is_motor_running(),
-            "motorPower": get_motor_power()
+    // Send to all connected clients
+    for (QTcpSocket *client : clients) {
+        if (client->state() == QAbstractSocket::ConnectedState) {
+            client->write(data);
+            client->flush();
         }
-        sock.sendall((json.dumps(data) + '\n').encode())
-        time.sleep(0.1)
+    }
+}
 ```
 
-### CAN Bus Integration
+**Key Features**:
+- Broadcasts to multiple clients simultaneously
+- Automatic client connection management
+- 500ms update interval (configurable via timer)
+- Graceful handling of client disconnections
 
-For real car data via CAN bus:
+### Receiving End (Dashboard)
 
-```python
-import can
-import socket
-import json
+#### CarDataController Class
 
-def can_to_dashboard():
-    bus = can.interface.Bus(channel='can0', bustype='socketcan')
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(('127.0.0.1', 8888))
+**Header**: `Dashboard/incs/CarDataController.hpp`
+
+```cpp
+class CarDataController : public QObject {
+    Q_OBJECT
+    // Q_PROPERTY declarations for QML binding...
+public:
+    explicit CarDataController(QObject *parent = nullptr);
+    // Getters for all data fields...
     
-    for msg in bus:
-        if msg.arbitration_id == 0x123:  # Speed message
-            speed = int.from_bytes(msg.data[0:2], 'big')
-            # Parse other data...
-            
-            data = {"speed": speed, ...}
-            sock.sendall((json.dumps(data) + '\n').encode())
+public slots:
+    void connectToServer();
+    void disconnectFromServer();
+    void reconnect();
+    
+private slots:
+    void onReadyRead();
+    // Other connection management slots...
+    
+private:
+    QTcpSocket *m_socket;
+    QTimer *m_reconnectTimer;
+    // Data members...
+};
 ```
+
+**Implementation**: `Dashboard/srcs/CarDataController.cpp`
+
+#### Data Reception Logic
+
+```cpp
+void CarDataController::onReadyRead() {
+    // Read data using QDataStream
+    QDataStream in(m_socket);
+    in.setVersion(QDataStream::Qt_5_15);
+    
+    while (m_socket->bytesAvailable() > 0) {
+        // Read field identifier
+        QString field;
+        in >> field;
+        
+        // Parse based on field name
+        if (field == "speed") {
+            qint32 value;
+            in >> value;
+            updateSpeed(value);
+        } else if (field == "speedLimit") {
+            qint32 value;
+            in >> value;
+            updateSpeedLimit(value);
+        } else if (field == "batteryLevel") {
+            qint32 value;
+            in >> value;
+            updateBatteryLevel(value);
+        } else if (field == "batteryRange") {
+            qint32 value;
+            in >> value;
+            updateBatteryRange(value);
+        } else if (field == "motorActive") {
+            bool value;
+            in >> value;
+            updateMotorActive(value);
+        } else if (field == "motorPower") {
+            qint32 value;
+            in >> value;
+            updateMotorPower(value);
+        }
+        // Additional fields...
+        
+        // Error checking
+        if (in.status() != QDataStream::Ok) {
+            qWarning() << "Error reading data stream";
+            break;
+        }
+    }
+}
+```
+
+**Key Features**:
+- Automatic reconnection on disconnect (5-second interval)
+- Stream error detection and handling
+- Signal-based updates for reactive UI
+- Unit conversion support (km/miles, Celsius/Fahrenheit)
+
+## Usage Examples
+
+### Initializing the Sender (Car_control)
+
+```cpp
+#include "CarDataSender.hpp"
+
+int main() {
+    QCoreApplication app(argc, argv);
+    
+    // Create sender on port 8888
+    CarDataSender sender(8888);
+    
+    // Update data periodically (e.g., from CAN bus)
+    sender.updateData(
+        60,    // speed (km/h)
+        120,   // speedLimit (km/h)
+        85,    // batteryLevel (%)
+        267,   // batteryRange (km)
+        true,  // motorActive
+        75     // motorPower (%)
+    );
+    
+    return app.exec();
+}
+```
+
+### Initializing the Receiver (Dashboard)
+
+```cpp
+#include "CarDataController.hpp"
+
+int main() {
+    QGuiApplication app(argc, argv);
+    
+    // Create controller (auto-connects on startup)
+    CarDataController controller;
+    
+    // Optional: Configure server details
+    controller.setServerAddress("192.168.1.100");
+    controller.setServerPort(8888);
+    controller.connectToServer();
+    
+    // Access data via getters or Q_PROPERTY bindings
+    int speed = controller.speed();
+    
+    return app.exec();
+}
+```
+
+## Error Handling
+
+### Connection Errors
+
+Both ends handle connection issues gracefully:
+
+**Sender**:
+- Continues operation even with no clients connected
+- Automatically removes disconnected clients from broadcast list
+
+**Receiver**:
+- Attempts automatic reconnection every 5 seconds
+- Emits `errorOccurred(QString)` signal on socket errors
+- Updates `isConnected` property for UI feedback
+
+### Stream Errors
+
+```cpp
+if (in.status() != QDataStream::Ok) {
+    qWarning() << "Error reading data stream";
+    break;  // Stop processing corrupted stream
+}
+```
+
+## Testing
+
+### Test Data Script
+
+A Python test script is available at: `Dashboard/send_test_data.py`
+
+This script can simulate the Car_control sender for testing purposes.
+
+## Best Practices
+
+### For Transmitters (Car_control)
+
+1. **Always flush after writing**:
+   ```cpp
+   client->write(data);
+   client->flush();
+   ```
+
+2. **Check connection state before sending**:
+   ```cpp
+   if (client->state() == QAbstractSocket::ConnectedState) {
+       client->write(data);
+   }
+   ```
+
+3. **Use explicit type casting**:
+   ```cpp
+   out << (qint32)speed;  // Ensure consistent type
+   ```
+
+### For Receivers (Dashboard)
+
+1. **Match QDataStream version**:
+   ```cpp
+   in.setVersion(QDataStream::Qt_5_15);
+   ```
+
+2. **Check stream status after reading**:
+   ```cpp
+   if (in.status() != QDataStream::Ok) {
+       // Handle error
+   }
+   ```
+
+3. **Process all available data**:
+   ```cpp
+   while (m_socket->bytesAvailable() > 0) {
+       // Read fields
+   }
+   ```
+
+## Protocol Extension
+
+### Adding New Fields
+
+To add a new field to the protocol:
+
+1. **Update Sender** (`CarDataSender.cpp`):
+   ```cpp
+   out << QString("newField") << (qint32)newValue;
+   ```
+
+2. **Update Receiver** (`CarDataController.cpp`):
+   ```cpp
+   else if (field == "newField") {
+       qint32 value;
+       in >> value;
+       updateNewField(value);
+   }
+   ```
+
+3. **Add corresponding members and signals** to both classes
+
+### Backward Compatibility
+
+The protocol maintains backward compatibility:
+- Unknown fields are ignored by the receiver
+- Missing fields retain previous values
+- Both ends can operate with different field sets
+
+## Performance Considerations
+
+- **Binary Protocol**: More efficient than JSON/XML text protocols
+- **Update Rate**: 500ms provides smooth updates without excessive bandwidth
+- **Data Size**: Typical message size ~200-300 bytes
+- **Network Overhead**: Minimal due to binary serialization
+
+## Security Considerations
+
+- **Local Network Only**: Default configuration (127.0.0.1) restricts to localhost
+- **No Authentication**: Current implementation has no authentication mechanism
+- **Production Use**: Consider adding TLS encryption and authentication for production deployment
 
 ## Troubleshooting
 
-### Dashboard shows "Not Connected"
-- Check if server is running
-- Verify correct IP and port
-- Check firewall settings
-- Look at console for error messages
+### Common Issues
 
-### Data not updating
-- Check server is sending messages
-- Verify JSON format is correct
-- Ensure messages end with `\n`
-- Check for network issues
+1. **Connection Refused**:
+   - Ensure Car_control server is running
+   - Check firewall settings
+   - Verify correct IP address and port
 
-### Reconnection issues
-- Server restarts automatically reconnect (5s interval)
-- Check `CarData.isConnected` status
-- Call `CarData.reconnect()` manually if needed
+2. **Data Not Updating**:
+   - Check `isConnected` property
+   - Verify QDataStream version matches
+   - Check for stream errors in logs
 
-## Advanced Configuration
+3. **Partial Data Received**:
+   - Ensure all fields are sent in correct order
+   - Verify type casting is consistent
+   - Check for network interruptions
 
-### Custom Message Handler
-
-Extend `CarDataController` to handle custom fields:
-
-```cpp
-// In CarDataController.cpp parseMessage()
-if (obj.contains("customField")) {
-    // Handle custom data
-}
-```
-
-### Multiple Data Sources
-
-Run multiple servers or implement a data aggregator:
-- One server for sensors
-- One for GPS
-- One for vehicle systems
-- Aggregator combines and forwards to dashboard
-
-### Logging
+### Debug Logging
 
 Enable debug output:
-
 ```cpp
-// In CarDataController.cpp
-qDebug() << "Received:" << message;
+qDebug() << "Speed:" << speed;
+qDebug() << "Stream status:" << in.status();
+qDebug() << "Bytes available:" << socket->bytesAvailable();
 ```
 
-## Performance
+## References
 
-- **Latency**: < 10ms typical
-- **Update Rate**: Up to 100Hz (not recommended, 10Hz is sufficient)
-- **CPU Usage**: < 1% for data reception
-- **Memory**: ~1MB for socket buffers
-
-## Security Notes
-
-⚠️ **Important for Production**:
-- Currently uses plain TCP (no encryption)
-- For production, use TLS/SSL
-- Implement authentication
-- Validate all incoming data
-- Use firewall rules to restrict access
-
-## Example: Production Server
-
-```python
-import ssl
-import socket
-import json
-
-context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-context.load_cert_chain('server.crt', 'server.key')
-
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    sock.bind(('0.0.0.0', 8888))
-    sock.listen()
-    
-    with context.wrap_socket(sock, server_side=True) as secure_sock:
-        # Handle connections...
-```
+- Qt Documentation: [QDataStream](https://doc.qt.io/qt-5/qdatastream.html)
+- Qt Documentation: [QTcpSocket](https://doc.qt.io/qt-5/qtcpsocket.html)
+- Qt Documentation: [QTcpServer](https://doc.qt.io/qt-5/qtcpserver.html)
