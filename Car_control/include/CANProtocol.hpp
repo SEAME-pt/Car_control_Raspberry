@@ -17,13 +17,14 @@ namespace CANSENDID {
 	constexpr uint16_t	EMERGENCY_BRAKE 	= 0x100;	/**< Emergency brake command (max priority) */
 	constexpr uint16_t	COMMAND_THROTTLE	= 0x101;	/**< Throttle command (high priority) */
 	constexpr uint16_t	COMMAND_STEERING	= 0x102;	/**< Steering command (high priority) */
-	constexpr uint16_t	HEARTBEAT			= 0x103;	/**< Heartbeat signal (keep-alive) */
+	constexpr uint16_t	HEARTBEAT_RASP		= 0x103;	/**< Heartbeat signal (keep-alive) */
 };
 
 namespace CANRECEIVERID {
 	constexpr uint16_t	SPEEDRPMSTM32			= 0x200;
 	constexpr uint16_t	BATTERYSTM32			= 0x201;
-}
+	constexpr uint16_t	HEARTBEAT_STM			= 0x202;
+};
 
 /**
  * @namespace CANProtocol
@@ -80,7 +81,9 @@ namespace CANProtocol {
 			if (rx.can_dlc >= 2 && rx.can_id == CANRECEIVERID::SPEEDRPMSTM32) {
 				uint16_t rpm = (rx.data[0] << 8) | rx.data[1];
 				return (rpmToSpeedMps(rpm));
-			} else
+			} else if (rx.can_id == CANRECEIVERID::HEARTBEAT_STM)
+				std::cout << "HeartBeat received, YOU ARE ALIVE!" << std::endl;
+			else	
 				return (-1);
 		}
 		return (0);
@@ -94,6 +97,6 @@ namespace CANProtocol {
 	inline void sendHeartbeat(CANController& can) {
 
     	int8_t data = 0xAA;  // Heartbeat signature
-    	can.sendFrame(CANSENDID::HEARTBEAT, &data, 1);
+    	can.sendFrame(CANSENDID::HEARTBEAT_RASP, &data, 1);
 	}
 }
