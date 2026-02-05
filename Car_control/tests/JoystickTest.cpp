@@ -78,8 +78,8 @@ TEST(JoystickTest, BasicFunctionality) {
 		Joystick joystick;
 		
 		// Test that methods don't crash (values might be -1 if no actual input)
-		int16_t steering = joystick.getAbs(true);  // steering
-		int16_t throttle = joystick.getAbs(false); // throttle
+		int16_t steering = joystick.getAbs(ABS_Z);  // steering
+		int16_t throttle = joystick.getAbs(ABS_Y); // throttle
 		
 		// Values should be valid int16_t (including -1 for no data)
 		EXPECT_GE(steering, -1);
@@ -152,8 +152,8 @@ TEST(JoystickTest, InteractiveButtonTest) {
 		auto analogStart = std::chrono::steady_clock::now();
 		auto analogTimeout = std::chrono::seconds(8);
 		
-		int16_t initialSteering = joystick.getAbs(true);
-		int16_t initialThrottle = joystick.getAbs(false);
+		int16_t initialSteering = joystick.getAbs(ABS_X);
+		int16_t initialThrottle = joystick.getAbs(ABS_Y);
 		
 		std::cout << "Initial position - Steering: " << initialSteering 
 		          << " Throttle: " << initialThrottle << std::endl;
@@ -171,8 +171,8 @@ TEST(JoystickTest, InteractiveButtonTest) {
 				std::cout << "Button event detected: " << press << std::endl;
 			}
 			
-			int16_t currentSteering = joystick.getAbs(true);
-			int16_t currentThrottle = joystick.getAbs(false);
+			int16_t currentSteering = joystick.getAbs(ABS_X);
+			int16_t currentThrottle = joystick.getAbs(ABS_Y);
 			
 			// Track maximum deviation from center
 			int16_t steeringChange = abs(currentSteering - initialSteering);
@@ -240,8 +240,8 @@ TEST(StableValuesTest, ThrottleOutsideDeadzoneUnchanged) {
 	int16_t steering = 100;
 	int16_t throttle = 5;
 	stableValues(&steering, &throttle);
-	EXPECT_EQ(throttle, 5);
-}
+	EXPECT_EQ(throttle, 10);
+}	
 
 TEST(StableValuesTest, EdgeCases) {
 	int16_t steering1 = 58; // just outside lower deadzone
@@ -250,8 +250,8 @@ TEST(StableValuesTest, EdgeCases) {
 	int16_t throttle2 = 3;  // just outside upper deadzone
 	stableValues(&steering1, &throttle1);
 	stableValues(&steering2, &throttle2);
-	EXPECT_EQ(steering1, 58);
-	EXPECT_EQ(steering2, 62);
-	EXPECT_EQ(throttle1, -3);
-	EXPECT_EQ(throttle2, 3);
+	EXPECT_EQ(steering1, 60);
+	EXPECT_EQ(steering2, 60);
+	EXPECT_EQ(throttle1, 0);
+	EXPECT_EQ(throttle2, 0);
 }

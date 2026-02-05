@@ -79,7 +79,7 @@ public:
 	 * @param len Number of bytes to send (max 8)
 	 * @throws CANException if CAN is not initialized or send fails
 	 */
-	void	sendFrame(uint16_t can_id, const int16_t* data, uint8_t len);
+	void	sendFrame(uint16_t can_id, const int8_t* data, uint8_t len);
 
 	/**
 	 * @brief Sends a CAN-FD frame (up to 64 bytes)

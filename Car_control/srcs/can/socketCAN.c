@@ -47,15 +47,6 @@ int	socketCan_init(const char *interface) {
 		return (-1);
 	}
 
-	// Informs Kernel to accept CAN_FD and that allows on the same
-	// socket send & receive CAN frames
-	if (setsockopt(s, SOL_CAN_RAW, CAN_RAW_FD_FRAMES, 
-					&enable_canfd, sizeof(enable_canfd)) < 0) {
-		perror("setsockopt CAN_RAW_FD_FRAMES");
-		close(s);
-		return (-1);
-	}
-
 	// Get interface index
 	if (ioctl(s, SIOCGIFINDEX, &ifr) < 0) {
 		perror("ioctl SIOCGIFINDEX");
@@ -79,9 +70,9 @@ int	socketCan_init(const char *interface) {
 
 // Classical CAN Bus (8 bytes)
 int	can_send_frame(int socket, uint16_t can_id, 
-		const int16_t* data, uint8_t len) {
+		const int8_t* data, uint8_t len) {
 
-	struct can_frame frame;
+	struct can_frame	frame;
 
 	// Validate standard CAN ID (11-bit: 0x000 - 0x7FF)
 	if (can_id > 0x7FF) {
@@ -90,15 +81,18 @@ int	can_send_frame(int socket, uint16_t can_id,
 	}
 
 	memset(&frame, 0, sizeof(frame));
-	if (len > 8) len = 8;
-
-	frame.can_id = can_id;
-	frame.can_dlc = len;
-
-	printf("%d\n", frame.can_dlc);
+	if (len > 8) 
+		len = 8;
 
 	if (data && len > 0)
 		memcpy(frame.data, data, len);
+
+	frame.len = len;
+	frame.can_id = can_id;
+
+	for (int i = 0; i < len; ++i)
+    	printf("%02X ", frame.data[i]);
+	printf("\n");
 
 	if (write(socket, &frame, sizeof(struct can_frame)) < 0) {
 		perror("write CAN frame");
@@ -111,7 +105,7 @@ int	can_send_frame(int socket, uint16_t can_id,
 int	can_send_frame_fd(int socket, uint16_t can_id, 
 					  const int16_t *data, uint8_t len) {
 
-	struct canfd_frame frame;
+	struct canfd_frame	frame;
 
 	// Validate standard CAN ID (11-bit: 0x000 - 0x7FF)
 	if (can_id > 0x7FF) {
@@ -156,12 +150,11 @@ int	can_try_receive(int socket, struct can_frame *frame)
 }
 
 // Same as previous function but for can-fd
-int	canfd_try_receive(int socket, struct canfd_frame *frame)
-{
-	struct pollfd	pfd;
+int	canfd_try_receive(int socket, struct canfd_frame *frame) {
 
-	pfd.fd 		= socket;
-	pfd.events	= POLLIN;
+	struct pollfd	pfd;
+	pfd.fd 		= 	socket;
+	pfd.events	= 	POLLIN;
 
 	if (poll(&pfd, 1, 0) <= 0)
 		return (-1);

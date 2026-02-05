@@ -36,6 +36,11 @@ int	main(int argc, char *argv[]) {
 		std::cerr << err.what() << std::endl;
 	}
 	CANProtocol::sendEmergencyBrake(*carControl.can, true);*/
-	
+
+	try {
+		CANProtocol::sendEmergencyBrake(*carControl.can, true);
+	} catch (...) {
+		return (1);
+	}
 	return app.exec();
 }

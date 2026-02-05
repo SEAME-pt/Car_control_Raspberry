@@ -56,7 +56,7 @@ int		socketCan_init(const char *interface);
  * @return 0 if successful, -1 on error
  */
 int		can_send_frame(int socket, uint16_t can_id, 
-					const int16_t* data, uint8_t len);
+					const int8_t* data, uint8_t len);
 
 /**
  * @brief Sends a CAN-FD frame (up to 64 bytes)

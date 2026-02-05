@@ -67,7 +67,7 @@ void	CANController::cleanup() {
 
 // TX handler sending frames in classic CAN format
 void	CANController::sendFrame(uint16_t can_id, 
-			const int16_t* data, uint8_t len) {
+			const int8_t* data, uint8_t len) {
 
 	if (!_initialized)
 		throw CANException("CAN not initialized");

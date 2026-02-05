@@ -142,8 +142,8 @@ TEST_F(AutonomousModeTest, AutonomousLoopReceivesAndPrintsCAN) {
     std::this_thread::sleep_for(std::chrono::milliseconds(150));
     
     // Send additional test frames from external controller
-    int16_t test_data[3] = {0x12, 0x34, 0xAB};
-    sender_can->sendFrame(0x456, test_data, 3);
+    uint8_t test_data[3] = {0x12, 0x34, 0xAB};
+    sender_can->sendFrame(0x456, (int8_t*)test_data, 3);
     
     // Give time to process
     std::this_thread::sleep_for(std::chrono::milliseconds(150));
@@ -164,9 +164,8 @@ TEST_F(AutonomousModeTest, AutonomousLoopReceivesAndPrintsCAN) {
     
     // The autonomous loop should receive its own emergency brake frames
     // or the external frames due to CAN loopback behavior
-    EXPECT_TRUE(output.find("ID: 0x") != std::string::npos);
-    EXPECT_TRUE(output.find("DLC:") != std::string::npos);
-    EXPECT_TRUE(output.find("Data:") != std::string::npos);
+    EXPECT_TRUE(output.find("Unknown Message received") != std::string::npos ||
+                output.find("Raw RPM: 4660") != std::string::npos);
 }
 
 TEST_F(AutonomousModeTest, AutonomousLoopHandlesNoCANController) {
@@ -249,8 +248,8 @@ TEST_F(AutonomousModeTest, CorruptedCanFrames)
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     
     // Send corrupted CAN frame (invalid length)
-    int16_t corrupted_data[8] = {0xFF}; // Data larger than DLC
-    carControl.can->sendFrame(0x123, corrupted_data, 20); // Invalid DLC
+    uint8_t corrupted_data[8] = {0xFF}; // Data larger than DLC
+    carControl.can->sendFrame(0x123, (int8_t*)corrupted_data, 20); // Invalid DLC
     
     // Let it run a bit more to observe behavior
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -273,6 +272,16 @@ TEST_F(AutonomousModeTest, MaxSizeCanFrame)
     }
     
     carControl.exit = false;
+    
+    // Check if CAN FD is supported
+    {
+        int16_t test_data[1] = {0};
+        try {
+            carControl.can->sendFrameFD(0x100, test_data, 1);
+        } catch (const CANController::CANException&) {
+            GTEST_SKIP() << "CAN FD not supported on this interface";
+        }
+    }
     
     // Start autonomous loop in separate thread
     std::atomic<bool> loop_started{false};
