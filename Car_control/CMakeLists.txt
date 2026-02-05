@@ -43,8 +43,8 @@ set(SOURCES
     srcs/can/socketCAN.c
     srcs/can/CANController.cpp
     #communication
-    srcs/communication/CarDataSender.cpp
-    srcs/communication/CarDataSender.hpp
+    srcs/communication/CarDataCommunication.cpp
+    srcs/communication/CarDataCommunication.hpp
 )
 
 # Executable

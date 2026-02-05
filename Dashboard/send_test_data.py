@@ -114,22 +114,14 @@ def main():
     HOST = '127.0.0.1'
     PORT = 8888
     
-    print(f"Starting TCP server on {HOST}:{PORT}...")
-    print("Waiting for Dashboard to connect...")
+    print(f"Connecting to TCP server at {HOST}:{PORT}...")
     
     try:
-        # Create server socket
-        server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        server_sock.bind((HOST, PORT))
-        server_sock.listen(1)
+        # Create client socket and connect to existing server
+        client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_sock.connect((HOST, PORT))
         
-        print(f"Server listening on {HOST}:{PORT}")
-        print("Start the Dashboard application now to connect...\n")
-        
-        # Accept connection from Dashboard
-        client_sock, client_addr = server_sock.accept()
-        print(f"Dashboard connected from {client_addr}")
+        print(f"Connected to server at {HOST}:{PORT}")
         
         writer = QtDataStreamWriter(client_sock)
         
@@ -180,13 +172,15 @@ def main():
                 break
         
         client_sock.close()
-        server_sock.close()
         print("Connection closed")
         
+    except ConnectionRefusedError:
+        print(f"Could not connect to server on {HOST}:{PORT}")
+        print("Make sure the Car Control server is running!")
     except OSError as e:
-        print(f"Could not start server on {HOST}:{PORT}")
+        print(f"Could not connect to server on {HOST}:{PORT}")
         print(f"Error: {e}")
-        print("Make sure no other process is using this port!")
+        print("Make sure the Car Control server is running!")
     except Exception as e:
         print(f"Error: {e}")
 

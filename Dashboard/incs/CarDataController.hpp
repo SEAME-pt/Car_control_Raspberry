@@ -52,6 +52,19 @@ public slots:
     void disconnectFromServer();
     void reconnect();
     void dismissError();
+    
+    // Send methods - allows client to send data to server
+    void sendSpeed(int value);
+    void sendSpeedLimit(int value);
+    void sendBatteryLevel(int value);
+    void sendBatteryRange(int value);
+    void sendMotorActive(bool value);
+    void sendMotorPower(int value);
+    void sendTemperature(double value);
+    void sendTotalDistance(double value);
+    void sendShowError(bool value);
+    void sendErrorMessage(const QString &value);
+    void sendAllData();
 
 signals:
     void speedChanged();

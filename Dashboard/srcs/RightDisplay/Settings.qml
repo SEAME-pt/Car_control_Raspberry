@@ -74,5 +74,40 @@ Rectangle {
                 }
             }
         }
+
+        Rectangle {
+            width: parent.width
+            height: 1
+            color: "#333333"
+        }
+
+        Item {
+            width: parent.width
+            height: parent.height * 0.1
+
+            Text {
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                text: "Cruise Control"
+                color: "#F9F9F9"
+                font.pixelSize: parent.width * 0.06
+            }
+
+            Switch {
+                id: cruiseControlSwitch
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                
+                onToggled: {
+                    // Send cruise control state to server
+                    if (checked) {
+                        CarData.sendSpeed(CarData.speed)  // Lock current speed
+                    } else {
+                    }
+                    // You can add a custom field for cruise control
+                    // CarData.sendCruiseControl(checked)
+                }
+            }
+        }
     }
 }

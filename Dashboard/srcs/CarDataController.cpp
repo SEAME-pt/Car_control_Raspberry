@@ -230,7 +230,7 @@ void CarDataController::attemptReconnect() {
 void CarDataController::updateSpeed(int value) {
     if (m_speed != value) {
         m_speed = value;
-        emit speedChanged();
+        sendSpeed(value);
     }
 }
 
@@ -300,4 +300,193 @@ void CarDataController::updateErrorMessage(const QString &value) {
 void CarDataController::dismissError() {
     updateShowError(false);
     updateErrorMessage("");
+}
+
+void CarDataController::sendSpeed(int value) {
+    if (!m_socket || m_socket->state() != QAbstractSocket::ConnectedState) {
+        qWarning() << "Cannot send: not connected";
+        return;
+    }
+    
+    QByteArray data;
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    
+    out << QString("speed") << (qint32)value;
+    
+    m_socket->write(data);
+    m_socket->flush();
+    qDebug() << "Sent speed:" << value;
+}
+
+void CarDataController::sendSpeedLimit(int value) {
+    if (!m_socket || m_socket->state() != QAbstractSocket::ConnectedState) {
+        qWarning() << "Cannot send: not connected";
+        return;
+    }
+    
+    QByteArray data;
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    
+    out << QString("speedLimit") << (qint32)value;
+    
+    m_socket->write(data);
+    m_socket->flush();
+    qDebug() << "Sent speedLimit:" << value;
+}
+
+void CarDataController::sendBatteryLevel(int value) {
+    if (!m_socket || m_socket->state() != QAbstractSocket::ConnectedState) {
+        qWarning() << "Cannot send: not connected";
+        return;
+    }
+    
+    QByteArray data;
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    
+    out << QString("batteryLevel") << (qint32)value;
+    
+    m_socket->write(data);
+    m_socket->flush();
+}
+
+void CarDataController::sendBatteryRange(int value) {
+    if (!m_socket || m_socket->state() != QAbstractSocket::ConnectedState) {
+        qWarning() << "Cannot send: not connected";
+        return;
+    }
+    
+    QByteArray data;
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    
+    out << QString("batteryRange") << (qint32)value;
+    
+    m_socket->write(data);
+    m_socket->flush();
+}
+
+void CarDataController::sendMotorActive(bool value) {
+    if (!m_socket || m_socket->state() != QAbstractSocket::ConnectedState) {
+        qWarning() << "Cannot send: not connected";
+        return;
+    }
+    
+    QByteArray data;
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    
+    out << QString("motorActive") << value;
+    
+    m_socket->write(data);
+    m_socket->flush();
+}
+
+void CarDataController::sendMotorPower(int value) {
+    if (!m_socket || m_socket->state() != QAbstractSocket::ConnectedState) {
+        qWarning() << "Cannot send: not connected";
+        return;
+    }
+    
+    QByteArray data;
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    
+    out << QString("motorPower") << (qint32)value;
+    
+    m_socket->write(data);
+    m_socket->flush();
+}
+
+void CarDataController::sendTemperature(double value) {
+    if (!m_socket || m_socket->state() != QAbstractSocket::ConnectedState) {
+        qWarning() << "Cannot send: not connected";
+        return;
+    }
+    
+    QByteArray data;
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    
+    out << QString("temperature") << value;
+    
+    m_socket->write(data);
+    m_socket->flush();
+}
+
+void CarDataController::sendTotalDistance(double value) {
+    if (!m_socket || m_socket->state() != QAbstractSocket::ConnectedState) {
+        qWarning() << "Cannot send: not connected";
+        return;
+    }
+    
+    QByteArray data;
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    
+    out << QString("totalDistance") << value;
+    
+    m_socket->write(data);
+    m_socket->flush();
+}
+
+void CarDataController::sendShowError(bool value) {
+    if (!m_socket || m_socket->state() != QAbstractSocket::ConnectedState) {
+        qWarning() << "Cannot send: not connected";
+        return;
+    }
+    
+    QByteArray data;
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    
+    out << QString("showError") << value;
+    
+    m_socket->write(data);
+    m_socket->flush();
+}
+
+void CarDataController::sendErrorMessage(const QString &value) {
+    if (!m_socket || m_socket->state() != QAbstractSocket::ConnectedState) {
+        qWarning() << "Cannot send: not connected";
+        return;
+    }
+    
+    QByteArray data;
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    
+    out << QString("errorMessage") << value;
+    
+    m_socket->write(data);
+    m_socket->flush();
+}
+
+void CarDataController::sendAllData() {
+    if (!m_socket || m_socket->state() != QAbstractSocket::ConnectedState) {
+        qWarning() << "Cannot send: not connected";
+        return;
+    }
+    
+    // Send all current values in one batch
+    QByteArray data;
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_5_15);
+    
+    out << QString("speed") << (qint32)m_speed;
+    out << QString("speedLimit") << (qint32)m_speedLimit;
+    out << QString("batteryLevel") << (qint32)m_batteryLevel;
+    out << QString("batteryRange") << (qint32)m_batteryRange;
+    out << QString("motorActive") << m_motorActive;
+    out << QString("motorPower") << (qint32)m_motorPower;
+    out << QString("temperature") << m_temperature;
+    out << QString("totalDistance") << m_totalDistance;
+    out << QString("showError") << m_showError;
+    out << QString("errorMessage") << m_errorMessage;
+    
+    m_socket->write(data);
+    m_socket->flush();
+    qDebug() << "Sent all data to server";
 }
