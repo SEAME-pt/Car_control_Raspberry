@@ -8,7 +8,15 @@ int	main(int argc, char *argv[]) {
 	if (carControl.exit)
 		return (1);
 
-	std::thread hbThread(heartbeatThread, carControl.can.get());
+	// Initialize CAN receiver
+    t_CANReceiver canReceiver;
+    canReceiver.can = carControl.can.get();
+
+	// Launch CAN receiver thread (reads all incoming messages)
+    std::thread rxThread(canReceiverThread, &canReceiver);
+
+    // Launch heartbeat thread (sends heartbeat + monitors ACK)
+    std::thread hbThread(heartbeatThread, &canReceiver);
 
 	try {
 		if (!carControl.manual) {
@@ -16,15 +24,21 @@ int	main(int argc, char *argv[]) {
 			autonomousLoop(carControl);
 		} else {
 			std::cout << "Manual mode chosed, initiating joystick..." << std::endl;
-			manualLoop(&carControl);
+			manualLoop(&carControl, &canReceiver);
 		}
 	} catch (const std::exception &err) {
 		std::cerr << err.what() << std::endl;
 	}
 
-	g_running.store(false);
-	if (hbThread.joinable())
-		hbThread.join();
+	// Stop all threads
+    g_running.store(false);
+    
+    if (rxThread.joinable()) {
+        rxThread.join();
+    }
+    if (hbThread.joinable()) {
+        hbThread.join();
+    }
 
 	try {
 		CANProtocol::sendEmergencyBrake(*carControl.can, true);

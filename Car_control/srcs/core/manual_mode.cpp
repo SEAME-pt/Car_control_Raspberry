@@ -1,7 +1,7 @@
 #include "carControl.h"
 
 // Core loop to agregate joystick outputs and send them via CAN to the MCU
-void	manualLoop(t_carControl *carControl) {
+void	manualLoop(t_carControl *carControl, t_CANReceiver* receiver) {
 
 	int16_t last_steering	= 0;
 	int16_t last_throttle 	= 0;
@@ -39,7 +39,11 @@ void	manualLoop(t_carControl *carControl) {
     		counter = 0;
 		}
 		last_throttle = throttle;
-		if (!CANProtocol::receiveSpeedValues(*carControl->can))
-			continue ;
+
+		t_speedData speedData;
+        if (getSpeedData(receiver, &speedData)) {
+            std::cout << "Speed: " << speedData.speedMps << " m/s (RPM: " 
+                      << speedData.rpm << ")" << std::endl;
+        }
 	}
 }

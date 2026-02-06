@@ -78,7 +78,7 @@ namespace CANProtocol {
      * @param can Reference to an initialized CANController
      */
     inline void sendHeartbeat(CANController& can) {
-        int8_t data = 0xAA;  // Heartbeat signature
+        int8_t data = 0x01;
         can.sendFrame(CANSENDID::HEARTBEAT_RASP, &data, 1);
     }
 }

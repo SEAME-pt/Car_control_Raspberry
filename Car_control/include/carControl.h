@@ -12,6 +12,8 @@
 #include <chrono>
 #include <fcntl.h>
 #include <iomanip>
+#include <queue>
+#include <mutex>
 
 /**
  * @file carControl.hpp
@@ -59,14 +61,47 @@ typedef struct s_carControl {
 } t_carControl;
 
 /**
- * @struct s_heartbeatMonitor
- * @brief Monitors STM32 status via speed sensor messages
+ * @struct s_speedData
+ * @brief Speed sensor data
  */
-typedef struct s_heartbeatMonitor {
-    std::atomic<std::chrono::steady_clock::time_point> lastSpeedMessage;
-    std::atomic<bool>	stm32Alive;
-    CANController*		can;
-} t_heartbeatMonitor;
+typedef struct s_speedData {
+	uint16_t	rpm;
+	uint16_t	speedMps;
+} t_speedData;
+
+/**
+ * @struct s_batteryData
+ * @brief Battery sensor data
+ */
+typedef struct s_batteryData {
+	uint16_t	voltage;
+	uint8_t		percentage;
+} t_batteryData;
+
+/**
+ * @struct s_heartbeatData
+ * @brief Heartbeat acknowledgment from STM32
+ */
+typedef struct s_heartbeatData {
+	uint8_t	ack;
+	std::chrono::steady_clock::time_point timestamp;
+} t_heartbeatData;
+
+/**
+ * @struct s_CANReceiver
+ * @brief Central CAN message receiver with thread-safe queues
+ */
+typedef struct s_CANReceiver {
+	std::queue<t_speedData>		speedQueue;
+	std::queue<t_batteryData>	batteryQueue;
+	std::queue<t_heartbeatData>	heartbeatQueue;
+
+	std::mutex speedMutex;
+	std::mutex batteryMutex;
+	std::mutex heartbeatMutex;
+
+	CANController*	can;
+} t_CANReceiver;
 
 /**
  * @brief Initialize a CAN controller instance.
@@ -112,7 +147,7 @@ int	parsingArgv(int argc, char *argv[],
  *
  * @param carControl Pointer to t_carControl containing CAN and joystick
  */
-void	manualLoop(t_carControl *carControl);
+void	manualLoop(t_carControl *carControl, t_CANReceiver* receiver);
 
 /**
  * @brief Main loop for autonomous operation.
@@ -143,14 +178,40 @@ void	signalHandler(int signum);
 uint16_t	rpmToSpeedMps(uint16_t rpm);
 
 /**
- * @brief Heartbeat thread function that sends periodic keep-alive signals.
- *
- * Runs independently of the main control loop, sending heartbeat messages
- * every 100ms to indicate the Raspberry Pi is operational.
- *
- * @param can Pointer to CANController
+ * @brief CAN receiver thread - reads all CAN messages and distributes to queues
+ * 
+ * @param receiver Pointer to CANReceiver structure
  */
-void	heartbeatThread(CANController* can);
+void	canReceiverThread(t_CANReceiver* receiver);
+
+void	heartbeatThread(t_CANReceiver* receiver);
+
+/**
+ * @brief Get latest speed data from queue (non-blocking)
+ * 
+ * @param receiver Pointer to CANReceiver
+ * @param data Output speed data
+ * @return true if data available, false if queue empty
+ */
+bool	getSpeedData(t_CANReceiver* receiver, t_speedData* data);
+
+/**
+ * @brief Get latest battery data from queue (non-blocking)
+ * 
+ * @param receiver Pointer to CANReceiver
+ * @param data Output battery data
+ * @return true if data available, false if queue empty
+ */
+bool	getBatteryData(t_CANReceiver* receiver, t_batteryData* data);
+
+/**
+ * @brief Get latest heartbeat ACK from queue (non-blocking)
+ * 
+ * @param receiver Pointer to CANReceiver
+ * @param data Output heartbeat data
+ * @return true if data available, false if queue empty
+ */
+bool	getHeartbeatAck(t_CANReceiver* receiver, t_heartbeatData* data);
 
 /**
  * @brief Global atomic flag controlling main loops.
