@@ -17,7 +17,7 @@ Rectangle {
 
     FolderListModel {
         id: folderModel
-        folder: "file:///home/team1/seame/Car_control_Raspberry/Dashboard/songs"
+        folder: "file:///home/afogonca/seame/Car_control_Raspberry/Dashboard/songs"
         nameFilters: ["*.mp3", "*.MP3"]
         showDirs: false
         
@@ -32,6 +32,7 @@ Rectangle {
     property bool isPlaying: false
     property string currentFile: ""
     property string currentTitle: "No track"
+    property string currentArtist: ""
 
     MediaPlayer {
         id: player
@@ -41,7 +42,6 @@ Rectangle {
             musicPlayer.isPlaying = (playbackState === MediaPlayer.PlayingState)
         }
         onPositionChanged: {
-            // Progress bar commented out
         }
         onSourceChanged: {
         }
@@ -58,14 +58,18 @@ Rectangle {
             console.log("Album:", album)
             
             if (title && title !== "") {
-                console.log("Setting currentTitle to:", title)
                 currentTitle = title
             }
+            if (artist && artist !== "") {
+                currentArtist = artist
+            } else {
+                currentArtist = ""
+            }
             
-            // Update album art
+            // Update album art - try different methods
             var coverArtImage = metaData.value(MediaMetaData.CoverArtImage)
+            
             if (coverArtImage) {
-                console.log("CoverArt found, updating...")
                 coverArt.setImage(coverArtImage)
                 albumArtSource.source = "image://coverart/" + Date.now()
             }
@@ -77,63 +81,61 @@ Rectangle {
         }
     }
 
-    Component.onCompleted: {
-    }
-
     function play() {
-        console.log("Play button pressed")
         if (folderModel.count > 0) {
             player.play()
         }
         playRequested()
     }
     function pause() {
-        console.log("Pause button pressed")
         player.pause()
         pauseRequested()
     }
     function setTrack(index) {
-        console.log("Setting track to index:", index)
         if (index < 0) index = 0
         if (index >= folderModel.count) index = folderModel.count - 1
+        if (folderModel.count === 0) {
+            return
+        }
         currentIndex = index
-        currentFile = folderModel.get(currentIndex, "fileURL")
-        currentTitle = folderModel.get(currentIndex, "fileBaseName")
+        
+        // Build file path manually from folder
+        var folderPath = folderModel.folder.toString()
+        var fileName = folderModel.get(currentIndex, "fileName")
+        
+        currentFile = folderPath + "/" + fileName
+        currentTitle = fileName.replace(".mp3", "").replace(".MP3", "")
         player.stop()
         player.source = currentFile
         player.play()
         trackChanged(currentIndex)
     }
     function next() {
-        console.log("Next button pressed")
         setTrack((currentIndex + 1) % folderModel.count)
         nextRequested()
     }
     function previous() {
-        console.log("Previous button pressed")
         setTrack((currentIndex - 1 + folderModel.count) % folderModel.count)
         previousRequested()
     }
 
-    // INSANE BLUR + DARKENED BACKGROUND
+    // BLURRED BACKGROUND
     Item {
         id: blurredBackground
         anchors.fill: parent
         z: 0
         
-        Repeater {
-            model: 256
-            Image {
-                width: parent.width * (10.0 + index * 2.0)
-                height: parent.height * (10.0 + index * 2.0)
-                x: -parent.width * (4.5 + index * 1.0)
-                y: -parent.height * (4.5 + index * 1.0)
-                fillMode: Image.Stretch
-                smooth: true
-                cache: false
-                z: index
-                opacity: 0.005
-                source: albumArtSource.source
+        Image {
+            id: backgroundImage
+            anchors.fill: parent
+            fillMode: Image.PreserveAspectCrop
+            smooth: true
+            cache: false
+            source: albumArtSource.source
+            
+            layer.enabled: true
+            layer.effect: FastBlur {
+                radius: 64
             }
         }
         
@@ -142,7 +144,7 @@ Rectangle {
             anchors.fill: parent
             color: "#000000"
             opacity: 0.50
-            z: 121
+            z: 1
         }
     }
     
@@ -161,8 +163,8 @@ Rectangle {
         id: albumArtContainer
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
-        anchors.verticalCenterOffset: -parent.height * 0.1
-        width: parent.height * 0.6
+        anchors.verticalCenterOffset: -parent.height * 0.125
+        width: parent.height * 0.575
         height: width
         z: 122
         
@@ -187,11 +189,126 @@ Rectangle {
         }
     }
 
-    //Column {
-    //    anchors.fill: parent
-    //    z: 1
-//
-    //    // Now playing text
+    Rectangle {
+        id: titleBar
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: parent.height * 0.075
+        height: parent.height * 0.20
+        width: parent.width * 0.8
+        color: "#000000"
+        opacity: 0.50
+        radius: parent.height * 0.025
+        anchors.horizontalCenter: parent.horizontalCenter
+        z: 1
+    }
+
+    // Clipped container placed above the translucent background so text remains fully opaque
+    Item {
+        id: titleClip
+        anchors.bottom: parent.bottom
+        height: parent.height * 0.17
+        width: parent.width * 0.8
+        anchors.horizontalCenter: parent.horizontalCenter
+        z: 2
+        clip: true
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: parent.width * 0.015
+            anchors.verticalCenter: parent.verticalCenter
+
+            Text {
+                id: titleText
+                text: musicPlayer.currentTitle
+                color: "#dcdcdc"
+                font.pixelSize: parent.height * 0.33
+                font.weight: 600
+                anchors.horizontalCenter: parent.horizontalCenter
+                x: 0
+
+                property bool needsScroll: width > titleClip.width
+
+                SequentialAnimation on x {
+                    running: titleText.needsScroll
+                    loops: Animation.Infinite
+
+                    PauseAnimation { duration: 2000 }
+                    NumberAnimation {
+                        from: 0
+                        to: -(titleText.width - titleClip.width)
+                        duration: titleText.width * 15
+                        easing.type: Easing.Linear
+                    }
+                    PauseAnimation { duration: 2000 }
+                    NumberAnimation {
+                        from: -(titleText.width - titleClip.width)
+                        to: 0
+                        duration: titleText.width * 15
+                        easing.type: Easing.Linear
+                    }
+                }
+            }
+
+            Text {
+                id: artistText
+                text: musicPlayer.currentArtist
+                visible: musicPlayer.currentArtist !== ""
+                color: "#c5c5c5"
+                font.pixelSize: parent.height * 0.24
+                font.weight: 500
+                anchors.horizontalCenter: parent.horizontalCenter
+                x: 0
+                opacity: 0.9
+
+                property bool needsScroll: width > titleClip.width
+
+                SequentialAnimation on x {
+                    running: artistText.needsScroll
+                    loops: Animation.Infinite
+
+                    PauseAnimation { duration: 2000 }
+                    NumberAnimation {
+                        from: 0
+                        to: -(artistText.width - titleClip.width)
+                        duration: artistText.width * 12
+                        easing.type: Easing.Linear
+                    }
+                    PauseAnimation { duration: 2000 }
+                    NumberAnimation {
+                        from: -(artistText.width - titleClip.width)
+                        to: 0
+                        duration: artistText.width * 12
+                        easing.type: Easing.Linear
+                    }
+                }
+            }
+
+        //Progress bar
+        Rectangle {
+            id: progressBg
+            width: parent.width * 0.9
+            height: 6
+            radius: 3
+            color: "#2a2a2a"
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            Rectangle {
+                id: progressFill
+                x: 0
+                y: 0
+                width: 0
+                height: progressBg.height
+                radius: 3
+                color: "#00b050"
+            }
+        }
+        }
+    }
+
+    Column {
+        anchors.fill: parent
+        z: 1
+        // Now playing text
         //Column {
         //    anchors.horizontalCenter: parent.horizontalCenter
         //    spacing: parent.height * 0.01
@@ -290,26 +407,6 @@ Rectangle {
         //    //}
         //}
 
-        // Progress bar
-        //Rectangle {
-        //    id: progressBg
-        //    width: parent.width * 0.9
-        //    height: 6
-        //    radius: 3
-        //    color: "#2a2a2a"
-        //    anchors.horizontalCenter: parent.horizontalCenter
-//
-        //    Rectangle {
-        //        id: progressFill
-        //        x: 0
-        //        y: 0
-        //        width: 0
-        //        height: progressBg.height
-        //        radius: 3
-        //        color: "#00b050"
-        //    }
-        //}
 
-    //}
-
+    }
 }

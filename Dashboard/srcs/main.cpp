@@ -19,6 +19,9 @@ static QObject* carDataSingletonProvider(QQmlEngine *engine, QJSEngine *scriptEn
 }
 
 int main(int argc, char *argv[]) {
+    // Force GStreamer backend for proper album art support
+    qputenv("QT_MEDIA_BACKEND", "gstreamer");
+    
     QGuiApplication app(argc, argv);
     qDebug() << "App started";
     

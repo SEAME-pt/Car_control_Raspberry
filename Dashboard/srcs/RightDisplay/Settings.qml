@@ -97,17 +97,18 @@ Rectangle {
                 id: cruiseControlSwitch
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
-                
+
                 onToggled: {
                     // Send cruise control state to server
-                    if (checked) {
+                    if (checked)
+                    {
                         CarData.sendSpeed(CarData.speed)  // Lock current speed
                     } else {
-                    }
-                    // You can add a custom field for cruise control
-                    // CarData.sendCruiseControl(checked)
                 }
+                // You can add a custom field for cruise control
+                // CarData.sendCruiseControl(checked)
             }
         }
     }
+}
 }
