@@ -1,7 +1,7 @@
 TEMPLATE = app
 QT += quick network
-SOURCES += srcs/main.cpp srcs/Dashboard.cpp srcs/CarDataController.cpp
-HEADERS += incs/Dashboard.hpp incs/CarDataController.hpp
+SOURCES += srcs/main.cpp srcs/Dashboard.cpp srcs/CarDataController.cpp srcs/CoverArtProvider.cpp
+HEADERS += incs/Dashboard.hpp incs/CarDataController.hpp incs/CoverArtProvider.hpp
 RESOURCES += qml.qrc
 
 # Add additional QML files if needed

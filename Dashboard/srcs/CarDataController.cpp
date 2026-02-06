@@ -41,6 +41,7 @@ CarDataController::CarDataController(QObject *parent)
     // Load persisted settings
     QSettings settings;
     m_distanceUnit = settings.value("settings/distanceUnit", "Km").toString();
+    m_temperatureUnit = settings.value("settings/temperatureUnit", "Celsius").toString();
 }
 
 CarDataController::~CarDataController() {

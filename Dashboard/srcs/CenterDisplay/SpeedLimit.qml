@@ -1,4 +1,4 @@
-import QtQuick
+import QtQuick 2.15
 import com.cardata 1.0
 
 Item {

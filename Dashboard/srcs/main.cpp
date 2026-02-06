@@ -1,6 +1,7 @@
 
 #include "../incs/Dashboard.hpp"
 #include "../incs/CarDataController.hpp"
+#include "../incs/CoverArtProvider.hpp"
 #include <QQmlContext>
 
 static QObject* dashboardSingletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
@@ -25,6 +26,14 @@ int main(int argc, char *argv[]) {
     qmlRegisterSingletonType<CarDataController>("com.cardata", 1, 0, "CarData", carDataSingletonProvider);
     
     QQmlApplicationEngine engine;
+    
+    QImage *coverImage = new QImage();
+    CoverArtProvider *provider = new CoverArtProvider(coverImage);
+    engine.addImageProvider(QStringLiteral("coverart"), provider);
+    
+    CoverArtWrapper *wrapper = new CoverArtWrapper(coverImage);
+    engine.rootContext()->setContextProperty("coverArt", wrapper);
+    
     const QUrl url(QStringLiteral("qrc:/srcs/Main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
