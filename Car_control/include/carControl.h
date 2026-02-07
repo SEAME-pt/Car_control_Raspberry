@@ -79,26 +79,15 @@ typedef struct s_batteryData {
 } t_batteryData;
 
 /**
- * @struct s_heartbeatData
- * @brief Heartbeat acknowledgment from STM32
- */
-typedef struct s_heartbeatData {
-	uint8_t	ack;
-	std::chrono::steady_clock::time_point timestamp;
-} t_heartbeatData;
-
-/**
  * @struct s_CANReceiver
  * @brief Central CAN message receiver with thread-safe queues
  */
 typedef struct s_CANReceiver {
 	std::queue<t_speedData>		speedQueue;
 	std::queue<t_batteryData>	batteryQueue;
-	std::queue<t_heartbeatData>	heartbeatQueue;
 
 	std::mutex speedMutex;
 	std::mutex batteryMutex;
-	std::mutex heartbeatMutex;
 
 	CANController*	can;
 } t_CANReceiver;
@@ -184,7 +173,19 @@ uint16_t	rpmToSpeedMps(uint16_t rpm);
  */
 void	canReceiverThread(t_CANReceiver* receiver);
 
-void	heartbeatThread(t_CANReceiver* receiver);
+/**
+ * @brief Monitoring thread - sends heartbeat and monitors STM32 health via speed data
+ * 
+ * This thread sends EMERGENCY_BRAKE(false) as a heartbeat signal every 300ms.
+ * It monitors STM32 health by checking if speed sensor data is being received.
+ * 
+ * Since STM32 cannot efficiently send dedicated ACK due to single-core limitations,
+ * we use the reception of sensor speed data (which STM32 sends anyway) as implicit 
+ * proof of life.
+ * 
+ * @param receiver Pointer to CANReceiver structure with queues and CAN controller
+ */
+void monitoringThread(t_CANReceiver* receiver);
 
 /**
  * @brief Get latest speed data from queue (non-blocking)
@@ -203,15 +204,6 @@ bool	getSpeedData(t_CANReceiver* receiver, t_speedData* data);
  * @return true if data available, false if queue empty
  */
 bool	getBatteryData(t_CANReceiver* receiver, t_batteryData* data);
-
-/**
- * @brief Get latest heartbeat ACK from queue (non-blocking)
- * 
- * @param receiver Pointer to CANReceiver
- * @param data Output heartbeat data
- * @return true if data available, false if queue empty
- */
-bool	getHeartbeatAck(t_CANReceiver* receiver, t_heartbeatData* data);
 
 /**
  * @brief Global atomic flag controlling main loops.

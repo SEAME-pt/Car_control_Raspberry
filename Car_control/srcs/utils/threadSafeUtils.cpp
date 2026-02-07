@@ -24,15 +24,3 @@ bool	getBatteryData(t_CANReceiver* receiver, t_batteryData* data) {
 	}
 	return (false);
 }
-
-bool	getHeartbeatAck(t_CANReceiver* receiver, t_heartbeatData* data) {
-
-	std::lock_guard<std::mutex> lock(receiver->heartbeatMutex);
-	if (!receiver->heartbeatQueue.empty()) {
-
-		*data = receiver->heartbeatQueue.front();
-		receiver->heartbeatQueue.pop();
-		return (true);
-	}
-	return (false);
-}

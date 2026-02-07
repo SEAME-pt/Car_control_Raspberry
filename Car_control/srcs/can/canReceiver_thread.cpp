@@ -39,33 +39,16 @@ void	canReceiverThread(t_CANReceiver* receiver) {
 						std::lock_guard<std::mutex> lock(receiver->batteryMutex);
 						receiver->batteryQueue.push(batteryData);
 
-						if (receiver->heartbeatQueue.size() > 5)
-							receiver->speedQueue.pop();
+						if (receiver->batteryQueue.size() > 5)
+							receiver->batteryQueue.pop();
 					}
 				}
 				break ;
-
-				// Heartbeat ACK
-                case CANRECEIVERID::HEARTBEAT_STM: {
-                    if (rx.can_dlc >= 1) {
-                        t_heartbeatData hbData;
-                        hbData.ack = rx.data[0];
-                        hbData.timestamp = now;
-
-                        std::lock_guard<std::mutex> lock(receiver->heartbeatMutex);
-                        receiver->heartbeatQueue.push(hbData);
-
-                        if (receiver->heartbeatQueue.size() > 1) {
-                            receiver->heartbeatQueue.pop();
-                        }
-                    }
-                    break ;
 
 					default:
                     std::cout << "Unknown CAN ID: 0x" << std::hex 
                               << rx.can_id << std::dec << std::endl;
                     break ;
-                }
 			}
 			// Small sleep to avoid burning CPU
         	std::this_thread::sleep_for(std::chrono::milliseconds(5));

@@ -23,24 +23,24 @@ include_directories(${CMAKE_SOURCE_DIR}/include ${LIBEVDEV_INCLUDE_DIRS})
 # Source files
 set(SOURCES
     srcs/main.cpp
-    #utils
-    srcs/utils/inputParsing.cpp
-    srcs/utils/signal.cpp
-    srcs/utils/canRxParsing.cpp
-    srcs/utils/threadSafeUtils.cpp
-    #init
+	#can
+    srcs/can/CANController.cpp
+	srcs/can/canReceiver_thread.cpp
+    srcs/can/socketCAN.c
+	#controller
+    srcs/controller/Joystick.cpp
+	#core
+    srcs/core/autonomous_mode.cpp
+    srcs/core/manual_mode.cpp
+	srcs/core/monitoring_thread.cpp
+	#init
     srcs/init/init_can.cpp
     srcs/init/init.cpp
-    #core
-    srcs/core/autonomous_mode.cpp
-	srcs/core/heartbeat.cpp
-    srcs/core/manual_mode.cpp
-    #controller
-    srcs/controller/Joystick.cpp
-    #can
-    srcs/can/socketCAN.c
-	srcs/can/canReceiver.cpp
-    srcs/can/CANController.cpp
+    #utils
+    srcs/utils/canRxParsing.cpp
+    srcs/utils/inputParsing.cpp
+    srcs/utils/signal.cpp
+    srcs/utils/threadSafeUtils.cpp
 )
 
 # Executable
