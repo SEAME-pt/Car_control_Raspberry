@@ -2,8 +2,6 @@
 
 #include "CANController.hpp"
 
-uint16_t rpmToSpeedMps(uint16_t rpm);
-
 /**
  * @file CANProtocol.hpp
  * @brief CAN IDs and protocol helper functions for sending vehicle commands.

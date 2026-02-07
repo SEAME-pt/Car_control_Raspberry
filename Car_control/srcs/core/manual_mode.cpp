@@ -26,11 +26,5 @@ void	manualLoop(t_carControl *carControl, t_CANReceiver* receiver) {
             last_steering = steering;
             last_throttle = throttle;
         }
-
-        t_speedData speedData;
-        if (getSpeedData(receiver, &speedData)) {
-            std::cout << "Speed: " << speedData.speedMps << " m/s (RPM: " 
-                      << speedData.rpm << ")" << std::endl;
-        }
     }
 }
