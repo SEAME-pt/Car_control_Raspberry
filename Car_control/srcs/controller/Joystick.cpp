@@ -51,15 +51,22 @@ int16_t	Joystick::getAbs(int axis_code) const {
 	return (-1);
 }
 
+#include <iostream>
+
 // Reads joystick buttons events pressed
 int	Joystick::readPress(void) {
 	rc = libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &ev);
 	if (rc == 0) {
-		if (ev.type != EV_SYN && ev.value != 0) // Only consider key/button press events
+		// Detect disconnect pattern: code 0 or 2 with value 128
+		if ((ev.code == 0 || ev.code == 2) && ev.value == 128) {
+			_disconnected = true;
+		}
+		
+		if (ev.type != EV_SYN && ev.value != 0) { // Only consider key/button press events
+			std::cout << "Event code: " << ev.code << " | Event value: " << ev.value << std::endl;	
 			return (ev.code - 304);
+		}
 
-	} else if (rc != -EAGAIN) {
-		_disconnected = true;
 	}
 
 	return (-1);

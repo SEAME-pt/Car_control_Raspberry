@@ -16,15 +16,12 @@ int	main(int argc, char *argv[]) {
 		
 		int btn = joystick->readPress();
 		if (btn != -1) {
-			std::cout << "Button pressed: " << btn << std::endl;
 			if (btn == START_BUTTON) {
-				std::cout << "START pressed, exiting joystick test." << std::endl;
 				break;
 			}
 		}
 		int16_t throttle = joystick->getAbs(ABS_Y);
 		int16_t steering = joystick->getAbs(ABS_Z);
-		std::cout << "Throttle: " << throttle << " | Steering: " << steering << "\r" << std::endl;
 		std::this_thread::sleep_for(std::chrono::milliseconds(5));
 	}
 	std::cout << std::endl;
