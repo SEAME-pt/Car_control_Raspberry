@@ -58,10 +58,16 @@ int	Joystick::readPress(void) {
 		if (ev.type != EV_SYN && ev.value != 0) // Only consider key/button press events
 			return (ev.code - 304);
 
-	} else if (rc != -EAGAIN)
-		throw std::runtime_error(std::string("Error! Joystick device removed, initiating forcing shutdown..."));
+	} else if (rc != -EAGAIN) {
+		_disconnected = true;
+	}
 
 	return (-1);
+}
+
+// Check if controller is disconnected
+bool	Joystick::isDisconnected(void) const {
+	return _disconnected;
 }
 
 // Find if device is connected and what's the name
