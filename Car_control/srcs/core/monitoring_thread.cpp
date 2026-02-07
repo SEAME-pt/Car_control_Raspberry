@@ -37,7 +37,7 @@ void monitoringThread(t_CANReceiver* receiver) {
 						std::cerr << "WARNING: STM32 connection lost! No speed data for: "
 						<< std::chrono::duration_cast<std::chrono::milliseconds>(timeSinceLastSpeed).count()
 						<< "ms" << std::endl;
-						//CANProtocol::sendEmergencyBrake(*receiver->can, true);
+						CANProtocol::sendEmergencyBrake(*receiver->can, true);
 					}
 				} else if (!stm32Alive) {
 					stm32Alive = true;
