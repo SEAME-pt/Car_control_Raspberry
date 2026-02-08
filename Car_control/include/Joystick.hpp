@@ -23,7 +23,7 @@ class Joystick {
 		int 				rc;				/**< Return code for libevdev calls */
 		int					fd;				/**< File descriptor for joystick device */
 		std::string			_device;		/**< Device path (e.g., /dev/input/eventX) */
-		bool				_disconnected = false;	/**< Controller disconnect flag */
+		bool				disconnected = false;	/**< Controller disconnect flag */
 	public:
 		/**
 		 * @brief Constructor - finds and initializes the joystick device.

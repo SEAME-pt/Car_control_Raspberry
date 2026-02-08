@@ -55,15 +55,20 @@ int16_t	Joystick::getAbs(int axis_code) const {
 
 // Reads joystick buttons events pressed
 int	Joystick::readPress(void) {
-	rc = libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &ev);
+	struct input_event current_ev;
+
+	rc = libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &current_ev);
 	if (rc == 0) {
 		// Detect disconnect pattern: code 0 or 2 with value 128
-		if ((ev.code == 0 || ev.code == 2) && ev.value == 128) {
-			_disconnected = true;
-		}
-		
-		if (ev.type != EV_SYN && ev.value != 0) { // Only consider key/button press events
-			std::cout << "Event code: " << ev.code << " | Event value: " << ev.value << std::endl;	
+		if (ev.code == 0 && current_ev.code == 2
+			&& ev.value == 128 && ev.value == 128) {
+			disconnected = true;
+		} else if (ev.code == 0 && current_ev.code == 2
+				&& ev.value == 128 && ev.value == 128) {
+			disconnected = false;
+		} else if (current_ev.type != EV_SYN && current_ev.value != 0) { // Only consider key/button press events
+			ev = current_ev; // Update last event
+			std::cout << "Button pressed: " << ev.code << std::endl; // Debug output
 			return (ev.code - 304);
 		}
 
@@ -74,7 +79,7 @@ int	Joystick::readPress(void) {
 
 // Check if controller is disconnected
 bool	Joystick::isDisconnected(void) const {
-	return _disconnected;
+	return disconnected;
 }
 
 // Find if device is connected and what's the name
