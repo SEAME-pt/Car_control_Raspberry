@@ -136,7 +136,7 @@ int	parsingArgv(int argc, char *argv[],
  *
  * @param carControl Pointer to t_carControl containing CAN and joystick
  */
-void	manualLoop(t_carControl *carControl, t_CANReceiver* receiver);
+void	manualLoop(t_carControl *carControl);
 
 /**
  * @brief Main loop for autonomous operation.

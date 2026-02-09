@@ -1,7 +1,7 @@
 #include "carControl.h"
 
 // Core loop to agregate joystick outputs and send them via CAN to the MCU
-void	manualLoop(t_carControl *carControl, t_CANReceiver* receiver) {
+void	manualLoop(t_carControl *carControl) {
 
     int16_t last_steering	= 0;
     int16_t last_throttle 	= 0;

@@ -25,7 +25,7 @@ int	main(int argc, char *argv[]) {
 			autonomousLoop(carControl);
 		} else {
 			std::cout << "Manual mode chosed, initiating joystick..." << std::endl;
-			manualLoop(&carControl, &canReceiver);
+			manualLoop(&carControl);
 		}
 	} catch (const std::exception &e) {
 		std::cerr << e.what() << std::endl;
@@ -33,7 +33,7 @@ int	main(int argc, char *argv[]) {
 
 	// Stop all threads
     g_running.store(false);
-    
+
     if (rxThread.joinable()) {
         rxThread.join();
     }
