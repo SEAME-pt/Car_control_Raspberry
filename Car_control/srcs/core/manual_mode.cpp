@@ -14,7 +14,7 @@ void	manualLoop(t_carControl *carControl, t_CANReceiver* receiver) {
         int16_t	throttle	= carControl->controller->getAbs(ABS_Y);
 
 		if (value == -2) {
-			CANProtocol::sendDrivingCommand(*carControl->can, 0, 0);
+			CANProtocol::sendEmergencyBrake(*carControl->can, true);
 			continue ;
 		}
 
