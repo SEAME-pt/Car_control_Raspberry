@@ -96,14 +96,14 @@ if(BUILD_TESTS)
     # Test files
     set(TEST_FILES
         #tests/CANControllerTest.cpp
-        #tests/CANInitTest.cpp
+        tests/CANInitTest.cpp
         #tests/CANProtocolTest.cpp
-        #tests/SocketCANTest.cpp
+        tests/SocketCANTest.cpp
         #tests/JoystickTest.cpp
-        #tests/autonomousModeTest.cpp
-		#tests/signalTest.cpp
-		#tests/parsingTest.cpp
-		#tests/initTest.cpp
+        tests/autonomousModeTest.cpp
+		tests/signalTest.cpp
+		tests/parsingTest.cpp
+		tests/initTest.cpp
         tests/manualModeTest.cpp
     )
 

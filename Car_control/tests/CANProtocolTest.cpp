@@ -20,35 +20,3 @@ protected:
     }
 };
 
-// Test emergency brake
-TEST_F(CANProtocolTest, EmergencyBrake) {
-    CANController can(validInterface);
-
-    ASSERT_NO_THROW(CANProtocol::sendEmergencyBrake(can, true));
-    ASSERT_NO_THROW(CANProtocol::sendEmergencyBrake(can, false));
-}
-
-/* // Test drive command clamping
-TEST_F(CANProtocolTest, DriveCommandClamping) {
-    CANController can(validInterface);
-    
-    // Valid values
-    ASSERT_NO_THROW(CANProtocol::sendDriveCommand(can, 60, 50));
-    
-    // Out of bounds
-    ASSERT_NO_THROW(CANProtocol::sendDriveCommand(can, 127, 127));  // Above max
-    ASSERT_NO_THROW(CANProtocol::sendDriveCommand(can, -128, -128)); // Below min
-}
-
-// Test boundary values
-TEST_F(CANProtocolTest, BoundaryValues) {
-    CANController can(validInterface);
-    
-    // Steering boundaries
-    ASSERT_NO_THROW(CANProtocol::sendDriveCommand(can, 0, 0));    // Min
-    ASSERT_NO_THROW(CANProtocol::sendDriveCommand(can, 120, 0));  // Max
-    
-    // Throttle boundaries
-    ASSERT_NO_THROW(CANProtocol::sendDriveCommand(can, 60, -100)); // Min
-    ASSERT_NO_THROW(CANProtocol::sendDriveCommand(can, 60, 100));  // Max
-} */

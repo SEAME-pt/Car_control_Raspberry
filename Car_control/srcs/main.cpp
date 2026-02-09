@@ -30,15 +30,11 @@ int	main(int argc, char *argv[]) {
 		std::cerr << e.what() << std::endl;
 	}
 
-	// Stop all threads
-    g_running.store(false);
-
-    if (rxThread.joinable()) {
+    if (rxThread.joinable())
         rxThread.join();
-    }
-    if (monitorThread.joinable()) {
+
+    if (monitorThread.joinable())
         monitorThread.join();
-    }
 
 	try {
 		CANProtocol::sendEmergencyBrake(*carControl.can, true);

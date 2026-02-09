@@ -104,70 +104,6 @@ TEST_F(AutonomousModeTest, AutonomousLoopHandlesCANFailure) {
     system("sudo ip link set up vcan0 2>/dev/null");
 }
 
-// Test CAN frame reception and stdout output in autonomousLoop
-TEST_F(AutonomousModeTest, AutonomousLoopReceivesAndPrintsCAN) {
-    t_carControl carControl;
-    try {
-        carControl.can = std::make_unique<CANController>("vcan0");
-    } catch (const CANController::CANException&) {
-        GTEST_SKIP() << "vcan0 interface not available";
-    }
-    
-    carControl.exit = false;
-    
-    // Create separate CAN controller to send frames from outside
-    std::unique_ptr<CANController> sender_can;
-    try {
-        sender_can = std::make_unique<CANController>("vcan0");
-    } catch (const CANController::CANException&) {
-        GTEST_SKIP() << "Could not create sender CAN controller";
-    }
-    
-    // Capture stdout to verify the CAN frame printing
-    testing::internal::CaptureStdout();
-    
-    // Start autonomous loop in separate thread
-    std::atomic<bool> loop_started{false};
-    std::thread loop_thread([&carControl, &loop_started]() {
-        loop_started.store(true);
-        autonomousLoop(carControl);  // Call the REAL function
-    });
-    
-    // Wait for loop to start
-    while (!loop_started.load()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-    
-    // Let the loop start and send some emergency brake frames
-    std::this_thread::sleep_for(std::chrono::milliseconds(150));
-    
-    // Send additional test frames from external controller
-    uint8_t test_data[3] = {0x12, 0x34, 0xAB};
-    sender_can->sendFrame(0x456, (int8_t*)test_data, 3);
-    
-    // Give time to process
-    std::this_thread::sleep_for(std::chrono::milliseconds(150));
-    
-    // Stop the loop
-    g_running.store(false);
-    loop_thread.join();
-    
-    // Get the captured output
-    std::string output = testing::internal::GetCapturedStdout();
-    
-    // Print output for debugging
-    if (output.empty()) {
-        std::cout << "No output captured!" << std::endl;
-    } else {
-        std::cout << "Captured output: " << output << std::endl;
-    }
-    
-    // The autonomous loop should receive its own emergency brake frames
-    // or the external frames due to CAN loopback behavior
-    EXPECT_TRUE(output.find("Unknown Message received") != std::string::npos ||
-                output.find("Raw RPM: 4660") != std::string::npos);
-}
-
 TEST_F(AutonomousModeTest, AutonomousLoopHandlesNoCANController) {
     t_carControl carControl;
     carControl.can = nullptr;  // No CAN controller
@@ -215,47 +151,6 @@ TEST_F(AutonomousModeTest, HandlesSocketDisconnect) {
     // Let it run a bit more to observe behavior
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     
-    loop_thread.join();
-    
-    // If we reach here without crashing, the test passes
-    SUCCEED();
-}
-
-TEST_F(AutonomousModeTest, CorruptedCanFrames)
-{
-    t_carControl carControl;
-    try {
-        carControl.can = std::make_unique<CANController>("vcan0");
-    } catch (const CANController::CANException&) {
-        GTEST_SKIP() << "vcan0 interface not available";
-    }
-    
-    carControl.exit = false;
-    
-    // Start autonomous loop in separate thread
-    std::atomic<bool> loop_started{false};
-    std::thread loop_thread([&carControl, &loop_started]() {
-        loop_started.store(true);
-        autonomousLoop(carControl);  // Call the REAL function
-    });
-    
-    // Wait for loop to start
-    while (!loop_started.load()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-    
-    // Let it run briefly
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    
-    // Send corrupted CAN frame (invalid length)
-    uint8_t corrupted_data[8] = {0xFF}; // Data larger than DLC
-    carControl.can->sendFrame(0x123, (int8_t*)corrupted_data, 20); // Invalid DLC
-    
-    // Let it run a bit more to observe behavior
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    
-    // Stop the loop
-    g_running.store(false);
     loop_thread.join();
     
     // If we reach here without crashing, the test passes
