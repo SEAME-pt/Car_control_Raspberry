@@ -71,11 +71,6 @@ int	Joystick::readPress(void) {
 	return (-1);
 }
 
-// Check if controller is disconnected
-bool	Joystick::isDisconnected(void) const {
-	return disconnected;
-}
-
 // Find if device is connected and what's the name
 void	Joystick::findJoystickDevice() {
 

@@ -17,9 +17,13 @@ void	manualLoop(t_carControl *carControl, t_CANReceiver* receiver) {
 			CANProtocol::sendDrivingCommand(*carControl->can, 0, 0);
 		}
         if (value == START_BUTTON) {
-            std::cout << "Initiating graceful shutdown.." << std::endl;
+            std::cout << "Initiating graceful shutdown..." << std::endl;
             g_running.store(false);
-        }
+        } else if (value == A_BUTTON) {
+			CANProtocol::sendEmergencyBrake(*carControl->can, true);
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			continue ;
+		}
 
         stableValues(&steering, &throttle);
 
