@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <linux/input.h>
 #include <cmath>
+#include <atomic>
 
 /**
  * @file Joystick.hpp
