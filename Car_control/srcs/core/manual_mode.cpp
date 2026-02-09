@@ -15,13 +15,15 @@ void	manualLoop(t_carControl *carControl, t_CANReceiver* receiver) {
 
 		if (value == -2) {
 			CANProtocol::sendDrivingCommand(*carControl->can, 0, 0);
+			continue ;
 		}
+
         if (value == START_BUTTON) {
             std::cout << "Initiating graceful shutdown..." << std::endl;
             g_running.store(false);
         } else if (value == A_BUTTON) {
 			CANProtocol::sendEmergencyBrake(*carControl->can, true);
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
 			continue ;
 		}
 
