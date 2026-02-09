@@ -47,7 +47,7 @@ namespace CANProtocol {
 	 */
 	inline void sendDrivingCommand(CANController& can, int16_t throttle, int16_t steering) {
 
-		int8_t data[2];
+		int8_t data[4];
 		data[0] = static_cast<int8_t>(throttle & 0xFF);         // Low byte
 		data[1] = static_cast<int8_t>((throttle >> 8) & 0xFF);  // High byte
 		data[2] = static_cast<int8_t>(steering & 0xFF);         // Steering Low byte
