@@ -40,6 +40,8 @@ public:
     void updateTotalDistance(double value);
     void updateShowError(bool value);
     void updateErrorMessage(const QString &value);
+    void sendData();
+
 
 signals:
     // Emitted when a field is received from remote peer
@@ -52,7 +54,6 @@ signals:
 private slots:
     void onNewConnection();
     void onClientDisconnected();
-    void sendData();
     void onReadyRead();
     void onConnected();
     void onDisconnected();

@@ -61,10 +61,10 @@ int	Joystick::readPress(void) {
 	if (rc == 0) {
 		// Detect disconnect pattern: code 0 or 2 with value 128
 		if (ev.code == 0 && current_ev.code == 2
-			&& ev.value == 128 && ev.value == 128) {
+			&& current_ev.value == 128 && ev.value == 128) {
 			disconnected = true;
 		} else if (ev.code == 0 && current_ev.code == 2
-				&& ev.value == 128 && ev.value == 128) {
+				&& ev.value == 128 && current_ev.value == 128) {
 			disconnected = false;
 		} else if (current_ev.type != EV_SYN && current_ev.value != 0) { // Only consider key/button press events
 			ev = current_ev; // Update last event

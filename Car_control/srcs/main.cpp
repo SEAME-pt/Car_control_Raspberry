@@ -2,56 +2,76 @@
 #include <QCoreApplication>
 #include <QTimer>
 #include <QDebug>
+#include <QThread>
 #include "communication/CarDataCommunication.hpp"
 
-CarDataCommunication *comm;
+std::unique_ptr<CarDataCommunication> comm;
 
-int	main(int argc, char *argv[]) {
-	QCoreApplication app(argc, argv);
+void	qDataStreamThread(t_carControl* carControl, int argc, char *argv[])
+{
+	t_speedData	speedData;
+	t_batteryData	batteryData;
+	t_CANReceiver	canReceiver;
+	canReceiver.can = carControl->can.get();
+	// Create QCoreApplication in this thread so it owns the event loop
+	try {
+		carControl->app = std::make_unique<QCoreApplication>(argc, argv);
+	} catch (const std::exception &e) {
+		std::cerr << "Failed to create QCoreApplication in thread: " << e.what() << std::endl;
+		return;
+	}
 
-	// Create the data communication (server listening on port 8888)
-	comm = new CarDataCommunication(8888);
+	// Create CarDataCommunication in this thread so sockets belong here
+	try {
+		carControl->comm = std::make_unique<CarDataCommunication>(8888);
+	} catch (const std::exception &e) {
+		std::cerr << "Failed to create CarDataCommunication in thread: " << e.what() << std::endl;
+		return;
+	}
 
-	// Connect to receive incoming data from clients
-	QObject::connect(comm, &CarDataCommunication::fieldReceived, 
+	// Connect signals now that comm exists
+	QObject::connect(carControl->comm.get(), &CarDataCommunication::fieldReceived,
 		[](const QString &fieldName, const QVariant &value) {
 			qDebug() << "Received field:" << fieldName << "=" << value;
-			
-			// Example: Handle specific fields
-			if (fieldName == "speed") {
-				qDebug() << "Speed updated to:" << value.toInt();
-			}
-			// Add more field handlers as needed
 		});
 
-	// Connect to monitor connection status
-	QObject::connect(comm, &CarDataCommunication::connected, 
-		[]() {
-			qDebug() << "Client connected to server";
-		});
-	
-	QObject::connect(comm, &CarDataCommunication::disconnected, 
-		[]() {
-			qDebug() << "Client disconnected from server";
-		});
+	QObject::connect(carControl->comm.get(), &CarDataCommunication::connected,
+		[]() { qDebug() << "Client connected to server"; });
 
-	// Timer to update and send data periodically
-	QTimer *updateTimer = new QTimer();
-	QObject::connect(updateTimer, &QTimer::timeout, [&]() {
-		// TODO: Update with real data from carControl
-		comm->updateData(50, 120, 80, 240, true, 60, 22.5, 1234.5, false, "");
+	QObject::connect(carControl->comm.get(), &CarDataCommunication::disconnected,
+		[]() { qDebug() << "Client disconnected from server"; });
+
+	int counter = 0;
+	while (g_running.load()) {
+		// Process Qt events (handles connections, signals, etc)
+		carControl->app->processEvents();
 		
-		// Example: Use Q_PROPERTY setter which emits speedChanged signal
-		comm->setSpeed(55);  // This will notify any QML bindings or other listeners
-	});
-	updateTimer->start(500); // Send every 500ms
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		carControl->comm->updateSpeed(getSpeedData(&canReceiver, &speedData) ? speedData.rpm : 0);
+		carControl->comm->updateBatteryLevel(getBatteryData(&canReceiver, &batteryData) ? batteryData.percentage : 100);
+		// Immediately send updated data
+		carControl->comm->sendData();
+		qDebug() << "Updated data #" << counter;
+		counter++;
+	}
 
-	/*signalManager();
-W
+	// Clean up in this thread
+	carControl->comm.reset();
+	carControl->app.reset();
+}
+
+
+int	main(int argc, char *argv[]) {
+	signalManager();
 	t_carControl carControl = initCarControl(argc, argv);
 	if (carControl.exit)
-		return (1);
+		return (1);		
+	
+	// Launch Qt data stream thread (pass argc/argv to allow creating QCoreApplication inside thread)
+	std::thread qtThread(qDataStreamThread, &carControl, argc, argv);
 
+	qtThread.join();
+	/*
 	// Initialize CAN receiver
     t_CANReceiver canReceiver;
     canReceiver.can = carControl.can.get();
@@ -62,32 +82,24 @@ W
 	// Launch monitoring thread (sends heartbeat via EMERGENCY_BRAKE(false), monitors STM32 health)
     std::thread monitorThread(monitoringThread, &canReceiver);
 
-	try {
-		if (!carControl.manual) {
-			std::cout << "Autonomous mode chosed, initiating ai..." << std::endl;
-			autonomousLoop(carControl);
-		} else {
-			std::cout << "Manual mode chosed, initiating joystick..." << std::endl;
-			manualLoop(&carControl, &canReceiver);
-		}
-	} catch (const std::exception &e) {
-		std::cerr << e.what() << std::endl;
-	}
-
 	// Stop all threads
     g_running.store(false);
     
     if (rxThread.joinable()) {
         rxThread.join();
     }
+	std::cout << "Emergency brake sent, exiting..." << std::endl;
     if (monitorThread.joinable()) {
         monitorThread.join();
     }
+	std::cout << "Emergency brake sent, exiting..." << std::endl;
 
 	try {
 		CANProtocol::sendEmergencyBrake(*carControl.can, true);
 	} catch (...) {
 		return (1);
-	}*/
+	}
+	std::cout << "Emergency brake sent, exiting..." << std::endl;
 	return app.exec();
+	*/
 }

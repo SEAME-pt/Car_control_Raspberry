@@ -3,6 +3,7 @@
 #include "CANController.hpp"
 #include "CANProtocol.hpp"
 #include "Joystick.hpp"
+#include "../srcs/communication/CarDataCommunication.hpp"
 
 #include <atomic>
 #include <csignal>
@@ -14,6 +15,7 @@
 #include <iomanip>
 #include <queue>
 #include <mutex>
+#include <QCoreApplication>
 
 /**
  * @file carControl.hpp
@@ -52,7 +54,8 @@
  * Contains the CAN controller, joystick, interface name, and operation mode.
  */
 typedef struct s_carControl {
-
+	std::unique_ptr<CarDataCommunication>	comm;
+	std::unique_ptr<QCoreApplication> 	app;
 	std::unique_ptr<CANController>	can;
 	std::unique_ptr<Joystick>		controller;
 	std::string		canInterface;

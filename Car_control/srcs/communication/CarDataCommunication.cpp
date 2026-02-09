@@ -71,6 +71,7 @@ void CarDataCommunication::disconnectFromHost() {
 void CarDataCommunication::setCruiseControl(int value) {
     if (speed != value) {
         speed = value;
+        qDebug() << "CarDataCommunication: cruiseControl set to" << speed;
         emit cruiseControlChanged();  // Q_PROPERTY notification
     }
 }
@@ -80,7 +81,6 @@ void CarDataCommunication::onNewConnection() {
     clients.append(client);
     
     connect(client, &QTcpSocket::disconnected, this, &CarDataCommunication::onClientDisconnected);
-    connect(client, &QTcpSocket::readyRead, this, &CarDataCommunication::onReadyRead);
     qDebug() << "New client connected";
     emit connected();
 }
@@ -152,18 +152,6 @@ void CarDataCommunication::sendData() {
     QDataStream out(&data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_15);
 
-    out << QString("speed") << (qint32)speed;
-    out << QString("speedLimit") << (qint32)speedLimit;
-    out << QString("batteryLevel") << (qint32)batteryLevel;
-    out << QString("batteryRange") << (qint32)batteryRange;
-    out << QString("motorActive") << motorActive;
-    out << QString("motorPower") << (qint32)motorPower;
-    out << QString("temperature") << temperature;
-    out << QString("totalDistance") << totalDistance;
-    out << QString("showError") << showError;
-    out << QString("errorMessage") << errorMessage;
-
-    // Send to all connected clients (server mode) or to server (client mode)
     if (isServerMode) {
         for (QTcpSocket *client : clients) {
             if (client->state() == QAbstractSocket::ConnectedState) {
@@ -181,7 +169,7 @@ void CarDataCommunication::updateData(int speed, int speedLimit, int batteryLeve
                               bool motorActive, int motorPower, double temperature, 
                               double totalDistance, bool showError, 
                               const QString &errorMessage) {
-    setSpeed(speed);  // Use setter to trigger Q_PROPERTY notification
+    setCruiseControl(speed);  // Use setter to trigger Q_PROPERTY notification
     this->speedLimit = speedLimit;
     this->batteryLevel = batteryLevel;
     this->batteryRange = batteryRange;
@@ -194,7 +182,7 @@ void CarDataCommunication::updateData(int speed, int speedLimit, int batteryLeve
 }
 
 void CarDataCommunication::updateSpeed(int value) {
-    setSpeed(value);  // Use setter to trigger Q_PROPERTY notification
+    this->speed = value;
 }
 
 void CarDataCommunication::updateSpeedLimit(int value) {

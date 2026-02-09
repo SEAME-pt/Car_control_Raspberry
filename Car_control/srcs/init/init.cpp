@@ -38,5 +38,9 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 		carControl.exit = true;
 		return (carControl);
 	}
+
+	// Defer Qt application and communication initialization to the Qt thread
+	carControl.app = nullptr;
+	carControl.comm = nullptr;
 	return (carControl);
 }
