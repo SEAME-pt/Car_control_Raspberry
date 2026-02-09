@@ -51,17 +51,34 @@ int16_t	Joystick::getAbs(int axis_code) const {
 	return (-1);
 }
 
+#include <iostream>
+
 // Reads joystick buttons events pressed
 int	Joystick::readPress(void) {
-	rc = libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &ev);
-	if (rc == 0) {
-		if (ev.type != EV_SYN && ev.value != 0) // Only consider key/button press events
-			return (ev.code - 304);
+	struct input_event current_ev;
 
-	} else if (rc != -EAGAIN)
-		throw std::runtime_error(std::string("Error! Joystick device removed, initiating forcing shutdown..."));
+	rc = libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &current_ev);
+	if (rc == 0) {
+		// Detect disconnect pattern: code 0 or 2 with value 128
+		if (ev.code == 0 && current_ev.code == 2
+			&& ev.value == 128 && ev.value == 128) {
+			disconnected = true;
+		} else if (ev.code == 0 && current_ev.code == 2
+				&& ev.value == 128 && ev.value == 128) {
+			disconnected = false;
+		} else if (current_ev.type != EV_SYN && current_ev.value != 0) { // Only consider key/button press events
+			ev = current_ev; // Update last event
+			return (ev.code - 304);
+		}
+
+	}
 
 	return (-1);
+}
+
+// Check if controller is disconnected
+bool	Joystick::isDisconnected(void) const {
+	return disconnected;
 }
 
 // Find if device is connected and what's the name
@@ -104,5 +121,5 @@ void stableValues(int16_t *steering, int16_t *throttle) {
     *throttle = static_cast<int16_t>(std::round(*throttle / 10.0) * 10);
 
     // Rounds steering to a multiple of 5
-    *steering = static_cast<int16_t>(std::round(*steering / 5.0) * 5);
+    *steering = static_cast<int16_t>(std::round(*steering / 2.0) * 2);
 }

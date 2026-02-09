@@ -8,6 +8,7 @@
 #include <cstring>
 #include <stdexcept>
 #include <memory>
+#include <mutex>
 
 /**
  * @file CANController.hpp
@@ -122,7 +123,8 @@ public:
 			: std::runtime_error("CAN Error: " + msg) {}
 	};
 private:
-	int			_socket;		/**< CAN socket file descriptor */
-	std::string	_interface;		/**< CAN interface name */
-	bool		_initialized;	/**< Indicates if CAN is initialized */
+	int					_socket;		/**< CAN socket file descriptor */
+	std::string			_interface;		/**< CAN interface name */
+	bool				_initialized;	/**< Indicates if CAN is initialized */
+	mutable std::mutex	_mutex;			/**< Protects CAN socket access */
 };
