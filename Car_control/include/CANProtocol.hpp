@@ -17,8 +17,8 @@ namespace CANSENDID {
 };
 
 namespace CANRECEIVERID {
-	constexpr uint16_t	SPEEDRPMSTM32			= 0x200;
-	constexpr uint16_t	BATTERYSTM32			= 0x201;
+	constexpr uint16_t	SPEEDRPMSTM32			= 0x200; /**< Sensor speed value (heartbeat) */
+	constexpr uint16_t	BATTERYSTM32			= 0x201; /**< Expansion board status */
 };
 
 /**
