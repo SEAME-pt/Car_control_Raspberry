@@ -197,8 +197,6 @@ This program focus on safety-critical aspects. Having that in mind, there is a s
 
 Add an exclusive thread just for the emergency brake and explore struct sched_param to set the priority to the maximum level.
 
-Add the possibility to receibe a message (heartbeat) from the microcontroller to ensure its everything still alive.
-
 ## Team members
 
 - Jose Meneses
