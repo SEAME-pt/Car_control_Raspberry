@@ -17,6 +17,7 @@ Joystick::Joystick() {
 		close(fd);
 		throw std::runtime_error(std::string("Error! Failed libevdev init..."));
 	}
+	ev = {};
 }
 
 Joystick::~Joystick() {
