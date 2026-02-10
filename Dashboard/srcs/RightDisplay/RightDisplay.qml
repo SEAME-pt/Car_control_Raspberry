@@ -8,4 +8,7 @@ Rectangle {
     MusicPlayer {
         anchors.fill: parent
     }
+	//Settings {
+	//	anchors.fill: parent
+	//}
 }

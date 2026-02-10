@@ -17,7 +17,7 @@ Rectangle {
 
     FolderListModel {
         id: folderModel
-        folder: "file:///home/team1/seame/Car_control_Raspberry/Dashboard/songs"
+        folder: "file:///songs/"
         nameFilters: ["*.mp3", "*.MP3"]
         showDirs: false
         

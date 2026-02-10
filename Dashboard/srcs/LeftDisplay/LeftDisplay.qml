@@ -8,7 +8,7 @@ Rectangle {
 
     Item {
         id: roadContainer
-        height: parent.height * 0.875
+        height: parent.height * 0.825
         width: parent.width
         anchors.horizontalCenter: parent.horizontalCenter
 
