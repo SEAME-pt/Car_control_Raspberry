@@ -195,18 +195,20 @@ void monitoringThread(t_CANReceiver* receiver);
  * 
  * @param receiver Pointer to CANReceiver
  * @param data Output speed data
+ * @param pop If true, removes the data from the queue; if false, leaves it for future retrieval
  * @return true if data available, false if queue empty
  */
-bool	getSpeedData(t_CANReceiver* receiver, t_speedData* data);
+bool	getSpeedData(t_CANReceiver* receiver, t_speedData* data, bool pop = true);
 
 /**
  * @brief Get latest battery data from queue (non-blocking)
  * 
  * @param receiver Pointer to CANReceiver
  * @param data Output battery data
+ * @param pop If true, removes the data from the queue; if false, leaves it for future retrieval
  * @return true if data available, false if queue empty
  */
-bool	getBatteryData(t_CANReceiver* receiver, t_batteryData* data);
+bool	getBatteryData(t_CANReceiver* receiver, t_batteryData* data, bool pop = true);
 
 /**
  * @brief Global atomic flag controlling main loops.

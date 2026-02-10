@@ -123,17 +123,36 @@ void CarDataCommunication::onReadyRead() {
     while (socket->bytesAvailable() > 0) {
         QString field;
         in >> field;
-        
-        if (field == "cruiseControl") {
-            qint32 value;
-            in >> value;
-            setCruiseControl(value);
-            emit fieldReceived("cruiseControl", value);
-        }
-        
+
         if (in.status() != QDataStream::Ok) {
             qWarning() << "Error reading data stream";
             break;
+        }
+
+        if (field == "cruiseControl") {
+            qint32 value;
+            in >> value;
+            if (in.status() == QDataStream::Ok) {
+                setCruiseControl(value);
+                emit fieldReceived("cruiseControl", value);
+            }
+        } else if (field == "speed") {
+            qint32 value;
+            in >> value;
+            if (in.status() == QDataStream::Ok) {
+                updateSpeed(value);
+                emit fieldReceived("speed", value);
+            }
+        } else if (field == "batteryLevel") {
+            qint32 value;
+            in >> value;
+            if (in.status() == QDataStream::Ok) {
+                updateBatteryLevel(value);
+                emit fieldReceived("batteryLevel", value);
+            }
+        } else {
+            // Unknown field: log and ignore
+            qDebug() << "Unknown field received:" << field;
         }
     }
 }
@@ -151,6 +170,10 @@ void CarDataCommunication::sendData() {
     QByteArray data;
     QDataStream out(&data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_15);
+
+    // Serialize only the fields we need for now: speed and batteryLevel
+    out << QString("speed") << qint32(speed);
+    out << QString("batteryLevel") << qint32(batteryLevel);
 
     if (isServerMode) {
         for (QTcpSocket *client : clients) {

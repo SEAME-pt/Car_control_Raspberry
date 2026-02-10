@@ -231,6 +231,8 @@ void CarDataController::attemptReconnect() {
 void CarDataController::updateSpeed(int value) {
     if (m_speed != value) {
         m_speed = value;
+        qDebug() << "Speed updated to:" << m_speed;
+        emit speedChanged();
     }
 }
 

@@ -43,6 +43,8 @@ void	canReceiverThread(t_CANReceiver* receiver) {
 
 						std::lock_guard<std::mutex> lock(receiver->batteryMutex);
 						receiver->batteryQueue.push(batteryData);
+						std::cout << "Received Battery: " << (int) batteryData.percentage << "%, Voltage: " << batteryData.voltage << "V" << std::endl;
+
 
 						if (receiver->batteryQueue.size() > 5)
 							receiver->batteryQueue.pop();

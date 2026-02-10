@@ -7,12 +7,10 @@
 
 std::unique_ptr<CarDataCommunication> comm;
 
-void	qDataStreamThread(t_carControl* carControl, int argc, char *argv[])
+void	qDataStreamThread(t_carControl* carControl, t_CANReceiver* canReceiver, int argc, char *argv[])
 {
 	t_speedData	speedData;
 	t_batteryData	batteryData;
-	t_CANReceiver	canReceiver;
-	canReceiver.can = carControl->can.get();
 	// Create QCoreApplication in this thread so it owns the event loop
 	try {
 		carControl->app = std::make_unique<QCoreApplication>(argc, argv);
@@ -47,11 +45,11 @@ void	qDataStreamThread(t_carControl* carControl, int argc, char *argv[])
 		carControl->app->processEvents();
 		
 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
-		carControl->comm->updateSpeed(getSpeedData(&canReceiver, &speedData) ? speedData.rpm : 0);
-		carControl->comm->updateBatteryLevel(getBatteryData(&canReceiver, &batteryData) ? batteryData.percentage : 100);
+		carControl->comm->updateSpeed(getSpeedData(canReceiver, &speedData, false) ? speedData.speed : 0);
+		carControl->comm->updateBatteryLevel(getBatteryData(canReceiver, &batteryData, false) ? batteryData.percentage : 100);
 		// Immediately send updated data
 		carControl->comm->sendData();
-		qDebug() << "Updated data #" << counter;
+		qDebug() << "Updated data # " << batteryData.percentage << "%, Voltage: " << batteryData.voltage << "V";
 		counter++;
 	}
 
@@ -66,20 +64,29 @@ int	main(int argc, char *argv[]) {
 	t_carControl carControl = initCarControl(argc, argv);
 	if (carControl.exit)
 		return (1);		
-	
-	// Launch Qt data stream thread (pass argc/argv to allow creating QCoreApplication inside thread)
-	std::thread qtThread(qDataStreamThread, &carControl, argc, argv);
 
-	qtThread.join();
-	/*
 	// Initialize CAN receiver
     t_CANReceiver canReceiver;
     canReceiver.can = carControl.can.get();
+
+	// Launch Qt data stream thread (pass argc/argv to allow creating QCoreApplication inside thread)
+	std::thread qtThread(qDataStreamThread, &carControl, &canReceiver, argc, argv);
+
+
 
 	// Threads launcher
     std::thread rxThread(canReceiverThread, &canReceiver);
     std::thread monitorThread(monitoringThread, &canReceiver);
 
+	if (qtThread.joinable())
+		qtThread.join();
+
+    if (rxThread.joinable())
+        rxThread.join();
+
+    if (monitorThread.joinable())
+        monitorThread.join();
+	/*
 	try {
 		if (!carControl.manual) {
 			std::cout << "Autonomous mode chosed, initiating ai..." << std::endl;
@@ -92,11 +99,6 @@ int	main(int argc, char *argv[]) {
 		std::cerr << e.what() << std::endl;
 	}
 
-    if (rxThread.joinable())
-        rxThread.join();
-
-    if (monitorThread.joinable())
-        monitorThread.join();
 
 	try {
 		CANProtocol::sendEmergencyBrake(*carControl.can, true);
