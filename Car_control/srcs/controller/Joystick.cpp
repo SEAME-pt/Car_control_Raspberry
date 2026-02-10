@@ -1,5 +1,7 @@
 #include "Joystick.hpp"
 
+extern std::atomic<bool> g_running;
+
 Joystick::Joystick() {
 
 	findJoystickDevice();
@@ -51,8 +53,6 @@ int16_t	Joystick::getAbs(int axis_code) const {
 	return (-1);
 }
 
-#include <iostream>
-
 // Reads joystick buttons events pressed
 int	Joystick::readPress(void) {
 	struct input_event current_ev;
@@ -61,18 +61,13 @@ int	Joystick::readPress(void) {
 	if (rc == 0) {
 		// Detect disconnect pattern: code 0 or 2 with value 128
 		if (ev.code == 0 && current_ev.code == 2
-			&& current_ev.value == 128 && ev.value == 128) {
-			disconnected = true;
-		} else if (ev.code == 0 && current_ev.code == 2
-				&& ev.value == 128 && current_ev.value == 128) {
-			disconnected = false;
+			&& ev.value == 127 && current_ev.value == 127) {
+			return (-2);
 		} else if (current_ev.type != EV_SYN && current_ev.value != 0) { // Only consider key/button press events
 			ev = current_ev; // Update last event
 			return (ev.code - 304);
 		}
-
 	}
-
 	return (-1);
 }
 

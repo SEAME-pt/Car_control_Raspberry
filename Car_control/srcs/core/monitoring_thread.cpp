@@ -2,12 +2,11 @@
 
 void monitoringThread(t_CANReceiver* receiver) {
 
-	auto lastSpeedDataReceived	= std::chrono::steady_clock::now();
+	constexpr auto STM32_TIMEOUT = std::chrono::milliseconds(600);
 
+	auto lastSpeedDataReceived	= std::chrono::steady_clock::now();
 	bool stm32Alive				= false;
 	bool firstSpeedReceived		= false;
-
-	constexpr auto STM32_TIMEOUT = std::chrono::milliseconds(600);
 
 	while (g_running.load()) {
 		try {
@@ -24,7 +23,7 @@ void monitoringThread(t_CANReceiver* receiver) {
 				if (!firstSpeedReceived) {
 					firstSpeedReceived = true;
 					stm32Alive = true;
-					std::cout << "Connection stablished! Monitoring...\n";
+					std::cout << "[MONITORING] Connection stablished...\n";
 				}
 			}
 
@@ -34,14 +33,14 @@ void monitoringThread(t_CANReceiver* receiver) {
 				if (timeSinceLastSpeed >= STM32_TIMEOUT) {
 					if (stm32Alive) {
 						stm32Alive = false;
-						std::cerr << "WARNING: STM32 connection lost! No speed data for: "
+						std::cerr << "[MONITORING] STM32 connection lost! No speed data for: "
 						<< std::chrono::duration_cast<std::chrono::milliseconds>(timeSinceLastSpeed).count()
 						<< "ms" << std::endl;
 						CANProtocol::sendEmergencyBrake(*receiver->can, true);
 					}
 				} else if (!stm32Alive) {
 					stm32Alive = true;
-					std::cout << "STM32 Connection restored!\n";
+					std::cout << "[MONITORING] STM32 Connection restored!\n";
 				}
 			}
 		} catch (const std::exception &e) {
