@@ -111,6 +111,6 @@ void stableValues(int16_t *steering, int16_t *throttle) {
     // Rounds throttle to a multiple of 10 
     *throttle = static_cast<int16_t>(std::round(*throttle / 10.0) * 10);
 
-    // Rounds steering to a multiple of 5
+    // Rounds steering to a multiple of 2
     *steering = static_cast<int16_t>(std::round(*steering / 2.0) * 2);
 }

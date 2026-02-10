@@ -64,6 +64,7 @@ class Joystick {
 };
 
 /**
+ * @brief Detect and improve joyctick stability
  * @param throttle Pointer to throttle value to stabilize
  */
 void	stableValues(int16_t *steering, int16_t *throttle);
