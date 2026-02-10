@@ -12,10 +12,8 @@ int	main(int argc, char *argv[]) {
     t_CANReceiver canReceiver;
     canReceiver.can = carControl.can.get();
 
-	// Launch CAN receiver thread (reads all incoming messages)
+	// Threads launcher
     std::thread rxThread(canReceiverThread, &canReceiver);
-
-	// Launch monitoring thread (sends heartbeat via EMERGENCY_BRAKE(false), monitors STM32 health)
     std::thread monitorThread(monitoringThread, &canReceiver);
 
 	try {
