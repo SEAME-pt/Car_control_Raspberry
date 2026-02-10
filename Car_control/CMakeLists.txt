@@ -95,9 +95,9 @@ if(BUILD_TESTS)
 
     # Test files
     set(TEST_FILES
-        #tests/CANControllerTest.cpp
+        tests/CANControllerTest.cpp
         tests/CANInitTest.cpp
-        #tests/CANProtocolTest.cpp
+        tests/CANProtocolTest.cpp
         tests/SocketCANTest.cpp
         #tests/JoystickTest.cpp
         tests/autonomousModeTest.cpp
@@ -105,6 +105,7 @@ if(BUILD_TESTS)
 		tests/parsingTest.cpp
 		tests/initTest.cpp
         tests/manualModeTest.cpp
+        tests/threadSafeUtilsTest.cpp
     )
 
     # Create test executable
