@@ -54,7 +54,6 @@ public slots:
     void dismissError();
     
     // Send methods - allows client to send data to server
-    void sendSpeed(int value);
     void sendSpeedLimit(int value);
     void sendBatteryLevel(int value);
     void sendBatteryRange(int value);

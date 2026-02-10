@@ -4,7 +4,7 @@ import com.cardata 1.0
 Row {
     id: batteryInfo
 
-    property real baseFontSize: parent.height * 0.08
+    property real baseFontSize: parent.height * 0.075
 
     spacing: parent.width * 0.02
 

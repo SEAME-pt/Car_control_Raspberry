@@ -1,14 +1,33 @@
 import QtQuick 2.15
 
 Rectangle {
-    radius: width * 0.04
     color: "transparent"
     clip: true
 
-    MusicPlayer {
-        anchors.fill: parent
+    // which panel to show: "music" or "settings"
+    property string panelType: "music"
+
+    Component {
+        id: musicComp
+        MusicPlayer { anchors.fill: parent }
     }
-	//Settings {
-	//	anchors.fill: parent
-	//}
+
+    Component {
+        id: settingsComp
+        Settings { anchors.fill: parent }
+    }
+
+    Loader {
+        id: rightLoader
+        anchors.fill: parent
+        sourceComponent: panelType === "music" ? musicComp : settingsComp
+        
+        Component.onCompleted: {
+            console.log("RightDisplay Loader initialized with panelType:", panelType)
+        }
+    }
+    
+    onPanelTypeChanged: {
+        console.log("RightDisplay panelType changed to:", panelType)
+    }
 }

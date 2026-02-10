@@ -7,7 +7,7 @@ Column {
     spacing: centerDisplay.height * -0.05
 
     Text {
-        text: CarData.distanceUnit === "Km" ? "KM/H" : "MPH"
+        text: CarData.distanceUnit === "km" ? "KM/H" : "MPH"
         color: "#F9F9F9"
         font.pixelSize: centerDisplay.height * 0.08
         font.family: vwHeadFont.name

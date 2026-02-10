@@ -231,7 +231,6 @@ void CarDataController::attemptReconnect() {
 void CarDataController::updateSpeed(int value) {
     if (m_speed != value) {
         m_speed = value;
-        sendSpeed(value);
     }
 }
 
@@ -301,23 +300,6 @@ void CarDataController::updateErrorMessage(const QString &value) {
 void CarDataController::dismissError() {
     updateShowError(false);
     updateErrorMessage("");
-}
-
-void CarDataController::sendSpeed(int value) {
-    if (!m_socket || m_socket->state() != QAbstractSocket::ConnectedState) {
-        qWarning() << "Cannot send: not connected";
-        return;
-    }
-    
-    QByteArray data;
-    QDataStream out(&data, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_15);
-    
-    out << QString("speed") << (qint32)value;
-    
-    m_socket->write(data);
-    m_socket->flush();
-    qDebug() << "Sent speed:" << value;
 }
 
 void CarDataController::sendSpeedLimit(int value) {

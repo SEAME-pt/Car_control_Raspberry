@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Window 2.15
+import QtQuick.Controls 2.15
 import com.dashboard 1.0
 import com.cardata 1.0
 import "CenterDisplay"
@@ -7,6 +8,7 @@ import "LeftDisplay"
 import "RightDisplay"
 import "ErrorDisplay"
 import "TopRow"
+import "BotRow"
 
 Window {
     visible: true
@@ -62,7 +64,7 @@ Window {
         // Start Height
         property real topStartY: 0
         property real centerStartY: topRowHeight + (Dashboard.padding_y * gridContainer.height)
-        property real bottomStartY: topRowHeight + centerRowHeight
+        property real bottomStartY: centerStartY + centerRowHeight + (Dashboard.padding_y * gridContainer.height)
         // Start Width
         property real leftStartX: 0
         property real centerStartX: leftColWidth + (Dashboard.padding_x * gridContainer.width)
@@ -102,12 +104,22 @@ Window {
 
         // Center Row - right Column
         RightDisplay {
+            id: rightDisplay
             x: gridContainer.rightStartX
             y: gridContainer.centerStartY
             width: gridContainer.rightColWidth
             height: gridContainer.centerRowHeight
         }
 
+
+        // Bottom Row - full width cell
+        BotRow {
+            bottomStartY: gridContainer.bottomStartY
+            bottomRowHeight: gridContainer.bottomRowHeight
+            bottomRowWidth: gridContainer.width
+            rightDisplay: rightDisplay
+            fontFamily: vwHeadFont.name
+        }
     }
 
     ErrorOverlay {

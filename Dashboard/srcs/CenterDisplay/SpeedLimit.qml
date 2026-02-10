@@ -4,8 +4,8 @@ import com.cardata 1.0
 Item {
     property int speedLimit: CarData.speedLimit
 
-    width: parent.width * 0.2
-    height: parent.width * 0.2
+    width: parent.width * 0.35
+    height: width
 
     // White background circle
     Rectangle {

@@ -141,6 +141,7 @@ Rectangle {
         
         // Dark overlay
         Rectangle {
+            radius: parent.width * 0.04
             anchors.fill: parent
             color: "#000000"
             opacity: 0.50

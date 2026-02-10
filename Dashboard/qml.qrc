@@ -17,8 +17,11 @@
         <file>srcs/RightDisplay/Settings.qml</file>
         <file>srcs/RightDisplay/MusicPlayer.qml</file>
         <file>srcs/ErrorDisplay/ErrorOverlay.qml</file>
+        <file>srcs/BotRow/BotRow.qml</file>
         <file>assets/battery.svg</file>
         <file>assets/car.svg</file>
+        <file>assets/settings.svg</file>
+        <file>assets/MusicPlayer.svg</file>
         <file>fonts/VWTextRegular.otf</file>
     </qresource>
 </RCC>

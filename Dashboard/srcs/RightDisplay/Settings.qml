@@ -100,15 +100,10 @@ Rectangle {
 
                 onToggled: {
                     // Send cruise control state to server
-                    if (checked)
-                    {
-                        CarData.sendSpeed(CarData.speed)  // Lock current speed
-                    } else {
                 }
                 // You can add a custom field for cruise control
                 // CarData.sendCruiseControl(checked)
             }
         }
     }
-}
 }
