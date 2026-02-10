@@ -13,6 +13,9 @@ void	manualLoop(t_carControl *carControl, t_CANReceiver* receiver) {
         int16_t	steering	= carControl->controller->getAbs(ABS_Z);
         int16_t	throttle	= carControl->controller->getAbs(ABS_Y);
 
+		if (value == -2) {
+			CANProtocol::sendDrivingCommand(*carControl->can, 0, 0);
+		}
         if (value == START_BUTTON) {
             std::cout << "Initiating graceful shutdown.." << std::endl;
             g_running.store(false);
