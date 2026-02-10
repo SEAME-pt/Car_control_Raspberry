@@ -76,23 +76,27 @@ int	main(int argc, char *argv[]) {
     t_CANReceiver canReceiver;
     canReceiver.can = carControl.can.get();
 
-	// Launch CAN receiver thread (reads all incoming messages)
+	// Threads launcher
     std::thread rxThread(canReceiverThread, &canReceiver);
-
-	// Launch monitoring thread (sends heartbeat via EMERGENCY_BRAKE(false), monitors STM32 health)
     std::thread monitorThread(monitoringThread, &canReceiver);
 
-	// Stop all threads
-    g_running.store(false);
-    
-    if (rxThread.joinable()) {
+	try {
+		if (!carControl.manual) {
+			std::cout << "Autonomous mode chosed, initiating ai..." << std::endl;
+			autonomousLoop(carControl);
+		} else {
+			std::cout << "Manual mode chosed, initiating joystick..." << std::endl;
+			manualLoop(&carControl);
+		}
+	} catch (const std::exception &e) {
+		std::cerr << e.what() << std::endl;
+	}
+
+    if (rxThread.joinable())
         rxThread.join();
-    }
-	std::cout << "Emergency brake sent, exiting..." << std::endl;
-    if (monitorThread.joinable()) {
+
+    if (monitorThread.joinable())
         monitorThread.join();
-    }
-	std::cout << "Emergency brake sent, exiting..." << std::endl;
 
 	try {
 		CANProtocol::sendEmergencyBrake(*carControl.can, true);

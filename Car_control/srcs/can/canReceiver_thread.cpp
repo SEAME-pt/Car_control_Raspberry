@@ -36,10 +36,10 @@ void	canReceiverThread(t_CANReceiver* receiver) {
 
 				// Battery status
 				case CANRECEIVERID::BATTERYSTM32: {
-					if (rx.can_dlc >= 4) {
+					if (rx.can_dlc >= 3) {
 						t_batteryData	batteryData;
 						batteryData.percentage = (rx.data[0] << 8) | rx.data[1];
-						batteryData.voltage = (rx.data[2] << 8) | rx.data[3];
+						batteryData.voltage = rx.data[2];
 
 						std::lock_guard<std::mutex> lock(receiver->batteryMutex);
 						receiver->batteryQueue.push(batteryData);
@@ -55,7 +55,6 @@ void	canReceiverThread(t_CANReceiver* receiver) {
                               << rx.can_id << std::dec << std::endl;
                     break ;
 			}
-			// Small sleep to avoid burning CPU
         	std::this_thread::sleep_for(std::chrono::milliseconds(5));
 		}
 	}

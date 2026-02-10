@@ -17,6 +17,7 @@ Joystick::Joystick() {
 		close(fd);
 		throw std::runtime_error(std::string("Error! Failed libevdev init..."));
 	}
+	ev = {};
 }
 
 Joystick::~Joystick() {
@@ -71,11 +72,6 @@ int	Joystick::readPress(void) {
 	return (-1);
 }
 
-// Check if controller is disconnected
-bool	Joystick::isDisconnected(void) const {
-	return disconnected;
-}
-
 // Find if device is connected and what's the name
 void	Joystick::findJoystickDevice() {
 
@@ -115,6 +111,6 @@ void stableValues(int16_t *steering, int16_t *throttle) {
     // Rounds throttle to a multiple of 10 
     *throttle = static_cast<int16_t>(std::round(*throttle / 10.0) * 10);
 
-    // Rounds steering to a multiple of 5
+    // Rounds steering to a multiple of 2
     *steering = static_cast<int16_t>(std::round(*steering / 2.0) * 2);
 }

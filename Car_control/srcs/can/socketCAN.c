@@ -90,10 +90,6 @@ int	can_send_frame(int socket, uint16_t can_id,
 	frame.len = len;
 	frame.can_id = can_id;
 
-	/* for (int i = 0; i < len; ++i)
-    	printf("%02X ", frame.data[i]);
-	printf("\n"); */
-
 	if (write(socket, &frame, sizeof(struct can_frame)) < 0) {
 		perror("write CAN frame");
 		return (-1);

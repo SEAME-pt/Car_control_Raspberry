@@ -24,7 +24,6 @@ class Joystick {
 		int 				rc;				/**< Return code for libevdev calls */
 		int					fd;				/**< File descriptor for joystick device */
 		std::string			_device;		/**< Device path (e.g., /dev/input/eventX) */
-		bool				disconnected = false;	/**< Controller disconnect flag */
 	public:
 		/**
 		 * @brief Constructor - finds and initializes the joystick device.
@@ -51,27 +50,21 @@ class Joystick {
 		 * Only considers key/button press events (ignores EV_SYN and releases).
 		 *
 		 * @return Button code (ev.code - 304) if pressed, -1 if no button press
+		 * and -2 if controller disconnected
 		 * @throws std::runtime_error if device is removed or read fails
 		 */
 		int		readPress(void);
-
+	
 		/**
-	 * @brief Check if controller is disconnected.
-	 *
-	 * @return true if controller disconnected, false otherwise
-	 */
-	bool	isDisconnected(void) const;
-	
-	
-	/**
-	 * @brief Detects connected joystick device and sets _device path.
-	 *
-	 * @throws std::runtime_error if no joystick is found
-	 */
-	void	findJoystickDevice();
+		 * @brief Detects connected joystick device and sets _device path.
+		 *
+		 * @throws std::runtime_error if no joystick is found
+		 */
+		void	findJoystickDevice();
 };
 
 /**
+ * @brief Detect and improve joyctick stability
  * @param throttle Pointer to throttle value to stabilize
  */
 void	stableValues(int16_t *steering, int16_t *throttle);
