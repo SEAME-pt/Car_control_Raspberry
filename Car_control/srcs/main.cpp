@@ -8,6 +8,14 @@ int	main(int argc, char *argv[]) {
 	if (carControl.exit)
 		return (1);
 
+	// Initialize CAN receiver
+    t_CANReceiver canReceiver;
+    canReceiver.can = carControl.can.get();
+
+	// Threads launcher
+    std::thread rxThread(canReceiverThread, &canReceiver);
+    std::thread monitorThread(monitoringThread, &canReceiver);
+
 	try {
 		if (!carControl.manual) {
 			std::cout << "Autonomous mode chosed, initiating ai..." << std::endl;
@@ -16,9 +24,16 @@ int	main(int argc, char *argv[]) {
 			std::cout << "Manual mode chosed, initiating joystick..." << std::endl;
 			manualLoop(&carControl);
 		}
-	} catch (const std::exception &err) {
-		std::cerr << err.what() << std::endl;
+	} catch (const std::exception &e) {
+		std::cerr << e.what() << std::endl;
 	}
+
+    if (rxThread.joinable())
+        rxThread.join();
+
+    if (monitorThread.joinable())
+        monitorThread.join();
+
 	try {
 		CANProtocol::sendEmergencyBrake(*carControl.can, true);
 	} catch (...) {

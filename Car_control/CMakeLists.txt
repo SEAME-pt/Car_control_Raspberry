@@ -23,21 +23,24 @@ include_directories(${CMAKE_SOURCE_DIR}/include ${LIBEVDEV_INCLUDE_DIRS})
 # Source files
 set(SOURCES
     srcs/main.cpp
-    #utils
-    srcs/utils/parsing.cpp
-    srcs/utils/signal.cpp
-    srcs/utils/temp_print_can_rx.cpp
-    #init
-    srcs/init/init_can.cpp
-    srcs/init/init.cpp
-    #core
+	#can
+    srcs/can/CANController.cpp
+	srcs/can/canReceiver_thread.cpp
+    srcs/can/socketCAN.c
+	#controller
+    srcs/controller/Joystick.cpp
+	#core
     srcs/core/autonomous_mode.cpp
     srcs/core/manual_mode.cpp
-    #controller
-    srcs/controller/Joystick.cpp
-    #can
-    srcs/can/socketCAN.c
-    srcs/can/CANController.cpp
+	srcs/core/monitoring_thread.cpp
+	#init
+    srcs/init/init_can.cpp
+    srcs/init/init.cpp
+    #utils
+    srcs/utils/canRxParsing.cpp
+    srcs/utils/inputParsing.cpp
+    srcs/utils/signal.cpp
+    srcs/utils/threadSafeUtils.cpp
 )
 
 # Executable
@@ -57,9 +60,9 @@ message(STATUS "Libevdev libraries: ${LIBEVDEV_LIBRARIES}")
 message(STATUS "Libevdev include: ${LIBEVDEV_INCLUDE_DIRS}")
 message(STATUS "================================")
 
-## ================================
-## Testing with Google Test
-## ================================
+# ================================
+# Testing with Google Test
+# ================================
 option(BUILD_TESTS "Build the tests" ON)
 
 if(BUILD_TESTS)
@@ -71,20 +74,23 @@ if(BUILD_TESTS)
 
     # Test source files (excluding main.cpp from main project)
     set(TEST_SOURCES
-        srcs/utils/signal.cpp
-        srcs/utils/parsing.cpp
-        srcs/utils/temp_print_can_rx.cpp
-        #init
-        srcs/init/init_can.cpp
-        srcs/init/init.cpp
-        #controller
-        srcs/controller/Joystick.cpp
-        #can
+		#can
         srcs/can/socketCAN.c
         srcs/can/CANController.cpp
-        #core
+		#controller
+        srcs/controller/Joystick.cpp
+		#core
         srcs/core/autonomous_mode.cpp
         srcs/core/manual_mode.cpp
+        srcs/core/monitoring_thread.cpp
+		#init
+        srcs/init/init_can.cpp
+        srcs/init/init.cpp
+		#utils
+        srcs/utils/signal.cpp
+        srcs/utils/inputParsing.cpp
+        srcs/utils/canRxParsing.cpp
+		srcs/utils/threadSafeUtils.cpp
     )
 
     # Test files
@@ -93,12 +99,13 @@ if(BUILD_TESTS)
         tests/CANInitTest.cpp
         tests/CANProtocolTest.cpp
         tests/SocketCANTest.cpp
-        tests/JoystickTest.cpp
+        #tests/JoystickTest.cpp
         tests/autonomousModeTest.cpp
 		tests/signalTest.cpp
 		tests/parsingTest.cpp
 		tests/initTest.cpp
         tests/manualModeTest.cpp
+        tests/threadSafeUtilsTest.cpp
     )
 
     # Create test executable

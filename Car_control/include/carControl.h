@@ -12,6 +12,8 @@
 #include <chrono>
 #include <fcntl.h>
 #include <iomanip>
+#include <queue>
+#include <mutex>
 
 /**
  * @file carControl.hpp
@@ -40,6 +42,9 @@
 #define R2_BUTTON		9
 #define START_BUTTON	11
 
+// Wheel values
+#define WHEEL_CIRCUMFERENCE_M	0.21
+
 /**
  * @struct s_carControl
  * @brief Aggregates all vehicle control objects and configuration.
@@ -54,6 +59,38 @@ typedef struct s_carControl {
 	bool			manual;
 	bool			exit;
 } t_carControl;
+
+/**
+ * @struct s_speedData
+ * @brief Speed sensor data
+ */
+typedef struct s_speedData {
+	uint16_t	rpm;
+	uint16_t	speedMps;
+} t_speedData;
+
+/**
+ * @struct s_batteryData
+ * @brief Battery sensor data
+ */
+typedef struct s_batteryData {
+	uint16_t	voltage;
+	uint8_t		percentage;
+} t_batteryData;
+
+/**
+ * @struct s_CANReceiver
+ * @brief Central CAN message receiver with thread-safe queues
+ */
+typedef struct s_CANReceiver {
+	std::queue<t_speedData>		speedQueue;
+	std::queue<t_batteryData>	batteryQueue;
+
+	std::mutex speedMutex;
+	std::mutex batteryMutex;
+
+	CANController*	can;
+} t_CANReceiver;
 
 /**
  * @brief Initialize a CAN controller instance.
@@ -90,7 +127,7 @@ t_carControl	initCarControl(int argc, char *argv[]);
  * @return 1 if parsing successful, 0 if exit requested
  */
 int	parsingArgv(int argc, char *argv[],
-				                    t_carControl *carControl);
+		t_carControl *carControl);
 
 /**
  * @brief Main loop for manual joystick control.
@@ -123,12 +160,50 @@ void	signalManager();
 void	signalHandler(int signum);
 
 /**
- * @brief Reads available CAN frames from the bus.
+ * @brief Converts raw RPM into meters per second
  *
- * @param can Reference to initialized CANController
+ * @param can Reference raw RPM message received from stm32
  */
-void	readCan(const std::unique_ptr<CANController> &can);
+uint16_t	rpmToSpeedMps(uint16_t rpm);
 
+/**
+ * @brief CAN receiver thread - reads all CAN messages and distributes to queues
+ * 
+ * @param receiver Pointer to CANReceiver structure
+ */
+void	canReceiverThread(t_CANReceiver* receiver);
+
+/**
+ * @brief Monitoring thread - sends heartbeat and monitors STM32 health via speed data
+ * 
+ * This thread sends EMERGENCY_BRAKE(false) as a heartbeat signal every 300ms.
+ * It monitors STM32 health by checking if speed sensor data is being received.
+ * 
+ * Since STM32 cannot efficiently send dedicated ACK due to single-core limitations,
+ * we use the reception of sensor speed data (which STM32 sends anyway) as implicit 
+ * proof of life.
+ * 
+ * @param receiver Pointer to CANReceiver structure with queues and CAN controller
+ */
+void monitoringThread(t_CANReceiver* receiver);
+
+/**
+ * @brief Get latest speed data from queue (non-blocking)
+ * 
+ * @param receiver Pointer to CANReceiver
+ * @param data Output speed data
+ * @return true if data available, false if queue empty
+ */
+bool	getSpeedData(t_CANReceiver* receiver, t_speedData* data);
+
+/**
+ * @brief Get latest battery data from queue (non-blocking)
+ * 
+ * @param receiver Pointer to CANReceiver
+ * @param data Output battery data
+ * @return true if data available, false if queue empty
+ */
+bool	getBatteryData(t_CANReceiver* receiver, t_batteryData* data);
 
 /**
  * @brief Global atomic flag controlling main loops.

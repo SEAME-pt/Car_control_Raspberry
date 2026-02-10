@@ -48,28 +48,18 @@ Car_control/
 │   │
 │   ├── core/ 							 # Core control loops
 │   │   ├── autonomous_mode.cpp 		 # Autonomous driving loop
-│   │   └── manual_mode.cpp 			 # Manual joystick control loop
+│   │   ├── manual_mode.cpp 			 # Manual joystick control loop
+│   │   └── monitoring_thread.cpp 		 # STM32 health monitoring thread
 │   │
 │   ├── init/                            # Initialization modules
 │   │   ├── init.cpp                     # Main initialization
+│   │   └── init_can.cpp 		 		 # CAN initialization helper
 │   │
 │   └── utils/                           # Utility functions
-│   |   ├── parsing.cpp 				 # Command-line argument parsing
+│   |   ├── inputParsing.cpp 				 # Command-line argument parsing
 │   |   ├── signal.cpp 					 # Signal handling (graceful shutdown)
-│   |── └── temp_print_can_rx.cpp 		 # CAN receive debug utility
-│
-├── tests/
-│ ├── CANControllerTest.cpp 			 # CAN controller unit tests
-│ ├── CANInitTest.cpp 					 # CAN initialization tests
-│ ├── CANProtocolTest.cpp 				 # CAN protocol tests
-│ ├── CarControlTest.cpp 				 # Main control system tests
-│ ├── JoystickTest.cpp 					 # Joystick handling tests
-│ └── SocketCANTest.cpp 				 # Low-level CAN socket tests
-│
-├── scripts/
-│ ├── install_lcov.sh 					 # Install lcov for coverage
-│ ├── install_GoogleTest.sh 			 # Install Google Test framework
-│ └── install_libevdev.sh 				 # Install libevdev library
+│   |   ├── canRxParsing.cpp 		 # CAN receive debug utility
+│   │   └── threadSafeUtils_thread.cpp 		 # STM32 health monitoring thread
 │
 └── build/                               # Build output (gitignored)
     ├── Makefile
@@ -196,8 +186,6 @@ Root permissions are required due to CAN socket initialization and, when testing
 This program focus on safety-critical aspects. Having that in mind, there is a special feature that must be closer to a safety-critical manner: the emergency brake. To ensure the message is sent as fast as possible, integration tests are necessary, and delay tests for the messages are also required.
 
 Add an exclusive thread just for the emergency brake and explore struct sched_param to set the priority to the maximum level.
-
-Add the possibility to receibe a message (heartbeat) from the microcontroller to ensure its everything still alive.
 
 ## Team members
 

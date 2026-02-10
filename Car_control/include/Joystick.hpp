@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <linux/input.h>
 #include <cmath>
+#include <atomic>
 
 /**
  * @file Joystick.hpp
@@ -49,10 +50,11 @@ class Joystick {
 		 * Only considers key/button press events (ignores EV_SYN and releases).
 		 *
 		 * @return Button code (ev.code - 304) if pressed, -1 if no button press
+		 * and -2 if controller disconnected
 		 * @throws std::runtime_error if device is removed or read fails
 		 */
 		int		readPress(void);
-
+	
 		/**
 		 * @brief Detects connected joystick device and sets _device path.
 		 *
@@ -62,9 +64,7 @@ class Joystick {
 };
 
 /**
- * @brief Stabilizes joystick input values to handle deadzones and calibration.
- *
- * @param steering Pointer to steering value to stabilize
+ * @brief Detect and improve joyctick stability
  * @param throttle Pointer to throttle value to stabilize
  */
 void	stableValues(int16_t *steering, int16_t *throttle);

@@ -5,7 +5,6 @@ void	manualLoop(t_carControl *carControl) {
 
 	int16_t last_steering	= 0;
 	int16_t last_throttle 	= 0;
-	uint8_t	counter			= 0;
 
 	while (g_running.load() && carControl->controller) {
 
@@ -14,31 +13,28 @@ void	manualLoop(t_carControl *carControl) {
 		int16_t	steering	= carControl->controller->getAbs(ABS_Z);
 		int16_t	throttle	= carControl->controller->getAbs(ABS_Y);
 
+		// Joystick disconection error
+		if (value == -2) {
+			CANProtocol::sendEmergencyBrake(*carControl->can, true);
+			continue ;
+		}
+
 		if (value == START_BUTTON) {
-			std::cout << "Initiating graceful shutdown.." << std::endl;
+			std::cout << "Initiating graceful shutdown..." << std::endl;
 			g_running.store(false);
+		} else if (value == A_BUTTON) {
+			CANProtocol::sendEmergencyBrake(*carControl->can, true);
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+			continue ;
 		}
 
 		stableValues(&steering, &throttle);
 
-		if (steering != last_steering) {
-    		CANProtocol::sendSteeringCommand(*carControl->can, steering);
-    		std::cout << "Steering: " << std::endl;
-    		last_steering = steering;
+		if (steering != last_steering || throttle != last_throttle) {
+			CANProtocol::sendDrivingCommand(*carControl->can, throttle, steering);
+			std::cout << "Throttle: " << throttle << " | Steering: " << steering << std::endl;
+			last_steering = steering;
+			last_throttle = throttle;
 		}
-
-		if (throttle == 0) {
-    		if (counter < 3) {
-        		CANProtocol::sendThrottleCommand(*carControl->can, throttle);
-        		std::cout << "Throttle: " << std::endl;
-        		counter++;
-    		}
-		} else if (throttle != last_throttle) {
-    		CANProtocol::sendThrottleCommand(*carControl->can, throttle);
-    		std::cout << "Throttle: " << std::endl;
-    		counter = 0;
-		}
-		last_throttle = throttle;
-		readCan(carControl->can);
 	}
 }

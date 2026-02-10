@@ -8,13 +8,17 @@
  */
 
 /**
- * @namespace CANID
- * @brief Predefined CAN IDs used by the vehicle communication protocol.
+ * @namespace CANSENDID
+ * @brief Predefined CAN IDs used by the vehicle communication protocol to send messages.
  */
-namespace CANID {
+namespace CANSENDID {
 	constexpr uint16_t	EMERGENCY_BRAKE 	= 0x100;	/**< Emergency brake command (max priority) */
-	constexpr uint16_t	COMMAND_THROTTLE	= 0x101;	/**< Throttle command (high priority) */
-	constexpr uint16_t	COMMAND_STEERING	= 0x102;	/**< Steering command (high priority) */
+	constexpr uint16_t	DRIVING_COMMAND		= 0x101;	/**< driving command (medium prority) */
+};
+
+namespace CANRECEIVERID {
+	constexpr uint16_t	SPEEDRPMSTM32			= 0x200; /**< Sensor speed value (heartbeat) */
+	constexpr uint16_t	BATTERYSTM32			= 0x201; /**< Expansion board status */
 };
 
 /**
@@ -32,7 +36,7 @@ namespace CANProtocol {
 	inline void sendEmergencyBrake(CANController& can, bool active) {
 
 		int8_t data = active ? 0xF : 0x00;
-		can.sendFrame(CANID::EMERGENCY_BRAKE, &data, 1);
+		can.sendFrame(CANSENDID::EMERGENCY_BRAKE, &data, 1);
 	}
 
 	/**
@@ -41,25 +45,13 @@ namespace CANProtocol {
 	 * @param can Reference to an initialized CANController
 	 * @param throttle Throttle value to send
 	 */
-	inline void sendThrottleCommand(CANController& can, int16_t throttle) {
+	inline void sendDrivingCommand(CANController& can, int16_t throttle, int16_t steering) {
 
-		int8_t data[2];
-    	data[0] = static_cast<int8_t>(throttle & 0xFF);         // Low byte
-    	data[1] = static_cast<int8_t>((throttle >> 8) & 0xFF);  // High byte
-		can.sendFrame(CANID::COMMAND_THROTTLE, data, 2);
-	}
-
-	/**
-	 * @brief Sends a steering command over CAN.
-	 *
-	 * @param can Reference to an initialized CANController
-	 * @param steering Steering value to send
-	 */
-	inline void sendSteeringCommand(CANController& can, int16_t steering) {
-		
-		int8_t data[2];
-    	data[0] = static_cast<int8_t>(steering & 0xFF);         // Low byte
-    	data[1] = static_cast<int8_t>((steering >> 8) & 0xFF);  // High byte
-		can.sendFrame(CANID::COMMAND_STEERING, data, 2);
+		int8_t data[4];
+		data[0] = static_cast<int8_t>(throttle & 0xFF);         // Low byte
+		data[1] = static_cast<int8_t>((throttle >> 8) & 0xFF);  // High byte
+		data[2] = static_cast<int8_t>(steering & 0xFF);         // Steering Low byte
+    	data[3] = static_cast<int8_t>((steering >> 8) & 0xFF);  // Steering High byte
+		can.sendFrame(CANSENDID::DRIVING_COMMAND, data, 4);
 	}
 }

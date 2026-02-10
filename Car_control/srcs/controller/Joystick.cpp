@@ -1,5 +1,7 @@
 #include "Joystick.hpp"
 
+extern std::atomic<bool> g_running;
+
 Joystick::Joystick() {
 
 	findJoystickDevice();
@@ -15,6 +17,7 @@ Joystick::Joystick() {
 		close(fd);
 		throw std::runtime_error(std::string("Error! Failed libevdev init..."));
 	}
+	ev = {};
 }
 
 Joystick::~Joystick() {
@@ -53,14 +56,19 @@ int16_t	Joystick::getAbs(int axis_code) const {
 
 // Reads joystick buttons events pressed
 int	Joystick::readPress(void) {
-	rc = libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &ev);
+	struct input_event current_ev;
+
+	rc = libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &current_ev);
 	if (rc == 0) {
-		if (ev.type != EV_SYN && ev.value != 0) // Only consider key/button press events
+		// Detect disconnect pattern: code 0 or 2 with value 128
+		if (ev.code == 0 && current_ev.code == 2
+			&& ev.value == 127 && current_ev.value == 127) {
+			return (-2);
+		} else if (current_ev.type != EV_SYN && current_ev.value != 0) { // Only consider key/button press events
+			ev = current_ev; // Update last event
 			return (ev.code - 304);
-
-	} else if (rc != -EAGAIN)
-		throw std::runtime_error(std::string("Error! Joystick device removed, initiating forcing shutdown..."));
-
+		}
+	}
 	return (-1);
 }
 
@@ -103,6 +111,6 @@ void stableValues(int16_t *steering, int16_t *throttle) {
     // Rounds throttle to a multiple of 10 
     *throttle = static_cast<int16_t>(std::round(*throttle / 10.0) * 10);
 
-    // Rounds steering to a multiple of 5
-    *steering = static_cast<int16_t>(std::round(*steering / 5.0) * 5);
+    // Rounds steering to a multiple of 2
+    *steering = static_cast<int16_t>(std::round(*steering / 2.0) * 2);
 }
