@@ -95,8 +95,8 @@ int	can_send_frame(int socket, uint16_t can_id,
     	struct timeval tv;
     	gettimeofday(&tv, NULL);
     	long long t_write = tv.tv_sec * 1000000LL + tv.tv_usec;
-    
-    	FILE* log = fopen("latency_test.log", "a");
+
+    	FILE* log = fopen("latency_test1.log", "a");
     	if (log) {
         	fprintf(log, "CAN_WRITE,0x%X,%lld\n", can_id, t_write);
         	fclose(log);
