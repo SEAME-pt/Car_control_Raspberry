@@ -2,7 +2,6 @@
 #include "../incs/Dashboard.hpp"
 #include "../incs/CarDataController.hpp"
 #include "../incs/CoverArtProvider.hpp"
-#include <QQmlContext>
 
 static QObject* dashboardSingletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
 {

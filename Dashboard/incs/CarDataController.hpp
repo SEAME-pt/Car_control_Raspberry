@@ -5,6 +5,15 @@
 #include <QTimer>
 #include <QString>
 #include <QDataStream>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QDebug>
+#include <QSettings>
+#include <QtMath>
+
+#ifndef MILES_PER_KM
+# define MILES_PER_KM 0.621371 // More accurate conversion factor
+#endif
 
 class CarDataController : public QObject {
     Q_OBJECT
@@ -46,6 +55,25 @@ public:
 
     void setServerAddress(const QString &address);
     void setServerPort(int port);
+    void setDistanceUnit(const QString &unit);
+    void setTemperatureUnit(const QString &unit);
+
+#ifdef UNIT_TEST
+    // Test-only cases setters/updaters
+    void testSetTemperature(double value) { updateTemperature(value); };
+	void testSetDistance(double value) { updateTotalDistance(value); }
+	void testSetSpeed(int value) { updateSpeed(value); }
+	void testSetSpeedLimit(int value) { updateSpeedLimit(value); }
+	void updateTestBatteryLevel(int value) { updateBatteryLevel(value); }
+	void updateTestBatteryRange(int value) { updateBatteryRange(value); }
+	void updateTestMotorActive(bool value) { updateMotorActive(value); }
+	void updateTestMotorPower(int value) { updateMotorPower(value); }
+	void updateTestShowError(bool value) { updateShowError(value); }
+	void updateTestErrorMessage(const QString &value) { updateErrorMessage(value); }
+	// End of test-only setters
+	// Expose internal state for testing
+	void testOnReadyRead() { onReadyRead(); }
+#endif
 
 public slots:
     void connectToServer();
@@ -53,18 +81,6 @@ public slots:
     void reconnect();
     void dismissError();
     
-    // Send methods - allows client to send data to server
-    void sendSpeedLimit(int value);
-    void sendBatteryLevel(int value);
-    void sendBatteryRange(int value);
-    void sendMotorActive(bool value);
-    void sendMotorPower(int value);
-    void sendTemperature(double value);
-    void sendTotalDistance(double value);
-    void sendShowError(bool value);
-    void sendErrorMessage(const QString &value);
-    void sendAllData();
-
 signals:
     void speedChanged();
     void speedLimitChanged();
@@ -101,8 +117,6 @@ private:
     void updateMotorPower(int value);
     void updateTemperature(double value);
     void updateTotalDistance(double value);
-    void setDistanceUnit(const QString &unit);
-    void setTemperatureUnit(const QString &unit);
     void updateShowError(bool value);
     void updateErrorMessage(const QString &value);
     

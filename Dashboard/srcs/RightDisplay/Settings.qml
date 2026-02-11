@@ -99,10 +99,7 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
 
                 onToggled: {
-                    // Send cruise control state to server
                 }
-                // You can add a custom field for cruise control
-                // CarData.sendCruiseControl(checked)
             }
         }
     }
