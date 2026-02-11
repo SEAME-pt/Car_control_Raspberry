@@ -20,8 +20,19 @@ void	manualLoop(t_carControl *carControl) {
 		}
 
 		if (value == START_BUTTON) {
-			std::cout << "Initiating graceful shutdown..." << std::endl;
-			g_running.store(false);
+			auto t_start = std::chrono::high_resolution_clock::now();
+    		auto micros = std::chrono::duration_cast<std::chrono::microseconds>(t_start.time_since_epoch()).count();
+    
+    		// Log to file
+    		FILE* log = fopen("/home/cereais/workspace/seame/Car_control_Raspberry/latency_test.log", "a");
+    		if (log) {
+        		fprintf(log, "BUTTON_PRESS,%lld\n", (long long)micros);
+        		fclose(log);
+    		} else
+				std::cout << "Not possible" << std::endl;
+
+    		std::cout << "Initiating graceful shutdown..." << std::endl;
+    		g_running.store(false);
 		} else if (value == A_BUTTON) {
 			CANProtocol::sendEmergencyBrake(*carControl->can, true);
 			std::this_thread::sleep_for(std::chrono::milliseconds(500));
