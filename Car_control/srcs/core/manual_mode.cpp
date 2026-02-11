@@ -24,7 +24,7 @@ void	manualLoop(t_carControl *carControl) {
     		auto micros = std::chrono::duration_cast<std::chrono::microseconds>(t_start.time_since_epoch()).count();
 
     		// Log to file
-    		FILE* log = fopen("/Car_control_Raspberry/latency_test.log", "a");
+    		FILE* log = fopen("latency_test.log", "a");
     		if (log) {
         		fprintf(log, "BUTTON_PRESS,%lld\n", (long long)micros);
         		fclose(log);
