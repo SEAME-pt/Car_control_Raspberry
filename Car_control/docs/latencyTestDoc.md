@@ -13,7 +13,7 @@ $ ./tests/latencyTest/emergencyBreakLatencyTest.log
 
 ### Timestamp Code
 
-As stated in the summary, the purpose is to test the latency of the emergency brake. This is a feature that may be triggered multiple times throughout the project. With that in mind, the emergency brake event chosen for this test is when the user presses the START_BUTTOM on the joystick. This ensures that the full execution path is measured to better verify system reliability.
+As stated in the summary, the purpose is to test the latency of the emergency brake. This is a feature that may be triggered multiple times throughout the project. With that in mind, the emergency brake event chosen for this test is when the user presses the START_BUTTON on the joystick. This ensures that the full execution path is measured to better verify system reliability.
 
 You can start by checking the manual_code.cpp file and locating the START_BUTTON verification:
 
