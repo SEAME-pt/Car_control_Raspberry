@@ -3,7 +3,7 @@
 #include "CANController.hpp"
 #include "CANProtocol.hpp"
 #include "Joystick.hpp"
-#include "../srcs/communication/CarDataCommunication.hpp"
+#include "CarDataCommunication.hpp"
 
 #include <atomic>
 #include <csignal>
@@ -209,6 +209,17 @@ bool	getSpeedData(t_CANReceiver* receiver, t_speedData* data, bool pop = true);
  * @return true if data available, false if queue empty
  */
 bool	getBatteryData(t_CANReceiver* receiver, t_batteryData* data, bool pop = true);
+
+/**
+ * @brief Qt data stream thread function.
+ * 
+ * @param carControl Pointer to car control structure
+ * @param canReceiver Pointer to CAN receiver structure
+ * @param argc Argument count
+ * @param argv Argument values
+ */
+
+void	qDataStreamThread(t_carControl* carControl, t_CANReceiver* canReceiver, int argc, char *argv[]);
 
 /**
  * @brief Global atomic flag controlling main loops.

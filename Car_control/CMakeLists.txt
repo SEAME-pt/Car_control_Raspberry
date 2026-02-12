@@ -36,6 +36,7 @@ set(SOURCES
 	#core
     srcs/core/autonomous_mode.cpp
     srcs/core/manual_mode.cpp
+	srcs/core/monitoring_thread.cpp
     #controller
     srcs/controller/Joystick.cpp
     #can
@@ -43,8 +44,8 @@ set(SOURCES
     srcs/can/CANController.cpp
     #communication
     srcs/communication/CarDataCommunication.cpp
-    srcs/communication/CarDataCommunication.hpp
-	srcs/core/monitoring_thread.cpp
+    srcs/communication/qDataStream.cpp
+    include/CarDataCommunication.hpp
 	#init
     srcs/init/init_can.cpp
     srcs/init/init.cpp
