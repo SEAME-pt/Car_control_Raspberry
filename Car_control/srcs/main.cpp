@@ -40,16 +40,22 @@ void	qDataStreamThread(t_carControl* carControl, t_CANReceiver* canReceiver, int
 		[]() { qDebug() << "Client disconnected from server"; });
 
 	int counter = 0;
+	batteryData.percentage = 0;
+	batteryData.voltage = 0;
+	speedData.rpm = 0;
+	speedData.speedMps = 0;
 	while (g_running.load()) {
 		// Process Qt events (handles connections, signals, etc)
 		carControl->app->processEvents();
 		
 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
-		carControl->comm->updateSpeed(getSpeedData(canReceiver, &speedData, false) ? speedData.speed : 0);
-		carControl->comm->updateBatteryLevel(getBatteryData(canReceiver, &batteryData, false) ? batteryData.percentage : 100);
+		carControl->comm->updateSpeed(getSpeedData(canReceiver, &speedData, false) ? speedData.rpm : 0);
+		carControl->comm->updateBatteryLevel(getBatteryData(canReceiver, &batteryData, false) ? batteryData.percentage : 80);
 		// Immediately send updated data
 		carControl->comm->sendData();
 		qDebug() << "Updated data # " << batteryData.percentage << "%, Voltage: " << batteryData.voltage << "V";
+		qDebug() << "Updated data # " << speedData.speedMps << " m/s, RPM: " << speedData.rpm;
+
 		counter++;
 	}
 
@@ -86,7 +92,7 @@ int	main(int argc, char *argv[]) {
 
     if (monitorThread.joinable())
         monitorThread.join();
-	/*
+	
 	try {
 		if (!carControl.manual) {
 			std::cout << "Autonomous mode chosed, initiating ai..." << std::endl;
@@ -106,6 +112,4 @@ int	main(int argc, char *argv[]) {
 		return (1);
 	}
 	std::cout << "Emergency brake sent, exiting..." << std::endl;
-	return app.exec();
-	*/
 }
