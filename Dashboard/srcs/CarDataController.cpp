@@ -127,11 +127,6 @@ void CarDataController::disconnectFromServer() {
     }
 }
 
-void CarDataController::reconnect() {
-    disconnectFromServer();
-    QTimer::singleShot(1000, this, &CarDataController::connectToServer);
-}
-
 void CarDataController::onConnected() {
     m_isConnected = true;
     m_reconnectTimer->stop();
@@ -202,11 +197,6 @@ void CarDataController::onReadyRead() {
             break;
         }
     }
-}
-
-void CarDataController::parseMessage(const QString &message) {
-    // Deprecated - now using QDataStream
-    Q_UNUSED(message);
 }
 
 void CarDataController::onError(QAbstractSocket::SocketError error) {

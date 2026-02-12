@@ -61,6 +61,8 @@ set(TEST_SOURCES
 set(TEST_FILES
     test_CarDataController.cpp
     test_ServerCommunication.cpp
+	test_CoverArtProvider.cpp
+	test_dashboard.cpp
 )
 
 # Create test executable
@@ -129,7 +131,7 @@ if(ENABLE_COVERAGE)
         COMMAND ${LCOV_EXEC} --remove coverage.info '/usr/*' '*/tests/*' --output-file coverage_filtered.info
         COMMAND ${GENHTML_EXEC} coverage_filtered.info --output-directory coverage_html --quiet
         COMMAND ${CMAKE_COMMAND} -E echo "✅ Coverage report generated: coverage_html/index.html"
-    	COMMAND xdg-open coverage_html/index.html
+    	#COMMAND xdg-open coverage_html/index.html
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         DEPENDS tests
         COMMENT "Generating coverage report..."

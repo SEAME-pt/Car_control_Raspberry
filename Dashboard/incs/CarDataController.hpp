@@ -73,12 +73,12 @@ public:
 	// End of test-only setters
 	// Expose internal state for testing
 	void testOnReadyRead() { onReadyRead(); }
+	void testAttemptReconnect() { attemptReconnect(); }
 #endif
 
 public slots:
     void connectToServer();
     void disconnectFromServer();
-    void reconnect();
     void dismissError();
     
 signals:
@@ -107,11 +107,9 @@ private slots:
     void attemptReconnect();
 
 private:
-    void parseMessage(const QString &message);
     void updateSpeed(int value);
     void updateSpeedLimit(int value);
     void updateBatteryLevel(int value);
-    void updateBatteryVoltage(int value);
     void updateBatteryRange(int value);
     void updateMotorActive(bool value);
     void updateMotorPower(int value);
