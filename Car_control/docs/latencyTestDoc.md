@@ -69,15 +69,73 @@ Expected Output:
 ===========================
 Latency Analysis
 ===========================
-Total measurements: 18
-Minimum latency:   47 μs (0,047 ms)
-Maximum latency:   85 μs (0,085 ms)
-Average latency:   60 μs (0,061 ms)
+Total measurements: x
+Minimum latency:   x μs (x,x ms)
+Maximum latency:   x μs (x,x ms)
+Average latency:   x μs (x,x ms)
 ```
 
 All set. Just don’t forget to document here any new latency improvements (or regressions :O ) in future updates.
 
 # Practical latency updates
 
+### Test 1
 This first test represents the latency after the first stable version of the program, without careful attention to latency efficiency.
 
+```shell
+Latency  1:    266 μs (  0,266 ms)
+Latency  2:    169 μs (  0,169 ms)
+Latency  3:    182 μs (  0,182 ms)
+Latency  4:    162 μs (  0,162 ms)
+Latency  5:    161 μs (  0,161 ms)
+Latency  6:    178 μs (  0,178 ms)
+Latency  7:    169 μs (  0,169 ms)
+Latency  8:    210 μs (  0,210 ms)
+Latency  9:    182 μs (  0,182 ms)
+Latency 10:    105 μs (  0,105 ms)
+Latency 11:    182 μs (  0,182 ms)
+Latency 12:    169 μs (  0,169 ms)
+Latency 13:    108 μs (  0,108 ms)
+
+===========================
+Latency Analysis
+===========================
+Total measurements: 13
+Minimum latency:   105 μs (0,105 ms)
+Maximum latency:   266 μs (0,266 ms)
+Average latency:   172 μs (0,173 ms)
+===========================
+```
+
+### Test2
+
+This test represents a program state where efficiency was a priority.
+To achieve the goal of reducing emergency brake latency, the threading model was redesigned to remove responsibilities from the main thread and better distribute them across worker threads. This is the result:
+
+```shell
+Latency  1:     69 μs (  0,069 ms)
+Latency  2:     50 μs (  0,050 ms)
+Latency  3:     64 μs (  0,064 ms)
+Latency  4:     72 μs (  0,072 ms)
+Latency  5:     48 μs (  0,048 ms)
+Latency  6:     52 μs (  0,052 ms)
+Latency  7:     71 μs (  0,071 ms)
+Latency  8:     59 μs (  0,059 ms)
+Latency  9:     80 μs (  0,080 ms)
+Latency 10:     62 μs (  0,062 ms)
+Latency 11:     74 μs (  0,074 ms)
+Latency 12:     47 μs (  0,047 ms)
+Latency 13:     61 μs (  0,061 ms)
+Latency 14:     85 μs (  0,085 ms)
+Latency 15:     48 μs (  0,048 ms)
+Latency 16:     52 μs (  0,052 ms)
+Latency 17:     48 μs (  0,048 ms)
+
+===========================
+Latency Analysis
+===========================
+Total measurements: 17
+Minimum latency:   47 μs (0,047 ms)
+Maximum latency:   85 μs (0,085 ms)
+Average latency:   60 μs (0,061 ms)
+```

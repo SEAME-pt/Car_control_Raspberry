@@ -27,7 +27,6 @@ void	manualLoop(t_carControl *carControl) {
     		auto t_after = std::chrono::high_resolution_clock::now();
     		auto latency = std::chrono::duration_cast<std::chrono::microseconds>(t_after - t_before).count();
     
-    		// Log DEPOIS
     		FILE* log = fopen("../tests/latencyTest/emergencyBreakLatencyTest.log", "a");
     		if (log) {
         		fprintf(log, "LATENCY,%lld\n", (long long)latency);
