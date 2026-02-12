@@ -8,7 +8,6 @@ void	manualLoop(t_carControl *carControl) {
 
 	while (g_running.load() && carControl->controller) {
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(7));
 		int		value 		= carControl->controller->readPress();
 		int16_t	steering	= carControl->controller->getAbs(ABS_Z);
 		int16_t	throttle	= carControl->controller->getAbs(ABS_Y);
@@ -20,23 +19,23 @@ void	manualLoop(t_carControl *carControl) {
 		}
 
 		if (value == START_BUTTON) {
-			auto t_start = std::chrono::high_resolution_clock::now();
-    		auto micros = std::chrono::duration_cast<std::chrono::microseconds>(t_start.time_since_epoch()).count();
 
-    		// Log to file
-    		FILE* log = fopen("latency_test1.log", "a");
+			auto t_before = std::chrono::high_resolution_clock::now();
+
+    		CANProtocol::sendEmergencyBrake(*carControl->can, true);
+    
+    		auto t_after = std::chrono::high_resolution_clock::now();
+    		auto latency = std::chrono::duration_cast<std::chrono::microseconds>(t_after - t_before).count();
+    
+    		// Log DEPOIS
+    		FILE* log = fopen("../tests/latencyTest/emergencyBreakLatencyTest.log", "a");
     		if (log) {
-        		fprintf(log, "BUTTON_PRESS,%lld\n", (long long)micros);
+        		fprintf(log, "LATENCY,%lld\n", (long long)latency);
         		fclose(log);
-    		} else
-				std::cout << "Not possible" << std::endl;
-
-    		std::cout << "Initiating graceful shutdown..." << std::endl;
+    		}
+    
     		g_running.store(false);
-		} else if (value == A_BUTTON) {
-			CANProtocol::sendEmergencyBrake(*carControl->can, true);
-			std::this_thread::sleep_for(std::chrono::milliseconds(500));
-			continue ;
+    		continue;
 		}
 
 		stableValues(&steering, &throttle);

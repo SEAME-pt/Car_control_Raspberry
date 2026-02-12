@@ -92,15 +92,14 @@ int	can_send_frame(int socket, uint16_t can_id,
 	frame.can_id = can_id;
 
 	if (can_id == 0x100) {  // Only log emergency brake
+		FILE* log = fopen("../tests/latencyTest/emergencyBreakLatencyTest.log", "a");
     	struct timeval tv;
     	gettimeofday(&tv, NULL);
     	long long t_write = tv.tv_sec * 1000000LL + tv.tv_usec;
 
-    	FILE* log = fopen("latency_test1.log", "a");
-    	if (log) {
-        	fprintf(log, "CAN_WRITE,0x%X,%lld\n", can_id, t_write);
-        	fclose(log);
-    	}
+        fprintf(log, "CAN_WRITE,0x%X,%lld\n", can_id, t_write);
+		if (log)
+			fclose(log);
 	}
 
 	if (write(socket, &frame, sizeof(struct can_frame)) < 0) {
@@ -109,6 +108,7 @@ int	can_send_frame(int socket, uint16_t can_id,
 	}
 	return (0);
 }
+
 
 // CAN_FD (64 bytes)
 int	can_send_frame_fd(int socket, uint16_t can_id, 
