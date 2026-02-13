@@ -1,5 +1,8 @@
 #include "carControl.h"
 
+// Global variable to track STM32 connection status
+std::atomic<bool> g_stm32ConnectionLost(false);
+
 void monitoringThread(t_CANReceiver* receiver) {
 
 	constexpr auto STM32_TIMEOUT = std::chrono::milliseconds(600);
@@ -23,6 +26,7 @@ void monitoringThread(t_CANReceiver* receiver) {
 				if (!firstSpeedReceived) {
 					firstSpeedReceived = true;
 					stm32Alive = true;
+					g_stm32ConnectionLost.store(false);
 					std::cout << "[MONITORING] Connection stablished...\n";
 				}
 			}
@@ -33,6 +37,7 @@ void monitoringThread(t_CANReceiver* receiver) {
 				if (timeSinceLastSpeed >= STM32_TIMEOUT) {
 					if (stm32Alive) {
 						stm32Alive = false;
+						g_stm32ConnectionLost.store(true);
 						std::cerr << "[MONITORING] STM32 connection lost! No speed data for: "
 						<< std::chrono::duration_cast<std::chrono::milliseconds>(timeSinceLastSpeed).count()
 						<< "ms" << std::endl;

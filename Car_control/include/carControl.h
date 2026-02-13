@@ -211,3 +211,5 @@ bool	getBatteryData(t_CANReceiver* receiver, t_batteryData* data);
  * Set to false to terminate manualLoop or autonomousLoop safely.
  */
 extern std::atomic<bool> g_running;
+
+extern std::atomic<bool> g_stm32ConnectionLost;
