@@ -43,4 +43,5 @@ int	main(int argc, char *argv[]) {
 		return (1);
 	}
 	std::cout << "Emergency brake sent, exiting..." << std::endl;
+	return 0;
 }
