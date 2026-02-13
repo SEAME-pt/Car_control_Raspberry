@@ -14,15 +14,6 @@ int	main(int argc, char *argv[]) {
 	std::thread qtThread(qDataStreamThread, &carControl, &canReceiver, argc, argv);
     std::thread rxThread(canReceiverThread, &canReceiver);
     std::thread monitorThread(monitoringThread, &canReceiver);
-
-	if (qtThread.joinable())
-		qtThread.join();
-
-    if (rxThread.joinable())
-        rxThread.join();
-
-    if (monitorThread.joinable())
-        monitorThread.join();
 	
 	try {
 		if (!carControl.manual) {
@@ -36,6 +27,14 @@ int	main(int argc, char *argv[]) {
 		std::cerr << e.what() << std::endl;
 	}
 
+	if (qtThread.joinable())
+		qtThread.join();
+
+    if (rxThread.joinable())
+        rxThread.join();
+
+    if (monitorThread.joinable())
+        monitorThread.join();
 
 	try {
 		CANProtocol::sendEmergencyBrake(*carControl.can, true);
@@ -44,4 +43,5 @@ int	main(int argc, char *argv[]) {
 	}
 	std::cout << "Emergency brake sent, exiting..." << std::endl;
 	return 0;
+	
 }
