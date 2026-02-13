@@ -1,8 +1,8 @@
 # TEAM1 - Velocity Era
 
-This repository consolidates the most up to date software stack for our autonomous vehicle, Vera, which runs on a Raspberry Pi 5. Currently, the program fully integrates Joystick support, capturing axis values and converting them messages. These values are then transmitted via CAN-FD to the microcontroller, enabling safe and reliable control of Vera’s movement in a safety critical environment.
+This repository consolidates the most up to date software stack for our autonomous vehicle, Vera and, which runs on a Raspberry Pi 5. Currently, the program fully integrates Joystick support, capturing axis values and converting them to messages. These values are then transmitted via CAN-FD to the microcontroller, enabling safe and reliable control of Vera’s movement in a safety critical environment.
 
-Additionally, the program is responsible for running the Qt interface, which displays on the car’s screen the data received from the microcontroller (such as speed sensor readings and motor/servo feedback) also communicated through CAN-FD.
+Additionally, the program is responsible for running the Qt interface, which displays on the car’s screen the data received from the microcontroller (such as speed sensor readings and motor/servo feedback) also communicated through CAN.
 
 ## Overview
 
@@ -12,17 +12,15 @@ Components of this project:
 - Joystick
 
 This platform integrates dependencies like:
-- LIBEVDEV
-- SocketCAN
-- Google Tests
-- gcov
-- lcov
-- doxygen
+- **Car_control**: LIBEVDEV, SocketCAN, Google Tests, gcov, lcov, doxygen
+- **Dashboard**: Qt6/Qt5, QML, Qt Quick Controls, Google Tests
 
 ---
 
 ## File Structure
 
+
+### Car Control
 ```
 Car_control/
 │
@@ -66,26 +64,47 @@ Car_control/
     └── car                              # Executable
 ```
 
----
+### Dashboard
 
-# Build & Run
+```
+Dashboard/
+│
+├── Dashboard.pro                        # Qt project file
+├── qml.qrc                              # QML resource file
+├── send_test_data.py                    # Helper script to send simulated data
+│
+├── incs/                                # Header files
+│   ├── CarDataController.hpp            # Car data controller class
+│   ├── CoverArtProvider.hpp             # Cover art provider for music
+│   ├── Dashboard.hpp                    # Main dashboard class
+│   └── DashboardMacros.hpp              # Dashboard macros and constants
+│
+├── srcs/                                # Source files
+│   ├── main.cpp                         # Main entry point
+│   ├── Dashboard.cpp                    # Main dashboard implementation
+│   ├── CarDataController.cpp            # Car data controller implementation
+│   ├── CoverArtProvider.cpp             # Cover art provider implementation
+│   │
+│   ├── BotRow/                          # Bottom row UI components
+│   ├── CenterDisplay/                   # Center display UI components
+│   ├── ErrorDisplay/                    # Error display UI components
+│   ├── LeftDisplay/                     # Left display UI components
+│   ├── RightDisplay/                    # Right display UI components
+│   └── TopRow/                          # Top row UI components
+│
+├── assets/                              # UI assets (images, etc.)
+├── fonts/                               # Custom fonts
+├── docs/                                # Documentation
+├── tests/                               # Test files
+└── build/                               # Build output (gitignored)
+    ├── Makefile
+    └── dashoard                         # Executable
+
+```
 
 ### 1. Install dependencies
 
-## Intructions to compile and flash
-In order to compile the program and flash the binary into the raspberry Pi 5 (AGL), follow the steps:
-
-```shell
-cd build
-cmake .. -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ -DBUILD_TESTS=OFF
-make
-scp car root@<RaspPi5>:/root/
-```
-
-## Instructions to run the program
-
-Is this your first time running the program? If so, check out how to properly install all dependencies:
-
+#### Car_control Dependencies
 ```shell
 cd scripts
 chmod +x install_lcov.sh
@@ -97,14 +116,20 @@ chmod +x install_doxygen.sh
 ./install_GoogleTest.sh
 ./install_libevdev.sh
 ./install_doxygen.sh
+```
 
-cd .. && mkdir build && cd build
-cmake ..
-make
+#### Dashboard Dependencies
+```shell
+# Qt6 (recommended)
+sudo apt-get install qt6-base-dev qt6-declarative-dev qt6-quickcontrols2-dev
+
+# Google Test (for testing, already installed by scripts above)
 ```
 
 # Compile For Raspberri Pi 5 (AGL)
 
+
+### Car control
 ```shell
 cd build
 cmake .. -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ -DBUILD_TESTS=OFF
@@ -112,7 +137,29 @@ make
 scp car root@<RASPBERRY_IP>:/root/
 ```
 
+### Dashboard
+
+```bash
+cd Dashboard
+mkdir -p build
+cd build
+
+# Source your AGL SDK environment (adjust path to your SDK installation)
+source /opt/agl-sdk/20.90.0-aarch64/environment-setup-aarch64-agl-linux
+
+qmake6 ../Dashboard.pro CONFIG+=release
+make
+scp dashboard root@<RASPBERRY_IP>:/root/
+```
+
+**Note**: Adjust the `source` path to match your AGL SDK installation location and version.
+
+Is this your first time running the program? If so, check out how to properly install all dependencies:
+
 # Run the program
+
+
+## Car Conrol
 
 ```shell
 cd build
@@ -136,7 +183,17 @@ candump vcan0
 sudo ./car --can=vcan0
 ```
 
+## Dashboard
+
+```shell
+cd build
+qmake6 .. && make
+./dashboard
+```
+
 # Testing & Coverage
+
+## Car Control
 
 ```shell
 cd build
@@ -157,7 +214,24 @@ cmake -DENABLE_COVERAGE=ON -DSKIP_HARDWARE_TESTS=ON ..
 cmake --build . --target coverage
 ```
 
----
+## Dashboard
+
+```bash
+cd Dashboard/tests
+mkdir -p build
+cd build
+
+# Build tests
+cmake .. -DENABLE_COVERAGE=ON
+cmake --build .
+
+# Run tests
+ctest --output-on-failure --verbose
+
+# Generate coverage report
+cmake --build . --target coverage
+# Coverage report will be in: coverage_html/index.html
+```---
 
 # Documentation (Doxygen)
 
@@ -178,6 +252,15 @@ doxygen Doxyfile
 ```shell
 xdg-open docs/html/index.html
 ```
+
+## Dashboard Documentation
+
+The Dashboard includes additional documentation:
+
+- **SOCKET_DATA.md**: Socket communication protocols and data formats
+- **ALBUM_ART.md**: Cover art handling and image processing
+
+Located in `Dashboard/docs/`
 
 # Note
 Root permissions are required due to CAN socket initialization and, when testing, to properly create a virtual interface that simulates a CAN transceiver inside the development machine.
