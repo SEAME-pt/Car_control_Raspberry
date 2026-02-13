@@ -8,7 +8,6 @@ void	manualLoop(t_carControl *carControl) {
 
 	while (g_running.load() && carControl->controller) {
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(7));
 		int		value 		= carControl->controller->readPress();
 		int16_t	steering	= carControl->controller->getAbs(ABS_Z);
 		int16_t	throttle	= carControl->controller->getAbs(ABS_Y);
