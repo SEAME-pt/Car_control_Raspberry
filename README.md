@@ -97,7 +97,7 @@ Dashboard/
 ├── tests/                               # Test files
 └── build/                               # Build output (gitignored)
     ├── Makefile
-    └── dashoard                         # Executable
+    └── dashboard                         # Executable
 
 ```
 
@@ -172,7 +172,7 @@ Is this your first time running the program? If so, check out how to properly in
 # Run the program
 
 
-## Car Conrol
+## Car Control
 
 ```shell
 cd build
