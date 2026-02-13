@@ -30,14 +30,14 @@ t_carControl	initCarControl(int argc, char *argv[]) {
 	}
 
 	// Joystick init
-	//try {
-	//	if (carControl.manual)
-	//		carControl.controller = std::make_unique<Joystick>();
-	//} catch (const std::exception& e) {
-	//	std::cerr << e.what() << std::endl;
-	//	carControl.exit = true;
-	//	return (carControl);
-	//}
+	try {
+		if (carControl.manual)
+			carControl.controller = std::make_unique<Joystick>();
+	} catch (const std::exception& e) {
+		std::cerr << e.what() << std::endl;
+		carControl.exit = true;
+		return (carControl);
+	}
 
 	// Defer Qt application and communication initialization to the Qt thread
 	carControl.app = nullptr;
