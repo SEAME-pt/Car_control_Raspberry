@@ -24,14 +24,14 @@ void	qDataStreamThread(t_carControl* carControl, t_CANReceiver* canReceiver, int
 	// Connect signals now that comm exists
 	QObject::connect(carControl->comm.get(), &CarDataCommunication::fieldReceived,
 		[](const QString &fieldName, const QVariant &value) {
-			qDebug() << "Received field:" << fieldName << "=" << value;
+			// Debug: Received field logging removed
 		});
 
 	QObject::connect(carControl->comm.get(), &CarDataCommunication::connected,
-		[]() { qDebug() << "Client connected to server"; });
+		[]() { /* Client connected to server */ });
 
 	QObject::connect(carControl->comm.get(), &CarDataCommunication::disconnected,
-		[]() { qDebug() << "Client disconnected from server"; });
+		[]() { /* Client disconnected from server */ });
 
 	int counter = 0;
 	batteryData.percentage = 0;
@@ -47,9 +47,6 @@ void	qDataStreamThread(t_carControl* carControl, t_CANReceiver* canReceiver, int
 		carControl->comm->updateBatteryLevel(getBatteryData(canReceiver, &batteryData, false) ? batteryData.percentage : 80);
 		// Immediately send updated data
 		carControl->comm->sendData();
-		qDebug() << "Updated data # " << batteryData.percentage << "%, Voltage: " << batteryData.voltage << "V";
-		qDebug() << "Updated data # " << speedData.speedMps << " m/s, RPM: " << speedData.rpm;
-
 		counter++;
 	}
 

@@ -18,15 +18,11 @@ void	canReceiverThread(t_CANReceiver* receiver) {
 				// Speed sensor
 				case CANRECEIVERID::SPEEDRPMSTM32: {
 					if (rx.can_dlc >= 1) {
-						std::cout << "Received SPEEDRPMSTM32 frame inside" << std::endl;
 						t_speedData speedData;
 						speedData.rpm = (rx.data[0] << 8) | rx.data[1];
 
 						std::lock_guard<std::mutex> lock(receiver->speedMutex);
 						receiver->speedQueue.push(speedData);
-						std::cout << "Received RPM: " << speedData.rpm << std::endl;
-						//comm->updateSpeed(speedData.rpm);
-						//comm->sendData();
 						// Limit the size to a max of only 10 entries
 						if (receiver->speedQueue.size() > 10)
 							receiver->speedQueue.pop();
@@ -43,8 +39,6 @@ void	canReceiverThread(t_CANReceiver* receiver) {
 
 						std::lock_guard<std::mutex> lock(receiver->batteryMutex);
 						receiver->batteryQueue.push(batteryData);
-						std::cout << "Received Battery: " << (int) batteryData.percentage << "%, Voltage: " << batteryData.voltage << "V" << std::endl;
-
 
 						if (receiver->batteryQueue.size() > 5)
 							receiver->batteryQueue.pop();
