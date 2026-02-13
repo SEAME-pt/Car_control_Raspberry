@@ -293,7 +293,7 @@ if (in.status() != QDataStream::Ok) {
 
 ### Test Data Script
 
-A Python test script is available at: `Dashboard/send_test_data.py`
+A Python test script is available at: `scripts/send_test_data.py`
 
 This script can simulate the Car_control sender for testing purposes.
 

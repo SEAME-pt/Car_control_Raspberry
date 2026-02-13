@@ -71,7 +71,6 @@ Dashboard/
 │
 ├── Dashboard.pro                        # Qt project file
 ├── qml.qrc                              # QML resource file
-├── send_test_data.py                    # Helper script to send simulated data
 │
 ├── incs/                                # Header files
 │   ├── CarDataController.hpp            # Car data controller class
@@ -100,6 +99,20 @@ Dashboard/
     ├── Makefile
     └── dashoard                         # Executable
 
+```
+
+```
+├── scripts/                                 # Installation and utility scripts
+│   ├── install_doxygen.sh
+│   ├── install_GoogleTest.sh
+│   ├── install_lcov.sh
+│   ├── install_libevdev.sh
+│   └── send_test_data.py                    # Helper script to send simulated data to Dashboard
+│
+├── CI_CD.yml                                # CI/CD configuration
+├── README.md                                # This file
+├── socketCAN.md                             # SocketCAN documentation
+└── Doxyfile                                 # Doxygen configuration
 ```
 
 ### 1. Install dependencies
